@@ -25,4 +25,5 @@ internal data class WorkbenchState(
     val closeConfirmTab: WorkbenchTab? = null,
     val publishConfirmVisible: Boolean = false,
     val syncError: Boolean = false,
+    val loading: Boolean = true,
 ) : State

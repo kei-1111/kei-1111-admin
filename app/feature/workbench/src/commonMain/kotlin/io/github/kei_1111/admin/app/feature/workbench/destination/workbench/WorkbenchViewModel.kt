@@ -18,8 +18,6 @@ import io.github.kei_1111.admin.app.core.domain.usecase.SaveWorksDraftUseCase
 import io.github.kei_1111.admin.app.core.mvi.MviViewModel
 import io.github.kei_1111.admin.app.feature.workbench.model.AdminNode
 import io.github.kei_1111.admin.app.feature.workbench.model.WorkbenchTab
-import io.github.kei_1111.admin.app.feature.workbench.preview.PreviewProfile
-import io.github.kei_1111.admin.app.feature.workbench.preview.PreviewWorks
 import io.github.kei_1111.admin.shared.model.ContentStatus
 import io.github.kei_1111.admin.shared.model.Work
 import io.github.kei_1111.admin.shared.model.WorksContent
@@ -50,11 +48,7 @@ internal class WorkbenchViewModel(
         }
     }
 
-    // フィクスチャはサインイン前・API 不通時のフォールバック表示。成功ロードで置き換わる
-    override fun createInitialViewModelState() = WorkbenchViewModelState(
-        savedWorks = PreviewWorks,
-        savedProfile = PreviewProfile,
-    )
+    override fun createInitialViewModelState() = WorkbenchViewModelState()
 
     override fun createInitialState() = createInitialViewModelState().toState()
 
@@ -123,6 +117,7 @@ internal class WorkbenchViewModel(
                 savedProfile = profile ?: savedProfile,
                 lastDeploy = meta?.lastPublishedAt?.takeIf { it.isNotEmpty() }?.toDeployDisplay() ?: lastDeploy,
                 syncError = works == null || profile == null,
+                loading = false,
             )
         }
     }
@@ -170,7 +165,7 @@ private fun WorkbenchViewModelState.selectNode(node: AdminNode): WorkbenchViewMo
         is AdminNode.WorkItem -> WorkbenchTab.WorkEditor(node.workId)
         is AdminNode.Profile -> WorkbenchTab.ProfileEditor
         // 未実装ノードはタブを開かず選択だけ反映する
-        is AdminNode.Licence, is AdminNode.DeployHistory, is AdminNode.Settings -> null
+        is AdminNode.DeployHistory, is AdminNode.Settings -> null
     }
     return if (tab == null) {
         copy(selectedNode = node)

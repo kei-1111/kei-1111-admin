@@ -88,13 +88,6 @@ internal fun NavTree(
             showDraftDot = state.profileUnsaved,
             onClick = { onIntent(WorkbenchIntent.SelectNode(AdminNode.Profile)) },
         )
-        TreeRow(
-            label = "Licence",
-            icon = KeiTheme.icons.markdown,
-            selected = state.selectedNode == AdminNode.Licence,
-            enabled = false,
-            onClick = { onIntent(WorkbenchIntent.SelectNode(AdminNode.Licence)) },
-        )
         Spacer(modifier = Modifier.height(10.dp))
         TreeSectionLabel("SYSTEM")
         TreeRow(

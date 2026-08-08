@@ -60,6 +60,14 @@ internal fun WorksListPage(
             modifier = Modifier.fillMaxWidth(),
         )
         Spacer(modifier = Modifier.height(12.dp))
+        if (state.loading) {
+            Text(
+                text = "読み込み中...",
+                style = KeiTheme.typography.cardJp.copy(fontSize = 12.sp, color = KeiTheme.colors.muted),
+                modifier = Modifier.padding(10.dp),
+            )
+            return@Column
+        }
         ColumnHeaders(modifier = Modifier.fillMaxWidth())
         Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
             visibleWorks.forEach { work ->

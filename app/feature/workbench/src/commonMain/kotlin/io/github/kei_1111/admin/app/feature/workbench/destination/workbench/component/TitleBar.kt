@@ -2,9 +2,9 @@
 
 package io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -15,12 +15,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import io.github.kei_1111.admin.app.core.designsystem.theme.KeiIcon
 import io.github.kei_1111.admin.app.core.designsystem.theme.KeiTheme
+import io.github.kei_1111.admin.app.core.designsystem.theme.ProfileIconImage
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.theme.WorkbenchDimensions
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 internal fun TitleBar(
@@ -86,23 +88,14 @@ private fun ProjectPill(modifier: Modifier = Modifier) {
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        // プロジェクト識別色のタイル(実 AS のプロジェクトアイコンに相当)
-        Box(
+        Image(
+            painter = painterResource(ProfileIconImage),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(WorkbenchDimensions.TitleBarIconSize)
-                .clip(KeiTheme.shapes.chip)
-                .background(colors.androidGreen),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                text = "K",
-                style = KeiTheme.typography.chrome.copy(
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = colors.desk,
-                ),
-            )
-        }
+                .clip(KeiTheme.shapes.chip),
+        )
         Text(
             text = "kei-1111-admin",
             style = KeiTheme.typography.chrome.copy(

@@ -39,6 +39,7 @@ internal fun PreviewPane(
     componentName: String,
     contentFingerprint: Any?,
     modifier: Modifier = Modifier,
+    content: (@Composable () -> Unit)? = null,
 ) {
     val colors = KeiTheme.colors
     var upToDate by remember { mutableStateOf(true) }
@@ -81,28 +82,34 @@ internal fun PreviewPane(
             }
         }
         Spacer(modifier = Modifier.padding(top = 8.dp))
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .clip(KeiTheme.shapes.chip)
-                .dashedBorder(),
-            contentAlignment = Alignment.Center,
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(6.dp),
+        if (content != null) {
+            Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                content()
+            }
+        } else {
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .clip(KeiTheme.shapes.chip)
+                    .dashedBorder(),
+                contentAlignment = Alignment.Center,
             ) {
-                Text(
-                    text = "本番コンポーネント接続待ち",
-                    style = KeiTheme.typography.cardJp.copy(fontSize = 12.sp, color = colors.mutedHigh),
-                    textAlign = TextAlign.Center,
-                )
-                Text(
-                    text = "$componentName は本体サイトの\n共有モジュール化後に実物を埋め込む",
-                    style = KeiTheme.typography.cardJp.copy(fontSize = 10.sp, color = colors.muted),
-                    textAlign = TextAlign.Center,
-                )
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    Text(
+                        text = "本番コンポーネント接続待ち",
+                        style = KeiTheme.typography.cardJp.copy(fontSize = 12.sp, color = colors.mutedHigh),
+                        textAlign = TextAlign.Center,
+                    )
+                    Text(
+                        text = "$componentName は本体サイトの\n共有モジュール化後に実物を埋め込む",
+                        style = KeiTheme.typography.cardJp.copy(fontSize = 10.sp, color = colors.muted),
+                        textAlign = TextAlign.Center,
+                    )
+                }
             }
         }
     }

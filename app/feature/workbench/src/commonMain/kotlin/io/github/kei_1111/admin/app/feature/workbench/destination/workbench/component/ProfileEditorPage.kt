@@ -62,7 +62,9 @@ internal fun ProfileEditorPage(
             modifier = Modifier
                 .width(WorkbenchDimensions.PreviewWidth)
                 .fillMaxSize(),
-        )
+        ) {
+            ProfilePreviewCard(profile = profile)
+        }
     }
 }
 
