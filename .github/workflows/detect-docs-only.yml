@@ -1,0 +1,53 @@
+name: Detect Docs-Only Change
+
+on:
+  workflow_call:
+    outputs:
+      code:
+        description: "false のときのみドキュメントのみの変更。true は実コード変更・判定不能によるフォールバックの両方を含む"
+        value: ${{ jobs.detect.outputs.code }}
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+    steps:
+      - name: Check changed files
+        id: filter
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          EVENT_NAME: ${{ github.event_name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.event.after }}
+        run: |
+          set -uo pipefail
+
+          # 変更ファイル一覧を取得する。CI(pull_request)は PR の files API、CD(push)は
+          # before...after の compare API。どちらも --paginate で 300 ファイル超の打ち切りを避ける。
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            files=$(gh api "repos/$REPO/pulls/$PR_NUMBER/files" --paginate -q '.[].filename' 2>/dev/null || true)
+          else
+            files=$(gh api "repos/$REPO/compare/$BEFORE...$AFTER" --paginate -q '.files[].filename' 2>/dev/null || true)
+          fi
+
+          # 取得失敗・空リストは判定できないので常に fail open(code=true = 通常実行)とし、
+          # 不確実な状況でサイレントにスキップしない。
+          if [ -z "${files:-}" ]; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # 全ファイルがドキュメント(*.md、docs/、.claude/)のときのみ docs-only。
+          code=false
+          while IFS= read -r f; do
+            case "$f" in
+              *.md|docs/*|.claude/*) ;;
+              *) code=true; break ;;
+            esac
+          done <<< "$files"
+
+          echo "code=$code" >> "$GITHUB_OUTPUT"

@@ -23,7 +23,11 @@ Same conventions as kei-1111.github.io, trimmed to what exists in this repositor
 
 ## CI/CD
 
-Not set up yet. Planned: build + test on PR; GitHub Pages deploy for `composeApp` and Cloud Run deploy for `server` on push to `main`, mirroring kei-1111.github.io's workflow structure. Update this section when workflows land.
+Mirrors kei-1111.github.io's structure at this repository's scale (JDK 21 temurin; autoCorrect disabled on CI):
+
+- CI — 5 independent workflows on every PR to `main`: `detekt.yml` (`./gradlew detekt`), `compile-wasm.yml` (`:app:webApp:compileKotlinWasmJs`), `compile-android.yml` (`compileAndroidMain`), `app-test.yml` (the `testAndroidHostTest` tasks of `app:core:common` / `app:core:mvi` / `app:feature:home` — extend the list when a module gains unit tests), `server-test.yml` (`:server:test`).
+- CD — `deploy-app.yml` builds `:app:webApp:wasmJsBrowserDistribution` on push to `main` and deploys it to GitHub Pages. Cloud Run deploy for `server` lands once GCP is set up.
+- Docs-only gate: every gated workflow calls the reusable `detect-docs-only.yml` (PR files API on `pull_request`, `before...after` compare on `push`) and skips the heavy job when every changed file is documentation (`*.md`, `docs/**`, `.claude/**`). Unresolvable cases fail open; the gated jobs run under `!cancelled() && outputs.code != 'false'` so a failed gate also falls open. A skipped-by-`if:` job still satisfies required status checks.
 
 ## Prohibited
 
