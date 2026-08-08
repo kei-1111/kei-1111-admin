@@ -13,6 +13,7 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
     }
+    includeBuild("build-logic")
 }
 
 dependencyResolutionManagement {
@@ -30,7 +31,11 @@ dependencyResolutionManagement {
 
 include(":app:webApp")
 
+include(":app:core:common")
 include(":app:core:designsystem")
+include(":app:core:mvi")
+include(":app:core:navigation")
+include(":app:core:testing")
 
 include(":app:feature:home")
 

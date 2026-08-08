@@ -1,15 +1,10 @@
 plugins {
-    alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.kei1111.detekt)
+    alias(libs.plugins.kei1111.kmp.shared)
     alias(libs.plugins.serialization)
 }
 
 kotlin {
-    jvm()
-    wasmJs {
-        browser()
-    }
-    jvmToolchain(21)
-
     sourceSets {
         commonMain.dependencies {
             implementation(libs.kotlinx.serialization.json)

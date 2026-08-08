@@ -1,14 +1,10 @@
 plugins {
-    alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.composeMultiplatform)
-    alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.kei1111.detekt)
+    alias(libs.plugins.kei1111.kmp.wasm)
+    alias(libs.plugins.kei1111.cmp)
 }
 
 kotlin {
-    wasmJs {
-        browser()
-    }
-
     sourceSets {
         commonMain.dependencies {
             implementation(libs.compose.runtime)
