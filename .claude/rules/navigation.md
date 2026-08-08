@@ -17,7 +17,7 @@ Navigation 3 (`androidx.navigation3`): a single `NavDisplay` + single flat `NavB
 | `navigation/{Feature}NavigationExtensions.kt` | `fun NavBackStack<NavKey>.navigateXxx() = add(Xxx)` extensions. Omit when nothing navigates to the feature's destinations |
 | `navigation/{Feature}Navigation.kt` | `EntryProviderScope<NavKey>.{feature}Entries()` registering the feature's destinations; the `ViewModel` is obtained **inside** the `entry<...> { }` block via `metroViewModel()` — never constructed manually or passed in |
 
-Current example: `app/feature/home` (`Home`, `homeEntries()`).
+Current example: `app/feature/workbench` (`Workbench`, `workbenchEntries()`).
 
 ## AppNavDisplay
 

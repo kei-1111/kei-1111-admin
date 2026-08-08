@@ -1,0 +1,15 @@
+<!-- Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license. -->
+<!-- IntelliJ Platform (plugins/kotlin/base/resources/resources/org/jetbrains/kotlin/idea/icons/expui/kotlin.svg) を Android vector 形式へ変換したもの。一部の色は本サイト向けに調整。 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="16dp"
+    android:height="16dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path
+        android:pathData="M13.3337 12.6314 C13.6699 12.9396 13.4519 13.5 12.9958 13.5 H3 C2.72386 13.5 2.5 13.2761 2.5 13 V3 C2.5 2.72386 2.72386 2.5 3 2.5 H12.9958 C13.4519 2.5 13.6699 3.06044 13.3337 3.36858 L8.68333 7.63142 C8.46715 7.82959 8.46715 8.17041 8.68333 8.36858 L13.3337 12.6314 Z"
+        android:fillColor="#F0E7FB" />
+    <path
+        android:pathData="M2 3 C2 2.44772 2.44771 2 3 2 H12.9958 C13.9079 2 14.3439 3.12089 13.6716 3.73715 L9.0212 8 L13.6716 12.2628 C14.3439 12.8791 13.9079 14 12.9958 14 H3 C2.44771 14 2 13.5523 2 13 V3 Z M12.9958 3 L3 3 V13 H12.9958 L8.34547 8.73715 C7.91311 8.34082 7.9131 7.65918 8.34547 7.26285 L12.9958 3 Z"
+        android:fillColor="#7F52FF"
+        android:fillType="evenOdd" />
+</vector>

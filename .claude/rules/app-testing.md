@@ -36,5 +36,5 @@ Mocking libraries / over-mocking; asserting implementation details instead of ob
 `kotlin-test` + `kotlinx-coroutines-test` — `runTest {}` with `toList()` for finite cold flows; Turbine is deliberately not a dependency. Shared test infrastructure (`ViewModelTestBase`, `startCollecting`) lives in `app:core:testing`, wired into every feature's `commonTest` by `KmpFeaturePlugin`. Tests run on the non-shipped Android target as host tests — local JVM, no emulator, no Robolectric:
 
 ```bash
-./gradlew :app:core:common:testAndroidHostTest :app:core:mvi:testAndroidHostTest :app:feature:home:testAndroidHostTest
+./gradlew :app:core:common:testAndroidHostTest :app:core:mvi:testAndroidHostTest :app:feature:workbench:testAndroidHostTest
 ```

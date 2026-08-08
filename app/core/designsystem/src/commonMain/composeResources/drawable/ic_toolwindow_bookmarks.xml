@@ -1,0 +1,11 @@
+<!-- Copyright 2000-2025 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license. -->
+<!-- IntelliJ Platform (platform/icons/src/expui/toolwindows/bookmarks@20x20_dark.svg) を Android vector 形式へ変換したもの。 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="20dp"
+    android:height="20dp"
+    android:viewportWidth="20"
+    android:viewportHeight="20">
+    <path
+        android:pathData="M15.5 3 C15.5 2.72386 15.2761 2.5 15 2.5 H5 C4.72386 2.5 4.5 2.72386 4.5 3 L4.50037 16.959 L9.06678 13.3262 L9.17127 13.25 C9.70875 12.8931 10.4214 12.9185 10.934 13.3262 L15.5004 16.959 L15.5 3 Z M17.0004 17.9961 C17.0004 18.781 16.1504 19.2403 15.5043 18.8652 L15.3773 18.7793 L10.0004 14.5 L4.62342 18.7793 L4.49646 18.8652 C3.85035 19.2403 3.00037 18.781 3.00037 17.9961 L3 3 C3 1.89543 3.89543 1 5 1 H15 C16.1046 1 17 1.89543 17 3 L17.0004 17.9961 Z"
+        android:fillColor="#CED0D6" />
+</vector>

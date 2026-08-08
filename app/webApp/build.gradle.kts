@@ -33,7 +33,7 @@ kotlin {
             implementation(projects.app.core.common)
             implementation(projects.app.core.designsystem)
             implementation(projects.app.core.navigation)
-            implementation(projects.app.feature.home)
+            implementation(projects.app.feature.workbench)
             implementation(projects.shared.model)
 
             implementation(libs.compose.runtime)

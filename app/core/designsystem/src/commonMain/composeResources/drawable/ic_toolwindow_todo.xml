@@ -1,0 +1,26 @@
+<!-- Copyright 2000-2022 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license. -->
+<!-- IntelliJ Platform (platform/icons/src/expui/toolwindows/todo@20x20_dark.svg) を Android vector 形式へ変換したもの。 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="20dp"
+    android:height="20dp"
+    android:viewportWidth="20"
+    android:viewportHeight="20">
+    <path
+        android:pathData="M3.1 4.7 m-1.1 0 a1.1 1.1 0 1 0 2.2 0 a1.1 1.1 0 1 0 -2.2 0 Z"
+        android:fillColor="#CED0D6" />
+    <path
+        android:pathData="M5.5 4.7 C5.5 4.2858 5.83579 3.95 6.25 3.95 H17.25 C17.6642 3.95 18 4.2858 18 4.7 C18 5.11421 17.6642 5.45 17.25 5.45 H6.25 C5.83579 5.45 5.5 5.11421 5.5 4.7 Z"
+        android:fillColor="#CED0D6" />
+    <path
+        android:pathData="M3.1 10 m-1.1 0 a1.1 1.1 0 1 0 2.2 0 a1.1 1.1 0 1 0 -2.2 0 Z"
+        android:fillColor="#CED0D6" />
+    <path
+        android:pathData="M5.5 10 C5.5 9.58579 5.83579 9.25 6.25 9.25 H17.25 C17.6642 9.25 18 9.58579 18 10 C18 10.4142 17.6642 10.75 17.25 10.75 H6.25 C5.83579 10.75 5.5 10.4142 5.5 10 Z"
+        android:fillColor="#CED0D6" />
+    <path
+        android:pathData="M3.1 15.3 m-1.1 0 a1.1 1.1 0 1 0 2.2 0 a1.1 1.1 0 1 0 -2.2 0 Z"
+        android:fillColor="#CED0D6" />
+    <path
+        android:pathData="M5.5 15.3 C5.5 14.8858 5.83579 14.55 6.25 14.55 H17.25 C17.6642 14.55 18 14.8858 18 15.3 C18 15.7142 17.6642 16.05 17.25 16.05 H6.25 C5.83579 16.05 5.5 15.7142 5.5 15.3 Z"
+        android:fillColor="#CED0D6" />
+</vector>

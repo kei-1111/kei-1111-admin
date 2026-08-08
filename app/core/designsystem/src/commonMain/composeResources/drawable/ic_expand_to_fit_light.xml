@@ -1,0 +1,31 @@
+<!--
+  - Copyright (C) 2025 The Android Open Source Project
+  -
+  - Licensed under the Apache License, Version 2.0 (the "License");
+  - you may not use this file except in compliance with the License.
+  - You may obtain a copy of the License at
+  -
+  -      http://www.apache.org/licenses/LICENSE-2.0
+  -
+  - Unless required by applicable law or agreed to in writing, software
+  - distributed under the License is distributed on an "AS IS" BASIS,
+  - WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  - See the License for the specific language governing permissions and
+  - limitations under the License.
+  -->
+<!-- Android Studio (artwork/resources/studio/icons/layout-editor/toolbar/expand-to-fit.svg) を Android vector 形式へ変換したもの。 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="16dp"
+    android:height="16dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path
+        android:pathData="M 7.5 5.5 H 4.75 a .25 .25 0 0 0 -.25 .25 V 8.5 M 8.5 10.5 h 2.75 a .25 .25 0 0 0 .25 -.25 V 7.5"
+        android:strokeColor="#6C707E"
+        android:strokeWidth="1"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M 12.5 3.5 h -9 a 1 1 0 0 0 -1 1 v 7 a 1 1 0 0 0 1 1 h 9 a 1 1 0 0 0 1 -1 v -7 a 1 1 0 0 0 -1 -1 z"
+        android:strokeColor="#6C707E"
+        android:strokeWidth="1" />
+</vector>

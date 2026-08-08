@@ -7,24 +7,24 @@
 ```mermaid
 flowchart TB
     webApp["app:webApp<br>エントリポイント / DI / Navigation"]
-    home["app:feature:home"]
+    workbench["app:feature:workbench"]
     common["app:core:common"]
-    designsystem["app:core:designsystem"]
+    designsystem["app:core:designsystem<br>KeiTheme (Islands Dark/Light)"]
     mvi["app:core:mvi"]
     navigation["app:core:navigation"]
     model["shared:model"]
     server["server"]
 
-    webApp --> home
+    webApp --> workbench
     webApp --> common
     webApp --> designsystem
     webApp --> navigation
     webApp --> model
-    home --> common
-    home --> designsystem
-    home --> mvi
-    home --> navigation
-    home --> model
+    workbench --> common
+    workbench --> designsystem
+    workbench --> mvi
+    workbench --> navigation
+    workbench --> model
     mvi --> common
     navigation --> designsystem
     server --> model
@@ -36,10 +36,10 @@ flowchart TB
 
 | モジュール | 責務 |
 |---|---|
-| `app:webApp` | エントリポイント。Metro `AppGraph`、`AppNavDisplay`(NavDisplay + back stack)、`AdminTheme` 適用。wasmJs のみ、`binaries.executable()` |
-| `app:feature:home` | ホーム画面。MVI 一式(`destination/home/`)と navigation entries |
+| `app:webApp` | エントリポイント。Metro `AppGraph`、`AppNavDisplay`(NavDisplay + back stack)、`KeiTheme` 適用、Google Sign-In 配線 |
+| `app:feature:workbench` | IDE 風管理画面。共通シェル(タイトルバー/ナビツリー/タブ/ステータスバー)+ Works 一覧 + 作品編集 + Profile 編集の MVI 一式 |
 | `app:core:common` | 独自 `Result<T>` / `asResult()`、キャンセル安全な抑制ヘルパー(`recoverOrElse` / `runBestEffort`)、`InteractionLog`、Dispatcher バインディング |
-| `app:core:designsystem` | `AdminTheme`(現状 Material3 darkColorScheme のラッパー)とテーマトークン |
+| `app:core:designsystem` | kei-1111.github.io から移植した `KeiTheme`(Islands Dark/Light の配色・タイポ・シェイプ・アイコン・フォント) |
 | `app:core:mvi` | `MviViewModel` 基底、`Intent` / `State` / `ViewModelState` マーカー、`MviEffect` composable |
 | `app:core:navigation` | `InlineDialogSceneStrategy`、`ResultEventBus`、遷移アニメーション拡張 |
 | `app:core:testing` | commonTest 用基盤: `ViewModelTestBase`(Main dispatcher 差し替え)、`startCollecting` |

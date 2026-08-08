@@ -1,0 +1,20 @@
+<!-- Copyright 2000-2022 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license. -->
+<!-- IntelliJ Platform (platform/icons/src/expui/image/zoomIn_dark.svg) を Android vector 形式へ変換したもの。 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="16dp"
+    android:height="16dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path
+        android:pathData="M8,4 L8,4 A0.5,0.5 0 0 1 8.5,4.5 L8.5,11.5 A0.5,0.5 0 0 1 8,12 L8,12 A0.5,0.5 0 0 1 7.5,11.5 L7.5,4.5 A0.5,0.5 0 0 1 8,4 Z"
+        android:fillColor="#CED0D6" />
+    <group android:rotation="90" android:pivotX="12" android:pivotY="7.5">
+    <path
+            android:pathData="M12.5,7.5 L12.5,7.5 A0.5,0.5 0 0 1 13,8 L13,15 A0.5,0.5 0 0 1 12.5,15.5 L12.5,15.5 A0.5,0.5 0 0 1 12,15 L12,8 A0.5,0.5 0 0 1 12.5,7.5 Z"
+            android:fillColor="#CED0D6" />
+    </group>
+    <path
+        android:pathData="M1.5,8 a6.5,6.5 0 1 0 13,0 a6.5,6.5 0 1 0 -13,0 Z"
+        android:strokeColor="#CED0D6"
+        android:strokeWidth="1" />
+</vector>

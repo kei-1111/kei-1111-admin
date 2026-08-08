@@ -1,0 +1,16 @@
+<!-- Copyright 2000-2022 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license. -->
+<!-- IntelliJ Platform (platform/icons/src/expui/general/show.svg) を Android vector 形式へ変換したもの。 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="16dp"
+    android:height="16dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path
+        android:pathData="M8 8 m-2.5 0 a2.5 2.5 0 1 0 5 0 a2.5 2.5 0 1 0 -5 0 Z"
+        android:strokeColor="#6C707E"
+        android:strokeWidth="1" />
+    <path
+        android:pathData="M3.34803 11.4645 C2.03281 10.5496 1.01443 9.31863 0.529751 8 C1.01443 6.68137 2.03281 5.45039 3.34803 4.53545 C4.71396 3.58524 6.36604 3 8 3 C9.63396 3 11.286 3.58524 12.652 4.53545 C13.9672 5.45039 14.9856 6.68137 15.4702 8 C14.9856 9.31863 13.9672 10.5496 12.652 11.4645 C11.286 12.4148 9.63396 13 8 13 C6.36604 13 4.71396 12.4148 3.34803 11.4645 Z"
+        android:strokeColor="#6C707E"
+        android:strokeWidth="1" />
+</vector>

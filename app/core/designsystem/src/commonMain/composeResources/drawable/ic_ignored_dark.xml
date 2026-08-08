@@ -1,0 +1,17 @@
+<!-- Copyright 2000-2022 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license. -->
+<!-- IntelliJ Platform (platform/icons/src/expui/fileTypes/ignored_dark.svg) を Android vector 形式へ変換したもの。 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="16dp"
+    android:height="16dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path
+        android:pathData="M1.5,8 a6.5,6.5 0 1 0 13,0 a6.5,6.5 0 1 0 -13,0 Z"
+        android:fillColor="#43454A"
+        android:strokeColor="#CED0D6"
+        android:strokeWidth="1" />
+    <path
+        android:pathData="M3.5 12.5 L12.5 3.5"
+        android:strokeColor="#CED0D6"
+        android:strokeWidth="1" />
+</vector>

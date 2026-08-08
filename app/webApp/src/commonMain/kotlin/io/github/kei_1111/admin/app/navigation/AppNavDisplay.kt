@@ -16,8 +16,8 @@ import io.github.kei_1111.admin.app.core.navigation.LocalResultEventBus
 import io.github.kei_1111.admin.app.core.navigation.ResultEventBus
 import io.github.kei_1111.admin.app.core.navigation.crossFadeIn
 import io.github.kei_1111.admin.app.core.navigation.crossFadeOut
-import io.github.kei_1111.admin.app.feature.home.navigation.Home
-import io.github.kei_1111.admin.app.feature.home.navigation.homeEntries
+import io.github.kei_1111.admin.app.feature.workbench.navigation.Workbench
+import io.github.kei_1111.admin.app.feature.workbench.navigation.workbenchEntries
 import kotlinx.serialization.modules.SerializersModule
 
 @Composable
@@ -32,7 +32,7 @@ fun AppNavDisplay(
             serializersModule = SerializersModule { navKeySerializers.forEach { include(it) } }
         }
     }
-    val backStack = rememberNavBackStack(savedStateConfiguration, Home)
+    val backStack = rememberNavBackStack(savedStateConfiguration, Workbench)
     val resultEventBus = remember { ResultEventBus() }
 
     CompositionLocalProvider(LocalResultEventBus provides resultEventBus) {
@@ -52,7 +52,7 @@ fun AppNavDisplay(
             transitionSpec = { crossFadeIn() },
             popTransitionSpec = { crossFadeOut() },
             entryProvider = entryProvider {
-                homeEntries()
+                workbenchEntries()
             },
         )
     }

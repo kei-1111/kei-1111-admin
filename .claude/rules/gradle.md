@@ -18,7 +18,7 @@ Every dependency is declared with `implementation()`, in module build files and 
 - Bump versions only in `gradle/libs.versions.toml`; Kotlin is the anchor — check Compose Multiplatform / AGP / Metro compatibility before bumping, and bump coupled versions together
 - Keep the version base in sync with kei-1111.github.io unless there is a reason to diverge
 - One upgrade per branch/PR
-- Validate: `./gradlew detekt :app:webApp:wasmJsBrowserDistribution compileAndroidMain :server:test :app:core:common:testAndroidHostTest :app:core:mvi:testAndroidHostTest :app:feature:home:testAndroidHostTest`
+- Validate: `./gradlew detekt :app:webApp:wasmJsBrowserDistribution compileAndroidMain :server:test :app:core:common:testAndroidHostTest :app:core:mvi:testAndroidHostTest :app:feature:workbench:testAndroidHostTest`
 
 ## Convention Plugins
 
@@ -35,7 +35,7 @@ All module configuration goes through the six convention plugins in `build-logic
 
 ## Module Wiring
 
-- A feature module's `build.gradle.kts` is minimal — just two plugin aliases (`kei1111.detekt` + `kei1111.kmp.feature`), no dependencies block. See `app/feature/home/build.gradle.kts`
+- A feature module's `build.gradle.kts` is minimal — just two plugin aliases (`kei1111.detekt` + `kei1111.kmp.feature`), no dependencies block. See `app/feature/workbench/build.gradle.kts`
 - New module: add `include(":app:feature:<name>")` to `settings.gradle.kts`, then reference it with **typesafe project accessors** (`projects.app.feature.<name>`)
 - Metro does not aggregate `@ContributesBinding` contributions from transitive `implementation` dependencies, and `api()` is prohibited — so a contributing module must be a direct dependency of the graph-owning module (`app:webApp`)
 
@@ -50,10 +50,10 @@ All module configuration goes through the six convention plugins in `build-logic
 ```bash
 ./gradlew :app:webApp:wasmJsBrowserDevelopmentRun  # dev server (the :app:webApp: prefix is required)
 ./gradlew :app:webApp:wasmJsBrowserDistribution    # production build (CD)
-./gradlew :app:feature:home:compileKotlinWasmJs    # single-module wasm compile
-./gradlew :app:feature:home:compileAndroidMain     # non-shipped Android target compile (Preview rendering)
+./gradlew :app:feature:workbench:compileKotlinWasmJs    # single-module wasm compile
+./gradlew :app:feature:workbench:compileAndroidMain     # non-shipped Android target compile (Preview rendering)
 ./gradlew :server:run                              # Admin server (http://localhost:8082; Cloud Run injects PORT)
 ./gradlew :server:buildFatJar                      # server/build/libs/server-all.jar
 ./gradlew :server:test                             # server tests
-./gradlew :app:feature:home:testAndroidHostTest    # client unit tests, local JVM (also :app:core:common / :app:core:mvi)
+./gradlew :app:feature:workbench:testAndroidHostTest    # client unit tests, local JVM (also :app:core:common / :app:core:mvi)
 ```

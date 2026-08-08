@@ -1,0 +1,30 @@
+<!--
+  - Copyright (C) 2025 The Android Open Source Project
+  -
+  - Licensed under the Apache License, Version 2.0 (the "License");
+  - you may not use this file except in compliance with the License.
+  - You may obtain a copy of the License at
+  -
+  -      http://www.apache.org/licenses/LICENSE-2.0
+  -
+  - Unless required by applicable law or agreed to in writing, software
+  - distributed under the License is distributed on an "AS IS" BASIS,
+  - WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  - See the License for the specific language governing permissions and
+  - limitations under the License.
+  -->
+<!-- Android Studio (artwork/resources/studio/icons/shell/filetree/manifest-file_dark.svg) を Android vector 形式へ変換したもの。 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="16dp"
+    android:height="16dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path
+        android:pathData="M4,2.5 L12,2.5 A1.5,1.5 0 0 1 13.5,4 L13.5,12 A1.5,1.5 0 0 1 12,13.5 L4,13.5 A1.5,1.5 0 0 1 2.5,12 L2.5,4 A1.5,1.5 0 0 1 4,2.5 Z"
+        android:fillColor="#25362D"
+        android:strokeColor="#3DDC84"
+        android:strokeWidth="1" />
+    <path
+        android:pathData="M5.645 11 H4.547 V4.7 h1.427 l1.93 4.55 l.108 .35 l.104 -.35 l1.89 -4.55 h1.444 V11 h-1.102 V6.518 l.013 -.238 L8.404 11 H7.58 L5.632 6.311 l.013 .207 V11 z"
+        android:fillColor="#3DDC84" />
+</vector>

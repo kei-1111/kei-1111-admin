@@ -12,6 +12,7 @@ import kotlinx.browser.document
 fun main() {
     val appGraph = createGraph<AppGraph>()
     installGoogleSignIn { token -> AdminAuthController.receiveIdToken(token) }
+    installWorkbenchShortcutListener()
 
     // body 直マウントは既存の DOM(サインインオーバーレイ)ごと消されるため専用 div に載せる
     ComposeViewport(document.getElementById("compose-root")!!) {

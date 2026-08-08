@@ -1,0 +1,11 @@
+<!-- Android Studio (artwork/resources/studio/icons/common/layout_dark.svg) を Android vector 形式へ変換したもの。 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="16dp"
+    android:height="16dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path
+        android:pathData="M7 3 H4 a1 1 0 0 0 -1 1 v8 a1 1 0 0 0 1 1 h3 V3 z m1 0 v4 h5 V4 a1 1 0 0 0 -1 -1 H8 z m0 5 v5 h4 a1 1 0 0 0 1 -1 V8 H8 z M4 2 a2 2 0 0 0 -2 2 v8 a2 2 0 0 0 2 2 h8 a2 2 0 0 0 2 -2 V4 a2 2 0 0 0 -2 -2 H4 z"
+        android:fillColor="#CED0D6"
+        android:fillType="evenOdd" />
+</vector>

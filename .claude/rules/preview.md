@@ -22,5 +22,5 @@ Screens and Content that require a `State` build it from sample data in `preview
 Preview rendering relies on the non-shipped Android target from the `kei_1111.kmp.wasm` convention plugin (`android {}`, namespace auto-derived from the project path); the `compose.ui.tooling` dependency is wired by `kei_1111.cmp`. Its only other role is running the client unit tests as host tests (`.claude/rules/app-testing.md`). Do not remove that target. Compile-check a module's previews without opening the IDE:
 
 ```bash
-./gradlew :app:feature:home:compileAndroidMain
+./gradlew :app:feature:workbench:compileAndroidMain
 ```

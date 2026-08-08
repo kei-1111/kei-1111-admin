@@ -1,0 +1,21 @@
+<!-- Copyright 2000-2022 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license. -->
+<!-- IntelliJ Platform (platform/icons/src/expui/general/previewVertically.svg) を Android vector 形式へ変換したもの（rect は path 化）。 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="16dp"
+    android:height="16dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path
+        android:pathData="M7.00002 3 H12 C12.5523 3 13 3.44772 13 4 V12 C13 12.5523 12.5523 13 12 13 H7.00002 V3 Z M6.00002 2 H7.00002 H12 C13.1046 2 14 2.89543 14 4 V12 C14 13.1046 13.1046 14 12 14 H7.00002 H6.00002 H4 C2.89543 14 2 13.1046 2 12 V4 C2 2.89543 2.89543 2 4 2 H6.00002 Z M6.00002 13 H4 C3.44772 13 3 12.5523 3 12 V4 C3 3.44772 3.44772 3 4 3 H6.00002 V13 Z"
+        android:fillColor="#6C707E"
+        android:fillType="evenOdd" />
+    <path
+        android:pathData="M8.5 5 H11.5 A0.5 0.5 0 0 1 12 5.5 A0.5 0.5 0 0 1 11.5 6 H8.5 A0.5 0.5 0 0 1 8 5.5 A0.5 0.5 0 0 1 8.5 5 Z"
+        android:fillColor="#6C707E" />
+    <path
+        android:pathData="M8.5 7.5 H11.5 A0.5 0.5 0 0 1 12 8 A0.5 0.5 0 0 1 11.5 8.5 H8.5 A0.5 0.5 0 0 1 8 8 A0.5 0.5 0 0 1 8.5 7.5 Z"
+        android:fillColor="#6C707E" />
+    <path
+        android:pathData="M8.5 10 H11.5 A0.5 0.5 0 0 1 12 10.5 A0.5 0.5 0 0 1 11.5 11 H8.5 A0.5 0.5 0 0 1 8 10.5 A0.5 0.5 0 0 1 8.5 10 Z"
+        android:fillColor="#6C707E" />
+</vector>

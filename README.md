@@ -25,11 +25,11 @@ The Compose Multiplatform (wasmJs) admin UI is bundled into the server's fat jar
 |---|---|
 | `app:webApp` | Admin UI entry point — Metro DI graph, Navigation 3 `AppNavDisplay` (wasmJs only) |
 | `app:core:common` | `Result<T>` / suppression helpers / `InteractionLog` |
-| `app:core:designsystem` | Theme (`AdminTheme`) |
+| `app:core:designsystem` | `KeiTheme` ported from kei-1111.github.io (Islands Dark/Light colors, typography, shapes, icons, fonts) |
 | `app:core:mvi` | `MviViewModel` base + MVI marker interfaces |
 | `app:core:navigation` | Dialog scene strategy, result bus, transitions |
 | `app:core:testing` | Test infrastructure for commonTest (host tests) |
-| `app:feature:home` | Home screen (MVI reference shape) |
+| `app:feature:workbench` | IDE-style admin workbench: shell (title bar, nav tree, tabs, status bar), Works list, Work editor, Profile editor |
 | `shared:model` | DTOs shared between UI and server (wasmJs + jvm) |
 | `server` | Admin API — Ktor (CIO), deployed to Cloud Run |
 

@@ -20,7 +20,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
 import io.github.kei_1111.admin.app.auth.AdminAuthController
 import io.github.kei_1111.admin.app.core.common.coroutines.recoverOrElse
-import io.github.kei_1111.admin.app.core.designsystem.AdminTheme
+import io.github.kei_1111.admin.app.core.designsystem.theme.KeiTheme
 import io.github.kei_1111.admin.app.di.AppGraph
 import io.github.kei_1111.admin.app.navigation.AppNavDisplay
 import io.github.kei_1111.admin.shared.model.MeResponse
@@ -71,7 +71,7 @@ fun App(appGraph: AppGraph) {
     CompositionLocalProvider(
         LocalMetroViewModelFactory provides appGraph.metroViewModelFactory,
     ) {
-        AdminTheme {
+        KeiTheme(isDark = true) {
             Surface(modifier = Modifier.fillMaxSize()) {
                 Box(modifier = Modifier.fillMaxSize()) {
                     AppNavDisplay(

@@ -37,7 +37,7 @@ include(":app:core:mvi")
 include(":app:core:navigation")
 include(":app:core:testing")
 
-include(":app:feature:home")
+include(":app:feature:workbench")
 
 include(":shared:model")
 

@@ -1,0 +1,17 @@
+<!-- Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license. -->
+<!-- IntelliJ Platform (platform/icons/src/expui/general/search_dark.svg) を Android vector 形式へ変換したもの（circle は path 化）。 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="16dp"
+    android:height="16dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path
+        android:pathData="M11.5 7A4.5 4.5 0 0 1 2.5 7A4.5 4.5 0 0 1 11.5 7Z"
+        android:strokeColor="#CED0D6"
+        android:strokeWidth="1" />
+    <path
+        android:pathData="M10.1992 10.2002L13.4992 13.4961"
+        android:strokeColor="#CED0D6"
+        android:strokeWidth="1"
+        android:strokeLineCap="round" />
+</vector>

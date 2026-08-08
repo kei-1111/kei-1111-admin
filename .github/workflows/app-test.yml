@@ -42,4 +42,4 @@ jobs:
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
       - name: Run client unit tests (host tests)
-        run: ./gradlew :app:core:common:testAndroidHostTest :app:core:mvi:testAndroidHostTest :app:feature:home:testAndroidHostTest
+        run: ./gradlew :app:core:common:testAndroidHostTest :app:core:mvi:testAndroidHostTest :app:feature:workbench:testAndroidHostTest

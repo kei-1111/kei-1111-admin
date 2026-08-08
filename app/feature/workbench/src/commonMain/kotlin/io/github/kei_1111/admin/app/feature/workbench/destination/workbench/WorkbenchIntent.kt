@@ -1,0 +1,22 @@
+package io.github.kei_1111.admin.app.feature.workbench.destination.workbench
+
+import io.github.kei_1111.admin.app.core.mvi.Intent
+import io.github.kei_1111.admin.app.feature.workbench.model.AdminNode
+import io.github.kei_1111.admin.app.feature.workbench.model.WorkbenchTab
+import io.github.kei_1111.admin.shared.model.AdminProfile
+import io.github.kei_1111.admin.shared.model.Work
+
+internal sealed interface WorkbenchIntent : Intent {
+    data class SelectNode(val node: AdminNode) : WorkbenchIntent
+    data class ActivateTab(val tab: WorkbenchTab) : WorkbenchIntent
+    data class CloseTab(val tab: WorkbenchTab) : WorkbenchIntent
+    data object ConfirmCloseTab : WorkbenchIntent
+    data object DismissCloseConfirm : WorkbenchIntent
+    data object CreateWork : WorkbenchIntent
+    data class UpdateWorkDraft(val work: Work) : WorkbenchIntent
+    data class UpdateProfileDraft(val profile: AdminProfile) : WorkbenchIntent
+    data object SaveDraft : WorkbenchIntent
+    data object RequestPublish : WorkbenchIntent
+    data object ConfirmPublish : WorkbenchIntent
+    data object DismissPublishConfirm : WorkbenchIntent
+}

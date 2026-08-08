@@ -1,0 +1,33 @@
+<!-- Copyright 2000-2022 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license. -->
+<!-- IntelliJ Platform (platform/icons/src/expui/toolwindows/debug@20x20_dark.svg) を Android vector 形式へ変換したもの。 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="20dp"
+    android:height="20dp"
+    android:viewportWidth="20"
+    android:viewportHeight="20">
+    <path
+        android:pathData="M18.5 11.75 C18.9142 11.75 19.25 11.4142 19.25 11 C19.25 10.5858 18.9142 10.25 18.5 10.25 V11.75 Z M14 11.75 H18.5 V10.25 H14 V11.75 Z"
+        android:fillColor="#CED0D6" />
+    <path
+        android:pathData="M17.8553 6.98759 C18.2201 6.79144 18.3568 6.33667 18.1607 5.97185 C17.9645 5.60703 17.5098 5.4703 17.1449 5.66646 L17.8553 6.98759 Z M14.7438 8.66057 L17.8553 6.98759 L17.1449 5.66646 L14.0335 7.33943 L14.7438 8.66057 Z"
+        android:fillColor="#CED0D6" />
+    <path
+        android:pathData="M17.8553 15.0124 C18.2201 15.2086 18.3568 15.6633 18.1607 16.0281 C17.9645 16.393 17.5098 16.5297 17.1449 16.3335 L17.8553 15.0124 Z M14.7438 13.3394 L17.8553 15.0124 L17.1449 16.3335 L14.0335 14.6606 L14.7438 13.3394 Z"
+        android:fillColor="#CED0D6" />
+    <path
+        android:pathData="M2.14275 6.98759 C1.77793 6.79144 1.6412 6.33667 1.83736 5.97185 C2.03352 5.60703 2.48828 5.4703 2.8531 5.66646 L2.14275 6.98759 Z M5.2542 8.66057 L2.14275 6.98759 L2.8531 5.66646 L5.96455 7.33943 L5.2542 8.66057 Z"
+        android:fillColor="#CED0D6" />
+    <path
+        android:pathData="M2.14275 15.0124 C1.77793 15.2086 1.6412 15.6633 1.83736 16.0281 C2.03352 16.393 2.48828 16.5297 2.8531 16.3335 L2.14275 15.0124 Z M5.2542 13.3394 L2.14275 15.0124 L2.8531 16.3335 L5.96455 14.6606 L5.2542 13.3394 Z"
+        android:fillColor="#CED0D6" />
+    <path
+        android:pathData="M1.5 11.75 C1.08579 11.75 0.75 11.4142 0.75 11 C0.75 10.5858 1.08579 10.25 1.5 10.25 V11.75 Z M6 11.75 H1.5 V10.25 H6 V11.75 Z"
+        android:fillColor="#CED0D6" />
+    <path
+        android:pathData="M8.5 5.75 H11.5 C13.2949 5.75 14.75 7.20507 14.75 9 V12.5 C14.75 15.1234 12.6234 17.25 10 17.25 C7.37665 17.25 5.25 15.1234 5.25 12.5 V9 C5.25 7.20507 6.70507 5.75 8.5 5.75 Z"
+        android:strokeColor="#CED0D6"
+        android:strokeWidth="1.5" />
+    <path
+        android:pathData="M8.00023 5.03092 C8.00008 5.02063 8 5.01032 8 5 C8 3.89543 8.89543 3 10 3 C11.1046 3 12 3.89543 12 5 C12 5.01032 11.9999 5.02063 11.9998 5.03092 C12.5259 5.0965 13.0204 5.26427 13.4626 5.51374 C13.4872 5.34607 13.5 5.17453 13.5 5 C13.5 3.067 11.933 1.5 10 1.5 C8.067 1.5 6.5 3.067 6.5 5 C6.5 5.17453 6.51277 5.34607 6.53744 5.51374 C6.97965 5.26427 7.47407 5.0965 8.00023 5.03092 Z"
+        android:fillColor="#CED0D6" />
+</vector>

@@ -1,0 +1,23 @@
+<!-- Copyright 2000-2024 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license. -->
+<!-- IntelliJ Platform (platform/icons/src/expui/vcs/merge_dark.svg) を Android vector 形式へ変換したもの。 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="16dp"
+    android:height="16dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path
+        android:pathData="M6 4.08337 L8 2.08337 L10 4.08337"
+        android:strokeColor="#CED0D6"
+        android:strokeWidth="1"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M8 2.58337 V6.1635 C8 6.74735 7.74487 7.30205 7.30158 7.68202 L5.19842 9.48473 C4.75513 9.8647 4.5 10.4194 4.5 11.0032 V14.0834"
+        android:strokeColor="#CED0D6"
+        android:strokeWidth="1"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M8 2.58337 V6.1635 C8 6.74735 8.25513 7.30205 8.69842 7.68202 L10.8016 9.48473 C11.2449 9.8647 11.5 10.4194 11.5 11.0032 V14.0834"
+        android:strokeColor="#CED0D6"
+        android:strokeWidth="1"
+        android:strokeLineCap="round" />
+</vector>
