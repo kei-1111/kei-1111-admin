@@ -1,0 +1,17 @@
+### Gradle ###
+.gradle
+!gradle/wrapper/gradle-wrapper.jar
+**/build/
+
+### IntelliJ IDEA ###
+.idea/*
+*.iml
+
+### Kotlin ###
+.kotlin
+
+### Mac OS ###
+.DS_Store
+
+### Local ###
+local.properties
