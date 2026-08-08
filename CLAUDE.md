@@ -26,5 +26,10 @@ portfolio-admin is the admin console for kei-1111.github.io: a Compose Multiplat
 ## Working Principles
 
 - Follow the Working Agreement in `AGENTS.md` (smallest coherent change, comment policy, documentation concision).
+- Model routing: once an implementation plan is settled, prefer delegating the code editing to the `codex-implementer` subagent (via `scripts/codex_implement.sh`), keeping planning, diff review, and judgment in the main loop. Judgment-heavy edits (architecture, UI aesthetics) stay on Claude. The independent review lane maps to the `rules-reviewer` and `code-reviewer` agents run independently. Run only one implementation lane at a time in a working tree.
 - Run the narrowest relevant validation (`./gradlew :app:feature:<name>:compileKotlinWasmJs`, `./gradlew :<module>:testAndroidHostTest`, `./gradlew :server:test`, `./gradlew detekt` — rerun detekt once if autoCorrect reformats; never fix import ordering manually).
 - Commit messages and GitHub-authored text are written in English (see `.claude/rules/git-workflow.md`).
+
+## Skills
+
+Workflow skills are not duplicated here — they live in kei-1111.github.io until the planned shared-repository extraction. Agent procedures are canonical in `ai-docs/agents/<group>/` with thin wrappers in `.claude/agents/`. See `ai-docs/README.md`.
