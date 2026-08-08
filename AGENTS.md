@@ -19,7 +19,7 @@ portfolio-admin is the admin console for [kei-1111.github.io](https://github.com
 
 Tech stack (mirrors kei-1111.github.io):
 
-- Kotlin / Compose Multiplatform — **wasmJs** is the only distribution target for the client (GitHub Pages). The **Android** target exists for exactly two roles: rendering commonMain `@Preview` and running the client unit tests on the local JVM (host tests) — never shipped
+- Kotlin / Compose Multiplatform — **wasmJs** is the only distribution target for the client, bundled into the server's fat jar (`-PbundleWebApp`) and served by the admin server itself (same origin, no CORS; deliberately not GitHub Pages). The **Android** target exists for exactly two roles: rendering commonMain `@Preview` and running the client unit tests on the local JVM (host tests) — never shipped
 - **Ktor server** (`server/`, JVM, CIO) — admin API on Cloud Run; reads/writes the GCS bucket
 - Multimodule Clean Architecture + MVI using `MviViewModel<ViewModelState, State, Intent>` (`app:core:mvi`)
 - Metro DI (`@ContributesBinding` / `@ContributesIntoMap` / `@Inject`), `metrox-viewmodel` (`metroViewModel()`)

@@ -6,16 +6,15 @@ portfolio-admin のアーキテクチャ概要。kei-1111.github.io と同じ基
 
 ```mermaid
 flowchart TB
-    ui["Admin UI<br>Compose Multiplatform (wasmJs)<br>GitHub Pages"]
-    admin["Admin server<br>Ktor on Cloud Run<br>Google ID トークン検証"]
+    admin["Admin server — Ktor on Cloud Run<br>wasmJs 管理 UI を同一オリジン配信<br>Google ID トークン検証"]
     gcs[("GCS bucket<br>画像 + 文言 JSON")]
     portfolio["Portfolio server<br>kei-1111.github.io"]
 
-    ui -- "Google ID token (Bearer)" --> admin
     admin -- "read / write" --> gcs
     portfolio -- "read" --> gcs
 ```
 
+- **UI 配信**: wasmJs の管理 UI はサーバーの fat jar に同梱され(`:server:buildFatJar -PbundleWebApp`)、admin server 自身が静的配信する。意図的に GitHub Pages を使わない — 管理コンソールを公開静的 URL に置かず、UI と API を同一オリジンにして CORS も不要にするため。
 - **認証**: 管理 UI が Google Identity Services で ID トークンを取得し、admin server が audience(OAuth クライアント ID)と許可メールアドレスを検証する。利用者は 1 アカウントのみ。
 - **ストレージ**: 1 つの GCS バケットに画像アセットと文言 JSON を置く。ポートフォリオ側サーバーが同じバケットを読むため、コンテンツ変更はデプロイなしで本番に反映される。
 

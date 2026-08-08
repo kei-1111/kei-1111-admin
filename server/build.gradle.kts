@@ -23,6 +23,17 @@ tasks.test {
     useJUnitPlatform()
 }
 
+// デプロイビルドのみ UI の wasm 配信物を jar に同梱する(-PbundleWebApp)。
+// 常時依存にすると :server:test まで wasm ビルドを待つことになるためオプトイン。
+if (providers.gradleProperty("bundleWebApp").isPresent) {
+    tasks.processResources {
+        dependsOn(":app:webApp:wasmJsBrowserDistribution")
+        from(project(":app:webApp").layout.buildDirectory.dir("dist/wasmJs/productionExecutable")) {
+            into("static")
+        }
+    }
+}
+
 dependencies {
     implementation(projects.shared.model)
     implementation(libs.kotlinx.coroutines.core)
