@@ -18,6 +18,7 @@ private const val META_PATH = "content/meta.json"
  * 下書き(draft/)と公開(published/)の 2 段階を所有するサービス。
  * 公開は「下書きのうち status=Published の作品だけを published/ へ写す」コピー操作で、
  * ポートフォリオ側サーバーは published/ のみを読む。
+ * GCS に draft が無い間は、リポジトリ同梱のシード(resources/seed/)を初期値として返す。
  */
 class ContentService(
     private val storage: ContentStorage,
@@ -31,7 +32,7 @@ class ContentService(
 
     suspend fun worksDraft(): WorksContent =
         storage.read(WORKS_DRAFT_PATH)?.let { json.decodeFromString(WorksContent.serializer(), it) }
-            ?: WorksContent()
+            ?: seedWorks()
 
     suspend fun saveWorksDraft(content: WorksContent) {
         storage.write(WORKS_DRAFT_PATH, json.encodeToString(WorksContent.serializer(), content))
@@ -39,7 +40,7 @@ class ContentService(
 
     suspend fun profileDraft(): AdminProfile =
         storage.read(PROFILE_DRAFT_PATH)?.let { json.decodeFromString(AdminProfile.serializer(), it) }
-            ?: AdminProfile()
+            ?: seedProfile()
 
     suspend fun saveProfileDraft(profile: AdminProfile) {
         storage.write(PROFILE_DRAFT_PATH, json.encodeToString(AdminProfile.serializer(), profile))
@@ -48,6 +49,19 @@ class ContentService(
     suspend fun meta(): ContentMeta =
         storage.read(META_PATH)?.let { json.decodeFromString(ContentMeta.serializer(), it) }
             ?: ContentMeta()
+
+    private fun seedWorks(): WorksContent =
+        readSeedResource("works.json")?.let { json.decodeFromString(WorksContent.serializer(), it) }
+            ?: WorksContent()
+
+    private fun seedProfile(): AdminProfile =
+        readSeedResource("profile.json")?.let { json.decodeFromString(AdminProfile.serializer(), it) }
+            ?: AdminProfile()
+
+    private fun readSeedResource(name: String): String? =
+        ContentService::class.java.classLoader
+            ?.getResourceAsStream("seed/$name")
+            ?.use { it.readAllBytes().decodeToString() }
 
     suspend fun publish(): ContentMeta {
         val draft = worksDraft()

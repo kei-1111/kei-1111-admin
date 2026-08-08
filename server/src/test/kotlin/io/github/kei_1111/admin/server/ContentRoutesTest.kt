@@ -56,11 +56,20 @@ class ContentRoutesTest {
     }
 
     @Test
-    fun worksDraftDefaultsToEmptyContent() = contentTestApplication { client, _ ->
+    fun worksDraftFallsBackToBundledSeed() = contentTestApplication { client, _ ->
         val response = client.get("/api/works") { bearerAuth(TestGoogleAuth.token()) }
 
         assertEquals(HttpStatusCode.OK, response.status)
-        assertEquals(WorksContent(), response.body<WorksContent>())
+        val works = response.body<WorksContent>().works
+        assertTrue(works.any { it.id == "withmo" })
+    }
+
+    @Test
+    fun profileDraftFallsBackToBundledSeed() = contentTestApplication { client, _ ->
+        val response = client.get("/api/profile") { bearerAuth(TestGoogleAuth.token()) }
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        assertEquals("けい", response.body<AdminProfile>().displayName)
     }
 
     @Test

@@ -1,0 +1,32 @@
+{
+  "works": [
+    {
+      "id": "withmo",
+      "name": "withmo",
+      "type": "Android Launcher App",
+      "period": "2024–",
+      "about": "デジタルフィギュア × ランチャーがコンセプトの Android ランチャーアプリ。お気に入りの3Dモデルとともにスマホを使える。ホーム画面上でモデルが時間帯や操作に反応する。",
+      "techStack": ["Kotlin", "Jetpack Compose", "Unity as a Library", "GitHub Actions", "detekt"],
+      "roles": ["Android 側の実装を担当", "Unity 連携のブリッジ設計、CI/CD 構築"],
+      "screenshots": ["images/works/withmo-1.webp", "images/works/withmo-2.webp", "images/works/withmo-3.webp"],
+      "googlePlayUrl": "",
+      "sourceUrl": "",
+      "status": "Published",
+      "updatedAt": "2026-08-08"
+    },
+    {
+      "id": "kei-1111-github-io",
+      "name": "kei-1111.github.io",
+      "type": "Portfolio Website",
+      "period": "2025–",
+      "about": "Android Studio の UI を再現したポートフォリオサイト。Compose Multiplatform を WebAssembly にコンパイルし GitHub Pages で配信。",
+      "techStack": ["Kotlin/Wasm", "Compose Multiplatform", "Ktor", "Cloud Run", "Playwright"],
+      "roles": ["設計・実装（個人開発）", "Ktor サーバーと Cloud Run / GitHub Actions の CI/CD 構築"],
+      "screenshots": ["images/works/portfolio-1.webp", "images/works/portfolio-2.webp", "images/works/portfolio-3.webp", "images/works/portfolio-4.webp"],
+      "googlePlayUrl": "",
+      "sourceUrl": "https://github.com/kei-1111/kei-1111.github.io",
+      "status": "Published",
+      "updatedAt": "2026-08-08"
+    }
+  ]
+}
