@@ -1,0 +1,103 @@
+# 管理サーバー(UI 同梱 fat jar)を Cloud Run にデプロイする。
+#
+# 必要な Secrets:
+#   - GCP_WORKLOAD_IDENTITY_PROVIDER: Workload Identity Federation のプロバイダ ID
+#   - GCP_SERVICE_ACCOUNT: デプロイに使う Google Cloud サービスアカウントのメールアドレス
+#
+# 必要な Variables:
+#   - GCP_PROJECT_ID / GCP_REGION / GAR_REPOSITORY
+#   - GCP_RUNTIME_SERVICE_ACCOUNT: Cloud Run サービスの実行時サービスアカウント
+name: Deploy Server
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  id-token: write # Workload Identity Federation での Google Cloud 認証に必要
+
+concurrency:
+  group: cloud-run
+  cancel-in-progress: false
+
+jobs:
+  changes:
+    uses: ./.github/workflows/detect-docs-only.yml
+    permissions:
+      issues: read
+      pull-requests: read
+
+  build:
+    needs: changes
+    # ステータスチェック関数を含まない if には success() が暗黙適用され、changes 失敗時にスキップされてしまう。
+    # !cancelled() でそれを外し fail open にする。
+    if: ${{ !cancelled() && needs.changes.outputs.code != 'false' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      IMAGE: ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ vars.GAR_REPOSITORY }}/kei-1111-admin-server:${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: 21
+          distribution: 'temurin'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+
+      - name: Build fat jar with bundled admin UI
+        run: ./gradlew :server:buildFatJar -PbundleWebApp
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v3
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ vars.GCP_REGION }}-docker.pkg.dev --quiet
+
+      - name: Build and push image
+        run: |
+          docker build -t "$IMAGE" server
+          docker push "$IMAGE"
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      IMAGE: ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ vars.GAR_REPOSITORY }}/kei-1111-admin-server:${{ github.sha }}
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Deploy to Cloud Run
+        uses: google-github-actions/deploy-cloudrun@v3
+        with:
+          service: kei-1111-admin
+          region: ${{ vars.GCP_REGION }}
+          image: ${{ env.IMAGE }}
+          # --allow-unauthenticated: UI 配信と /health のため。管理 API 自体は
+          # アプリ層の Google ID トークン検証(実装予定)が守る。
+          flags: >-
+            --allow-unauthenticated
+            --min-instances=0
+            --max-instances=1
+            --memory=512Mi
+            --port=8080
+            --service-account=${{ vars.GCP_RUNTIME_SERVICE_ACCOUNT }}
+            --set-env-vars=CONTENT_BUCKET=kei-1111-portfolio-content

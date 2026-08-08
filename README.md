@@ -49,10 +49,10 @@ Details: `docs/ModuleOverview.md` / `docs/ArchitectureOverview.md` (Japanese).
 
 - [x] Project scaffold (Kotlin 2.4.0 / Compose Multiplatform 1.11.1 / Ktor 3.5.1 / Gradle 9.6.1)
 - [x] Infrastructure parity with kei-1111.github.io: convention plugins, detekt, MVI + Metro DI + Navigation 3, host tests
-- [ ] GCS bucket + service account
+- [x] GCS bucket (`kei-1111-portfolio-content`) + service accounts (`kei-1111-admin-runtime` objectAdmin / portfolio runtime objectViewer)
+- [x] CI (detekt / compile / host tests / server tests, docs-only gated)
+- [x] CD to Cloud Run (single service `kei-1111-admin`: admin API + bundled UI, WIF)
 - [ ] Google OAuth client (Identity Services) + ID-token verification on the server
 - [ ] Image upload / list / delete API + UI
 - [ ] Text content (JSON) edit API + UI
-- [x] CI (detekt / compile / host tests / server tests, docs-only gated)
-- [ ] CD to Cloud Run (single service: admin API + bundled UI)
 - [ ] Portfolio server reads content from the GCS bucket
