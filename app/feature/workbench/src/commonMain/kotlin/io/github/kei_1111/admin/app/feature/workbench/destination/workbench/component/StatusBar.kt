@@ -36,7 +36,24 @@ internal fun StatusBar(
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f),
         )
-        if (state.unsavedCount > 0) {
+        if (state.syncError) {
+            Text(
+                text = "⚠ 同期失敗",
+                style = KeiTheme.typography.cardJp.copy(
+                    fontSize = WorkbenchDimensions.ChromeLabelFontSize,
+                    color = colors.logcatError,
+                ),
+            )
+        }
+        if (state.saving) {
+            Text(
+                text = if (state.publishing) "公開中..." else "保存中...",
+                style = KeiTheme.typography.cardJp.copy(
+                    fontSize = WorkbenchDimensions.ChromeLabelFontSize,
+                    color = colors.mutedHigh,
+                ),
+            )
+        } else if (state.unsavedCount > 0) {
             Text(
                 text = "● ${state.unsavedCount} unsaved changes",
                 style = KeiTheme.typography.chrome.copy(

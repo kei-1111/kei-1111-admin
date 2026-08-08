@@ -2,6 +2,9 @@ package io.github.kei_1111.admin.server
 
 import com.auth0.jwk.JwkProvider
 import com.auth0.jwk.JwkProviderBuilder
+import io.github.kei_1111.admin.server.routing.contentRoutes
+import io.github.kei_1111.admin.server.service.ContentService
+import io.github.kei_1111.admin.server.storage.GcsContentStorage
 import io.github.kei_1111.admin.shared.model.HealthResponse
 import io.github.kei_1111.admin.shared.model.MeResponse
 import io.ktor.serialization.kotlinx.json.json
@@ -43,7 +46,7 @@ fun main() {
 
 fun Application.module() {
     configureApplication(
-        AuthConfig(
+        authConfig = AuthConfig(
             jwkProvider = JwkProviderBuilder(URI(GOOGLE_JWKS_URL).toURL())
                 .cached(JWKS_CACHE_SIZE, JWKS_CACHE_HOURS, TimeUnit.HOURS)
                 .build(),
@@ -51,10 +54,16 @@ fun Application.module() {
             clientId = System.getenv("GOOGLE_OAUTH_CLIENT_ID").orEmpty(),
             allowedEmail = System.getenv("ADMIN_ALLOWED_EMAIL").orEmpty(),
         ),
+        contentService = ContentService(
+            storage = GcsContentStorage(bucket = System.getenv("CONTENT_BUCKET").orEmpty()),
+        ),
     )
 }
 
-fun Application.configureApplication(authConfig: AuthConfig) {
+fun Application.configureApplication(
+    authConfig: AuthConfig,
+    contentService: ContentService,
+) {
     install(CallLogging)
     install(ContentNegotiation) {
         json()
@@ -82,6 +91,7 @@ fun Application.configureApplication(authConfig: AuthConfig) {
                 val principal = requireNotNull(call.principal<JWTPrincipal>())
                 call.respond(MeResponse(email = principal.payload.getClaim("email").asString()))
             }
+            contentRoutes(contentService)
         }
         // デプロイビルドが -PbundleWebApp で同梱する管理 UI(同一オリジン配信で CORS 不要)。
         // 同梱なしのビルドでは何も配信しないだけで無害。

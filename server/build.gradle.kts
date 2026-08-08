@@ -36,6 +36,7 @@ if (providers.gradleProperty("bundleWebApp").isPresent) {
 
 dependencies {
     implementation(projects.shared.model)
+    implementation(libs.google.cloud.storage)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.server.auth)
@@ -49,6 +50,7 @@ dependencies {
     implementation(libs.logback.classic)
 
     testImplementation(libs.kotlin.test)
+    testImplementation(libs.ktor.client.content.negotiation)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.ktor.server.test.host)
 }

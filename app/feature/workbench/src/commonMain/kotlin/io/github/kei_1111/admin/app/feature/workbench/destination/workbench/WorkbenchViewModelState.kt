@@ -21,6 +21,7 @@ internal data class WorkbenchViewModelState(
     val lastDeploy: String = "",
     val closeConfirmTab: WorkbenchTab? = null,
     val publishConfirmVisible: Boolean = false,
+    val syncError: Boolean = false,
 ) : ViewModelState<WorkbenchState> {
 
     private fun dirtyWorkIds(): Set<String> = workDrafts
@@ -48,6 +49,7 @@ internal data class WorkbenchViewModelState(
             lastDeploy = lastDeploy,
             closeConfirmTab = closeConfirmTab,
             publishConfirmVisible = publishConfirmVisible,
+            syncError = syncError,
         )
     }
 }

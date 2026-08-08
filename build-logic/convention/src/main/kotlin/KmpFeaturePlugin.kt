@@ -27,6 +27,7 @@ class KmpFeaturePlugin : Plugin<Project> {
                         dependencies {
                             implementation(project(":app:core:common"))
                             implementation(project(":app:core:designsystem"))
+                            implementation(project(":app:core:domain"))
                             implementation(project(":shared:model"))
                             implementation(project(":app:core:mvi"))
                             implementation(project(":app:core:navigation"))

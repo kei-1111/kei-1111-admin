@@ -24,4 +24,5 @@ internal data class WorkbenchState(
     /** 未保存タブを閉じようとして確認待ちのタブ。 */
     val closeConfirmTab: WorkbenchTab? = null,
     val publishConfirmVisible: Boolean = false,
+    val syncError: Boolean = false,
 ) : State

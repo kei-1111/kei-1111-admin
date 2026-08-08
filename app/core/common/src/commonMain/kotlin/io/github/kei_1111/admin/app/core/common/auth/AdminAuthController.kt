@@ -1,4 +1,4 @@
-package io.github.kei_1111.admin.app.auth
+package io.github.kei_1111.admin.app.core.common.auth
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

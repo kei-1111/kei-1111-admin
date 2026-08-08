@@ -31,6 +31,8 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(projects.app.core.common)
+            implementation(projects.app.core.data)
+            implementation(projects.app.core.domain)
             implementation(projects.app.core.designsystem)
             implementation(projects.app.core.navigation)
             implementation(projects.app.feature.workbench)

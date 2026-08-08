@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
-import io.github.kei_1111.admin.app.auth.AdminAuthController
+import io.github.kei_1111.admin.app.core.common.auth.AdminAuthController
 import io.github.kei_1111.admin.app.core.common.coroutines.recoverOrElse
 import io.github.kei_1111.admin.app.core.designsystem.theme.KeiTheme
 import io.github.kei_1111.admin.app.di.AppGraph

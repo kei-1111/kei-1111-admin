@@ -32,7 +32,9 @@ dependencyResolutionManagement {
 include(":app:webApp")
 
 include(":app:core:common")
+include(":app:core:data")
 include(":app:core:designsystem")
+include(":app:core:domain")
 include(":app:core:mvi")
 include(":app:core:navigation")
 include(":app:core:testing")

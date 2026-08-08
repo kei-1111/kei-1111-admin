@@ -4,6 +4,8 @@ import com.auth0.jwk.Jwk
 import com.auth0.jwk.JwkProvider
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import io.github.kei_1111.admin.server.service.ContentService
+import io.github.kei_1111.admin.server.storage.ContentStorage
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.statement.bodyAsText
@@ -65,11 +67,12 @@ class GoogleAuthTest {
     private fun authTestApplication(block: suspend ApplicationTestBuilder.() -> Unit) = testApplication {
         application {
             configureApplication(
-                AuthConfig(
+                authConfig = AuthConfig(
                     jwkProvider = jwkProvider,
                     clientId = CLIENT_ID,
                     allowedEmail = ALLOWED_EMAIL,
                 ),
+                contentService = ContentService(storage = InMemoryContentStorage()),
             )
         }
         block()
@@ -135,5 +138,15 @@ class GoogleAuthTest {
         val response = client.get("/health")
 
         assertEquals(HttpStatusCode.OK, response.status)
+    }
+}
+
+private class InMemoryContentStorage : ContentStorage {
+    private val objects = mutableMapOf<String, String>()
+
+    override suspend fun read(path: String): String? = objects[path]
+
+    override suspend fun write(path: String, content: String) {
+        objects[path] = content
     }
 }
