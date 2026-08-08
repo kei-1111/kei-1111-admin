@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 portfolio-admin is the admin console for kei-1111.github.io: a Compose Multiplatform (wasmJs) UI plus a Ktor admin server that manage the images and text content the portfolio delivers, backed by a GCS bucket. Auth is a single allowlisted Google account (ID token verified server-side).
 
 - Module trees mirroring kei-1111.github.io: `app/` (wasmJs admin UI — `app:webApp` entry/wiring, `app:core:*`, `app:feature:*`), `server/` (Ktor CIO admin API, Cloud Run), `shared/model/` (DTOs, wasmJs + jvm).
-- Same version base as kei-1111.github.io: Kotlin / Compose Multiplatform / Ktor / Gradle versions are kept in sync with that repository unless there is a reason to diverge.
+- Same infrastructure as kei-1111.github.io: convention plugins (`kei_1111.*` in `build-logic/`), detekt, MVI (`MviViewModel`), Metro DI, Navigation 3, Android target for Preview/host tests only. Versions are kept in sync with that repository unless there is a reason to diverge.
 
 ## Top-Level Rules
 
@@ -20,10 +20,11 @@ portfolio-admin is the admin console for kei-1111.github.io: a Compose Multiplat
 
 - Inspect the current implementation and its nearest analogous code (here first, then kei-1111.github.io as the reference codebase).
 - Read the applicable `.claude/rules/*.md` for the area being changed.
+- Refer to `docs/ArchitectureOverview.md` / `docs/ModuleOverview.md` (and `AGENTS.md`) when needed.
 - Treat current source code as authoritative when documentation has drifted.
 
 ## Working Principles
 
 - Follow the Working Agreement in `AGENTS.md` (smallest coherent change, comment policy, documentation concision).
-- Run the narrowest relevant validation (`./gradlew :app:webApp:compileKotlinWasmJs`, `./gradlew :server:test`).
+- Run the narrowest relevant validation (`./gradlew :app:feature:<name>:compileKotlinWasmJs`, `./gradlew :<module>:testAndroidHostTest`, `./gradlew :server:test`, `./gradlew detekt` — rerun detekt once if autoCorrect reformats; never fix import ordering manually).
 - Commit messages and GitHub-authored text are written in English (see `.claude/rules/git-workflow.md`).
