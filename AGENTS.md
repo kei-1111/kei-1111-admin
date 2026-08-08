@@ -15,7 +15,7 @@ Treat source code as authoritative when documentation has drifted.
 
 ## Project Overview
 
-portfolio-admin is the admin console for [kei-1111.github.io](https://github.com/kei-1111/kei-1111.github.io). It manages the images and text content (JSON) that the portfolio serves, stored in a GCS bucket that the portfolio server reads. See `README.md` for the architecture diagram and setup status.
+kei-1111-admin is the admin console for [kei-1111.github.io](https://github.com/kei-1111/kei-1111.github.io). It manages the images and text content (JSON) that the portfolio serves, stored in a GCS bucket that the portfolio server reads. See `README.md` for the architecture diagram and setup status.
 
 Tech stack (mirrors kei-1111.github.io):
 

@@ -25,7 +25,7 @@ GCP セットアップで「ユーザー本人にしかできないこと」と�
 - サービスアカウント作成 + IAM 設定
   - admin server 実行 SA: バケットへの `roles/storage.objectAdmin`
   - ポートフォリオ server 実行 SA: 同バケットへの `roles/storage.objectViewer`
-- WIF: 既存プール/プロバイダに `kei-1111/portfolio-admin` リポジトリを許可し、デプロイ SA をバインド
+- WIF: 既存プール/プロバイダに `kei-1111/kei-1111-admin` リポジトリを許可し、デプロイ SA をバインド
 - `server/Dockerfile` と `deploy-server.yml` の作成(本家の構成を流用、fat jar は `-PbundleWebApp` で UI 同梱)
 - GitHub 側 secrets/vars 設定(`gh secret set` / `gh variable set`): `GCP_WORKLOAD_IDENTITY_PROVIDER` / `GCP_SERVICE_ACCOUNT` / `GCP_PROJECT_ID` / `GCP_REGION` / `GAR_REPOSITORY`
 - ID トークン検証(audience = OAuth クライアント ID + メール許可リスト)のサーバー実装と、UI 側の Google Sign-In 組み込み

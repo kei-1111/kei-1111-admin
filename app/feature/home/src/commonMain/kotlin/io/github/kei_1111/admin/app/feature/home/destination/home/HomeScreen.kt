@@ -30,7 +30,7 @@ internal fun HomeScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = "Portfolio Admin",
+            text = "kei-1111 Admin",
             style = MaterialTheme.typography.headlineMedium,
         )
         Text(

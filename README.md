@@ -1,4 +1,4 @@
-# portfolio-admin
+# kei-1111-admin
 
 Admin console for [kei-1111.github.io](https://github.com/kei-1111/kei-1111.github.io): manages the images and text content that the portfolio server delivers, backed by Google Cloud Storage.
 

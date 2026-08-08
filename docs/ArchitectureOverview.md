@@ -1,6 +1,6 @@
 # Architecture Overview
 
-portfolio-admin のアーキテクチャ概要。kei-1111.github.io と同じ基盤(Clean Architecture 多モジュール + MVI + Metro DI + Navigation 3)を採用している。
+kei-1111-admin のアーキテクチャ概要。kei-1111.github.io と同じ基盤(Clean Architecture 多モジュール + MVI + Metro DI + Navigation 3)を採用している。
 
 ## 全体像
 

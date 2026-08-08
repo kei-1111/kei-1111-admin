@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-portfolio-admin is the admin console for kei-1111.github.io: a Compose Multiplatform (wasmJs) UI plus a Ktor admin server that manage the images and text content the portfolio delivers, backed by a GCS bucket. Auth is a single allowlisted Google account (ID token verified server-side).
+kei-1111-admin is the admin console for kei-1111.github.io: a Compose Multiplatform (wasmJs) UI plus a Ktor admin server that manage the images and text content the portfolio delivers, backed by a GCS bucket. Auth is a single allowlisted Google account (ID token verified server-side).
 
 - Module trees mirroring kei-1111.github.io: `app/` (wasmJs admin UI — `app:webApp` entry/wiring, `app:core:*`, `app:feature:*`), `server/` (Ktor CIO admin API, Cloud Run), `shared/model/` (DTOs, wasmJs + jvm).
 - Same infrastructure as kei-1111.github.io: convention plugins (`kei_1111.*` in `build-logic/`), detekt, MVI (`MviViewModel`), Metro DI, Navigation 3, Android target for Preview/host tests only. Versions are kept in sync with that repository unless there is a reason to diverge.
