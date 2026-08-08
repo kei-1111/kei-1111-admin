@@ -38,6 +38,8 @@ dependencies {
     implementation(projects.shared.model)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.server.auth)
+    implementation(libs.ktor.server.auth.jwt)
     implementation(libs.ktor.server.call.logging)
     implementation(libs.ktor.server.cio)
     implementation(libs.ktor.server.content.negotiation)

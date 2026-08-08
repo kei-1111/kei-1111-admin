@@ -49,9 +49,13 @@ kotlin {
             implementation(libs.metrox.viewmodel.compose)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.json)
         }
         wasmJsMain.dependencies {
             implementation(libs.kotlinx.browser)
+            implementation(libs.ktor.client.js)
         }
     }
 }

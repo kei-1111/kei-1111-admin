@@ -11,7 +11,7 @@ import kotlin.test.assertTrue
 class ApplicationTest {
 
     @Test
-    fun `health returns OK`() = testApplication {
+    fun healthReturnsOk() = testApplication {
         application { module() }
 
         val response = client.get("/health")

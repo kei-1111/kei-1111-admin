@@ -100,4 +100,4 @@ jobs:
             --memory=512Mi
             --port=8080
             --service-account=${{ vars.GCP_RUNTIME_SERVICE_ACCOUNT }}
-            --set-env-vars=CONTENT_BUCKET=kei-1111-portfolio-content
+            --set-env-vars=CONTENT_BUCKET=kei-1111-portfolio-content,GOOGLE_OAUTH_CLIENT_ID=672756196519-j3g8mu17pknvbdoiluomhui37fpm6uua.apps.googleusercontent.com,ADMIN_ALLOWED_EMAIL=keitar1119@gmail.com
