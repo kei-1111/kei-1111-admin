@@ -4,12 +4,15 @@ on:
   pull_request:
     branches:
       - main
+  push:
+    branches:
+      - main
 
 permissions:
   contents: read
 
 concurrency:
-  group: app-test-${{ github.event.pull_request.number }}
+  group: app-test-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: true
 
 jobs:

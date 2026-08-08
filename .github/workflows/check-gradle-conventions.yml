@@ -4,12 +4,15 @@ on:
   pull_request:
     branches:
       - main
+  push:
+    branches:
+      - main
 
 permissions:
   contents: read
 
 concurrency:
-  group: check-gradle-conventions-${{ github.event.pull_request.number }}
+  group: check-gradle-conventions-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: true
 
 jobs:
