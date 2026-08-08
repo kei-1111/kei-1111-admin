@@ -23,15 +23,17 @@ flowchart TB
 
 | Module | Description |
 |---|---|
-| `composeApp` | Admin UI — Compose Multiplatform, wasmJs target only |
+| `app:webApp` | Admin UI entry point and wiring — Compose Multiplatform, wasmJs target only |
+| `app:core:designsystem` | Theme (`AdminTheme`) |
+| `app:feature:home` | Home screen |
+| `shared:model` | DTOs shared between UI and server (wasmJs + jvm) |
 | `server` | Admin API — Ktor (CIO), deployed to Cloud Run |
-| `shared` | DTOs shared between UI and server (wasmJs + jvm) |
 
 ## Commands
 
 ```bash
-./gradlew :composeApp:wasmJsBrowserDevelopmentRun   # UI dev server
-./gradlew :composeApp:wasmJsBrowserDistribution     # UI production build
+./gradlew :app:webApp:wasmJsBrowserDevelopmentRun   # UI dev server (the :app:webApp: prefix is required)
+./gradlew :app:webApp:wasmJsBrowserDistribution     # UI production build
 ./gradlew :server:run                               # Admin server (http://localhost:8082; Cloud Run injects PORT)
 ./gradlew :server:buildFatJar                       # server/build/libs/server-all.jar
 ./gradlew :server:test                              # server tests

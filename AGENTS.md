@@ -19,9 +19,9 @@ portfolio-admin is the admin console for [kei-1111.github.io](https://github.com
 
 Tech stack:
 
-- Kotlin / Compose Multiplatform — **wasmJs** is the only client target (GitHub Pages)
+- Kotlin / Compose Multiplatform — **wasmJs** is the only client target (GitHub Pages); `app/` mirrors kei-1111.github.io's tree (`app:webApp` entry/wiring, `app:core:*`, `app:feature:*`)
 - **Ktor server** (`server/`, JVM, CIO) — admin API on Cloud Run; reads/writes the GCS bucket
-- `shared/` — DTOs shared by both (wasmJs + jvm)
+- `shared/model/` — DTOs shared by both (wasmJs + jvm)
 - kotlinx.serialization
 - Auth: Google Identity Services ID token from the UI, verified by the server against a single allowlisted account
 
@@ -55,9 +55,10 @@ Before handing off:
 
 | Change | Minimum validation |
 |---|---|
-| UI Kotlin (`composeApp`, `shared`) | `./gradlew :composeApp:compileKotlinWasmJs` |
+| Kotlin in one UI module | `./gradlew :app:feature:<name>:compileKotlinWasmJs` (or the changed module) |
+| Cross-module UI change (`app:*`, `shared:model`) | `./gradlew :app:webApp:compileKotlinWasmJs` |
 | Server Kotlin | `./gradlew :server:test` (compiles and runs the server test suite) |
-| Gradle or cross-module wiring | `./gradlew :composeApp:wasmJsBrowserDistribution :server:test` |
+| Gradle or cross-module wiring | `./gradlew :app:webApp:wasmJsBrowserDistribution :server:test` |
 
 Full command list (dev server, production build, server run, fat jar): `README.md` — Commands.
 

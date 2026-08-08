@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 portfolio-admin is the admin console for kei-1111.github.io: a Compose Multiplatform (wasmJs) UI plus a Ktor admin server that manage the images and text content the portfolio delivers, backed by a GCS bucket. Auth is a single allowlisted Google account (ID token verified server-side).
 
-- Three modules: `composeApp` (wasmJs admin UI, GitHub Pages), `server` (Ktor CIO admin API, Cloud Run), `shared` (DTOs, wasmJs + jvm).
+- Module trees mirroring kei-1111.github.io: `app/` (wasmJs admin UI — `app:webApp` entry/wiring, `app:core:*`, `app:feature:*`), `server/` (Ktor CIO admin API, Cloud Run), `shared/model/` (DTOs, wasmJs + jvm).
 - Same version base as kei-1111.github.io: Kotlin / Compose Multiplatform / Ktor / Gradle versions are kept in sync with that repository unless there is a reason to diverge.
 
 ## Top-Level Rules
@@ -25,5 +25,5 @@ portfolio-admin is the admin console for kei-1111.github.io: a Compose Multiplat
 ## Working Principles
 
 - Follow the Working Agreement in `AGENTS.md` (smallest coherent change, comment policy, documentation concision).
-- Run the narrowest relevant validation (`./gradlew :composeApp:compileKotlinWasmJs`, `./gradlew :server:test`).
+- Run the narrowest relevant validation (`./gradlew :app:webApp:compileKotlinWasmJs`, `./gradlew :server:test`).
 - Commit messages and GitHub-authored text are written in English (see `.claude/rules/git-workflow.md`).

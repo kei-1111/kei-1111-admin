@@ -28,6 +28,12 @@ dependencyResolutionManagement {
     }
 }
 
-include(":composeApp")
+include(":app:webApp")
+
+include(":app:core:designsystem")
+
+include(":app:feature:home")
+
+include(":shared:model")
+
 include(":server")
-include(":shared")

@@ -23,7 +23,7 @@ tasks.test {
 }
 
 dependencies {
-    implementation(projects.shared)
+    implementation(projects.shared.model)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.server.call.logging)

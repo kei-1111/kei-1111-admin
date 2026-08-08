@@ -1,6 +1,6 @@
 package io.github.kei_1111.admin.server
 
-import io.github.kei_1111.admin.shared.HealthResponse
+import io.github.kei_1111.admin.shared.model.HealthResponse
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
