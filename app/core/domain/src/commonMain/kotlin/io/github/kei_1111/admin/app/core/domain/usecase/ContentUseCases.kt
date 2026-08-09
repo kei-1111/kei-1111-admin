@@ -4,8 +4,11 @@ import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.Inject
 import io.github.kei_1111.admin.app.core.data.repository.AdminContentRepository
+import io.github.kei_1111.admin.app.core.data.repository.AdminPreviewRepository
 import io.github.kei_1111.admin.shared.model.AdminProfile
 import io.github.kei_1111.admin.shared.model.ContentMeta
+import io.github.kei_1111.admin.shared.model.ReadmeContent
+import io.github.kei_1111.admin.shared.model.TerminalCommandsContent
 import io.github.kei_1111.admin.shared.model.WorksContent
 import io.github.kei_1111.admin.shared.model.portfolio.ContributionCalendar
 import io.github.kei_1111.admin.shared.model.portfolio.GitHubProfile
@@ -93,7 +96,7 @@ internal class PublishContentUseCaseImpl(
 @Inject
 @ContributesBinding(AppScope::class)
 internal class GetPortfolioProfileUseCaseImpl(
-    private val repository: AdminContentRepository,
+    private val repository: AdminPreviewRepository,
 ) : GetPortfolioProfileUseCase {
     override suspend fun invoke(): GitHubProfile = repository.fetchPortfolioProfile()
 }
@@ -101,7 +104,56 @@ internal class GetPortfolioProfileUseCaseImpl(
 @Inject
 @ContributesBinding(AppScope::class)
 internal class GetPortfolioContributionsUseCaseImpl(
-    private val repository: AdminContentRepository,
+    private val repository: AdminPreviewRepository,
 ) : GetPortfolioContributionsUseCase {
     override suspend fun invoke(): ContributionCalendar = repository.fetchPortfolioContributions()
+}
+
+interface GetTerminalDraftUseCase {
+    suspend operator fun invoke(): TerminalCommandsContent
+}
+
+@ContributesBinding(AppScope::class)
+@Inject
+internal class GetTerminalDraftUseCaseImpl(
+    private val repository: AdminContentRepository,
+) : GetTerminalDraftUseCase {
+    override suspend fun invoke(): TerminalCommandsContent = repository.fetchTerminalDraft()
+}
+
+interface SaveTerminalDraftUseCase {
+    suspend operator fun invoke(content: TerminalCommandsContent): TerminalCommandsContent
+}
+
+@ContributesBinding(AppScope::class)
+@Inject
+internal class SaveTerminalDraftUseCaseImpl(
+    private val repository: AdminContentRepository,
+) : SaveTerminalDraftUseCase {
+    override suspend fun invoke(content: TerminalCommandsContent): TerminalCommandsContent =
+        repository.saveTerminalDraft(content)
+}
+
+interface GetReadmeDraftUseCase {
+    suspend operator fun invoke(): ReadmeContent
+}
+
+@ContributesBinding(AppScope::class)
+@Inject
+internal class GetReadmeDraftUseCaseImpl(
+    private val repository: AdminContentRepository,
+) : GetReadmeDraftUseCase {
+    override suspend fun invoke(): ReadmeContent = repository.fetchReadmeDraft()
+}
+
+interface SaveReadmeDraftUseCase {
+    suspend operator fun invoke(content: ReadmeContent): ReadmeContent
+}
+
+@ContributesBinding(AppScope::class)
+@Inject
+internal class SaveReadmeDraftUseCaseImpl(
+    private val repository: AdminContentRepository,
+) : SaveReadmeDraftUseCase {
+    override suspend fun invoke(content: ReadmeContent): ReadmeContent = repository.saveReadmeDraft(content)
 }

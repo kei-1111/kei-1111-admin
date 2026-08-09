@@ -51,7 +51,7 @@ flowchart TB
 |---|---|
 | `app:webApp` | エントリポイント。Metro `AppGraph`、`AppNavDisplay`(NavDisplay + back stack)、`KeiTheme` 適用、Google Sign-In 配線 |
 | `app:feature:workbench` | IDE 風管理画面。共通シェル(タイトルバー/ナビツリー/タブ/ステータスバー)+ Works 一覧 + 作品編集 + Profile 編集の MVI 一式 |
-| `app:core:data` | `AdminContentRepository`(管理サーバーのコンテンツ API、ktor client + Bearer)と Metro バインディング |
+| `app:core:data` | 管理サーバー API クライアント(ktor + Bearer)。`AdminContentRepository`(下書き/公開)・`AdminPreviewRepository`(本体プレビューデータ)・`AdminImageRepository`(画像アップロード)と Metro バインディング |
 | `app:core:ui` | 視覚的アイデンティティを持たないステートフル UI ヘルパー(HoverState) |
 | `app:core:utils` | プラットフォーム依存ユーティリティ(prefersReducedMotion / appOrigin / 画像ピッカー) |
 | `app:core:domain` | コンテンツ UseCase(Get/Save works・profile、meta、publish)と画像 UseCase(PickImage/UploadWorkImage)。interface + Impl で feature からフェイク可能 |

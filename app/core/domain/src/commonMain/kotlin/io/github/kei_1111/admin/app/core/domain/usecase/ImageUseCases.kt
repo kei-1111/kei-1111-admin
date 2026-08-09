@@ -3,7 +3,7 @@ package io.github.kei_1111.admin.app.core.domain.usecase
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.Inject
-import io.github.kei_1111.admin.app.core.data.repository.AdminContentRepository
+import io.github.kei_1111.admin.app.core.data.repository.AdminImageRepository
 import io.github.kei_1111.admin.app.core.utils.PickedImageFile
 import io.github.kei_1111.admin.app.core.utils.pickImageFile
 
@@ -26,7 +26,7 @@ interface UploadWorkImageUseCase {
 @ContributesBinding(AppScope::class)
 @Inject
 internal class UploadWorkImageUseCaseImpl(
-    private val repository: AdminContentRepository,
+    private val repository: AdminImageRepository,
 ) : UploadWorkImageUseCase {
     override suspend fun invoke(workId: String, file: PickedImageFile): String =
         repository.uploadWorkImage(
@@ -35,4 +35,18 @@ internal class UploadWorkImageUseCaseImpl(
             mimeType = file.mimeType,
             bytes = file.bytes,
         )
+}
+
+/** プロフィールアバターをアップロードして配信パスを返す。 */
+interface UploadProfileImageUseCase {
+    suspend operator fun invoke(file: PickedImageFile): String
+}
+
+@ContributesBinding(AppScope::class)
+@Inject
+internal class UploadProfileImageUseCaseImpl(
+    private val repository: AdminImageRepository,
+) : UploadProfileImageUseCase {
+    override suspend fun invoke(file: PickedImageFile): String =
+        repository.uploadProfileImage(fileName = file.name, mimeType = file.mimeType, bytes = file.bytes)
 }
