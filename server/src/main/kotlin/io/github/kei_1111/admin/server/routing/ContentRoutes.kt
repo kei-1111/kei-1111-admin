@@ -2,6 +2,8 @@ package io.github.kei_1111.admin.server.routing
 
 import io.github.kei_1111.admin.server.service.ContentService
 import io.github.kei_1111.admin.shared.model.AdminProfile
+import io.github.kei_1111.admin.shared.model.ReadmeContent
+import io.github.kei_1111.admin.shared.model.TerminalCommandsContent
 import io.github.kei_1111.admin.shared.model.WorksContent
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
@@ -25,6 +27,20 @@ fun Route.contentRoutes(contentService: ContentService) {
     put("/api/profile") {
         contentService.saveProfileDraft(call.receive<AdminProfile>())
         call.respond(contentService.profileDraft())
+    }
+    get("/api/terminal") {
+        call.respond(contentService.terminalDraft())
+    }
+    put("/api/terminal") {
+        contentService.saveTerminalDraft(call.receive<TerminalCommandsContent>())
+        call.respond(contentService.terminalDraft())
+    }
+    get("/api/readme") {
+        call.respond(contentService.readmeDraft())
+    }
+    put("/api/readme") {
+        contentService.saveReadmeDraft(call.receive<ReadmeContent>())
+        call.respond(contentService.readmeDraft())
     }
     get("/api/meta") {
         call.respond(contentService.meta())

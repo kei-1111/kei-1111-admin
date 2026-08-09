@@ -1,0 +1,244 @@
+{
+  "ja": [
+    {
+      "type": "heading",
+      "level": 1,
+      "inlines": [
+        {
+          "type": "text",
+          "text": "kei-1111.github.io"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "type": "text",
+          "text": "Android Studio New UI を再現した kei-1111 のポートフォリオサイトです。Kotlin / Compose Multiplatform (Wasm) で実装しています。"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "inlines": [
+        {
+          "type": "text",
+          "text": "このサイトの歩き方"
+        }
+      ]
+    },
+    {
+      "type": "bulletList",
+      "items": [
+        [
+          {
+            "type": "text",
+            "text": "エディタ上部のタブか Project ツリーの "
+          },
+          {
+            "type": "code",
+            "text": "ProfileScreen.kt"
+          },
+          {
+            "type": "text",
+            "text": " を開くと、プロフィールが表示されます"
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "コードエディタと Preview ペインは、実際の Android Studio と同じように同じ内容を表示します"
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "エディタ右上のボタンで Code / Split / Preview の表示モードを切り替えられます"
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "タイトルバー右上のボタンで言語と Dark / Light テーマを切り替えられます"
+          }
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "inlines": [
+        {
+          "type": "text",
+          "text": "技術スタック"
+        }
+      ]
+    },
+    {
+      "type": "bulletList",
+      "items": [
+        [
+          {
+            "type": "text",
+            "text": "Kotlin / Compose Multiplatform (wasmJs)"
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "Ktor + Cloud Run — プロフィールと Contributions を GitHub GraphQL API からライブ取得"
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "GitHub Pages + GitHub Actions による CI/CD"
+          }
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "inlines": [
+        {
+          "type": "text",
+          "text": "リポジトリ"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "type": "link",
+          "text": "kei-1111/kei-1111.github.io",
+          "url": "https://github.com/kei-1111/kei-1111.github.io"
+        }
+      ]
+    }
+  ],
+  "en": [
+    {
+      "type": "heading",
+      "level": 1,
+      "inlines": [
+        {
+          "type": "text",
+          "text": "kei-1111.github.io"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "type": "text",
+          "text": "kei-1111's portfolio site that mimics the Android Studio New UI. Built with Kotlin / Compose Multiplatform (Wasm)."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "inlines": [
+        {
+          "type": "text",
+          "text": "How to explore this site"
+        }
+      ]
+    },
+    {
+      "type": "bulletList",
+      "items": [
+        [
+          {
+            "type": "text",
+            "text": "Open "
+          },
+          {
+            "type": "code",
+            "text": "ProfileScreen.kt"
+          },
+          {
+            "type": "text",
+            "text": " from the editor tabs or the Project tree to show the profile"
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "The code editor and the Preview pane always show the same content, just like the real Android Studio"
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "The buttons at the top right of the editor switch the Code / Split / Preview view mode"
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "The buttons at the top right of the title bar switch the language and the Dark / Light theme"
+          }
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "inlines": [
+        {
+          "type": "text",
+          "text": "Tech stack"
+        }
+      ]
+    },
+    {
+      "type": "bulletList",
+      "items": [
+        [
+          {
+            "type": "text",
+            "text": "Kotlin / Compose Multiplatform (wasmJs)"
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "Ktor + Cloud Run — fetches the profile and Contributions live from the GitHub GraphQL API"
+          }
+        ],
+        [
+          {
+            "type": "text",
+            "text": "CI/CD with GitHub Pages + GitHub Actions"
+          }
+        ]
+      ]
+    },
+    {
+      "type": "heading",
+      "level": 2,
+      "inlines": [
+        {
+          "type": "text",
+          "text": "Repository"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "inlines": [
+        {
+          "type": "link",
+          "text": "kei-1111/kei-1111.github.io",
+          "url": "https://github.com/kei-1111/kei-1111.github.io"
+        }
+      ]
+    }
+  ]
+}

@@ -8,12 +8,19 @@ data class SocialLink(
     val url: String,
 )
 
-/** GitHub から取得した Pinned リポジトリの表示設定。内容は編集不可、表示 ON/OFF と並び順のみ管理する。 */
+/**
+ * GitHub から取得した Pinned リポジトリの表示設定。表示 ON/OFF に加え、説明文だけは
+ * リポジトリ毎に上書きできる(空なら GitHub の説明をそのまま使う)。
+ */
 @Serializable
 data class PinnedRepoSetting(
     val name: String,
     val description: String = "",
     val visible: Boolean = true,
+    /** 説明文の上書き(日本語)。空なら GitHub の説明へフォールバック。 */
+    val descriptionJa: String = "",
+    /** 説明文の上書き(英語)。空なら [descriptionJa]、それも空なら GitHub の説明。 */
+    val descriptionEn: String = "",
 )
 
 @Serializable

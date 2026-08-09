@@ -1,0 +1,11 @@
+{
+  "commands": [
+    {
+      "keyword": "coffee",
+      "lines": [
+        "  c[_]  brewing...",
+        "  done. enjoy your coffee!"
+      ]
+    }
+  ]
+}

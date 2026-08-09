@@ -7,6 +7,11 @@ import io.github.kei_1111.admin.server.storage.ContentStorage
 import io.github.kei_1111.admin.shared.model.AdminProfile
 import io.github.kei_1111.admin.shared.model.ContentMeta
 import io.github.kei_1111.admin.shared.model.ContentStatus
+import io.github.kei_1111.admin.shared.model.ReadmeBlock
+import io.github.kei_1111.admin.shared.model.ReadmeContent
+import io.github.kei_1111.admin.shared.model.ReadmeInline
+import io.github.kei_1111.admin.shared.model.TerminalCommandsContent
+import io.github.kei_1111.admin.shared.model.TerminalTextCommand
 import io.github.kei_1111.admin.shared.model.UploadedImage
 import io.github.kei_1111.admin.shared.model.Work
 import io.github.kei_1111.admin.shared.model.WorksContent
@@ -170,6 +175,68 @@ class ContentRoutesTest {
         assertEquals(HttpStatusCode.Unauthorized, client.get("/api/profile").status)
         assertEquals(HttpStatusCode.Unauthorized, client.post("/api/publish").status)
         assertEquals(HttpStatusCode.Unauthorized, client.get("/api/meta").status)
+    }
+
+    @Test
+    fun terminalAndReadmeDraftsRoundTripAndPublish() = contentTestApplication { client, storage ->
+        // シードが初期値として返る
+        val seeded = client.get("/api/terminal") { bearerAuth(TestGoogleAuth.token()) }
+            .body<TerminalCommandsContent>()
+        assertTrue(seeded.commands.any { it.keyword == "coffee" })
+        val seededReadme = client.get("/api/readme") { bearerAuth(TestGoogleAuth.token()) }
+            .body<ReadmeContent>()
+        assertTrue(seededReadme.ja.isNotEmpty() && seededReadme.en.isNotEmpty())
+
+        // 下書き保存 → 公開で published/ に写る
+        val commands = TerminalCommandsContent(
+            commands = listOf(TerminalTextCommand(keyword = "hello", lines = listOf("world"))),
+        )
+        client.put("/api/terminal") {
+            bearerAuth(TestGoogleAuth.token())
+            contentType(ContentType.Application.Json)
+            setBody(commands)
+        }
+        val readme = ReadmeContent(
+            ja = listOf(ReadmeBlock.Heading(level = 1, inlines = listOf(ReadmeInline.PlainText("見出し")))),
+            en = listOf(ReadmeBlock.Heading(level = 1, inlines = listOf(ReadmeInline.PlainText("Heading")))),
+        )
+        client.put("/api/readme") {
+            bearerAuth(TestGoogleAuth.token())
+            contentType(ContentType.Application.Json)
+            setBody(readme)
+        }
+        client.post("/api/publish") { bearerAuth(TestGoogleAuth.token()) }
+
+        assertTrue(storage.objects.containsKey("content/published/terminal-commands.json"))
+        assertTrue(storage.objects.getValue("content/published/terminal-commands.json").contains("hello"))
+        assertTrue(storage.objects.containsKey("content/published/readme.json"))
+        assertTrue(storage.objects.getValue("content/published/readme.json").contains("Heading"))
+    }
+
+    @Test
+    fun uploadsProfileAvatarUnderTheProfileDirectory() = contentTestApplication { client, storage ->
+        val response = client.post("/api/images/profile") {
+            bearerAuth(TestGoogleAuth.token())
+            setBody(
+                MultiPartFormDataContent(
+                    formData {
+                        append(
+                            "file",
+                            byteArrayOf(0x89.toByte(), 0x50, 0x4E, 0x47, 0x0D, 0x0A),
+                            Headers.build {
+                                append(HttpHeaders.ContentType, "image/png")
+                                append(HttpHeaders.ContentDisposition, "filename=\"avatar.png\"")
+                            },
+                        )
+                    },
+                ),
+            )
+        }
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        val path = response.body<UploadedImage>().path
+        assertTrue(path.startsWith("images/profile/") && path.endsWith(".png"))
+        assertTrue(storage.binaries.containsKey(path))
     }
 
     @Test

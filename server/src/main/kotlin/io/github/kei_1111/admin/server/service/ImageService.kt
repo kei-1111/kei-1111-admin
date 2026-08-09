@@ -8,10 +8,16 @@ class ImageService(
     private val now: () -> Long = { System.currentTimeMillis() },
 ) {
     /** 保存して配信パス(images/works/...)を返す。 */
-    suspend fun saveWorkImage(workId: String, fileName: String, content: ByteArray, contentType: String): String {
+    suspend fun saveWorkImage(workId: String, fileName: String, content: ByteArray, contentType: String): String =
+        saveImage(directory = "images/works/${sanitize(workId)}", fileName = fileName, content = content, contentType = contentType)
+
+    /** プロフィールアバターの保存。配信パス(images/profile/...)を返す。 */
+    suspend fun saveProfileImage(fileName: String, content: ByteArray, contentType: String): String =
+        saveImage(directory = "images/profile", fileName = fileName, content = content, contentType = contentType)
+
+    private suspend fun saveImage(directory: String, fileName: String, content: ByteArray, contentType: String): String {
         val extension = EXTENSIONS.getValue(contentType)
-        val safeWorkId = sanitize(workId)
-        val path = "images/works/$safeWorkId/${now()}-${sanitize(fileName.substringBeforeLast('.'))}.$extension"
+        val path = "$directory/${now()}-${sanitize(fileName.substringBeforeLast('.'))}.$extension"
         storage.writeBytes(path, content, contentType)
         return path
     }
