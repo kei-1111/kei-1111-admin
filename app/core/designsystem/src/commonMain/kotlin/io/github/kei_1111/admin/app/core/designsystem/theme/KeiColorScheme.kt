@@ -87,6 +87,8 @@ data class KeiColorScheme(
 
     val androidGreen: Color,
 
+    /** Works カードのスクリーンショット領域の背景。カードから一段沈んだ面として見せる。 */
+    val screenshotWell: Color,
     val cardBackground: Color,
 
     val gitHubItem: Color,
@@ -194,6 +196,7 @@ val KeiDarkColorScheme = KeiColorScheme(
 
     androidGreen = Color(0xFF3DDC84),
 
+    screenshotWell = Color(0xFF26282C),
     cardBackground = Color(0xFF1A1B1E),
 
     gitHubItem = Color(0xFF1F2124),
@@ -303,6 +306,7 @@ val KeiLightColorScheme = KeiColorScheme(
     // 明暗で不変
     androidGreen = Color(0xFF3DDC84),
 
+    screenshotWell = Color(0xFFE9EAEE),
     cardBackground = Color(0xFFFFFFFF),
 
     gitHubItem = Color(0xFFF6F8FA),

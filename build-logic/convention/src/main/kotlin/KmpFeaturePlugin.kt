@@ -31,7 +31,11 @@ class KmpFeaturePlugin : Plugin<Project> {
                             implementation(project(":shared:model"))
                             implementation(project(":app:core:mvi"))
                             implementation(project(":app:core:navigation"))
+                            implementation(project(":app:core:ui"))
+                            implementation(project(":app:core:utils"))
 
+                            implementation(libs.findLibrary("coil.compose").get())
+                            implementation(libs.findLibrary("coil.network.ktor3").get())
                             implementation(libs.findLibrary("compose.runtime").get())
                             implementation(libs.findLibrary("compose.foundation").get())
                             implementation(libs.findLibrary("compose.material3").get())

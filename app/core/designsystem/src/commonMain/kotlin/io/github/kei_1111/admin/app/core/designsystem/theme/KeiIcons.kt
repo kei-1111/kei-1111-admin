@@ -2,6 +2,8 @@ package io.github.kei_1111.admin.app.core.designsystem.theme
 
 import androidx.compose.runtime.Immutable
 import kei_1111_admin.app.core.designsystem.generated.resources.Res
+import kei_1111_admin.app.core.designsystem.generated.resources.ic_add_dark
+import kei_1111_admin.app.core.designsystem.generated.resources.ic_add_light
 import kei_1111_admin.app.core.designsystem.generated.resources.ic_build
 import kei_1111_admin.app.core.designsystem.generated.resources.ic_chevron_down_dark
 import kei_1111_admin.app.core.designsystem.generated.resources.ic_chevron_down_light
@@ -65,8 +67,14 @@ import kei_1111_admin.app.core.designsystem.generated.resources.ic_preview_only_
 import kei_1111_admin.app.core.designsystem.generated.resources.ic_preview_vertically
 import kei_1111_admin.app.core.designsystem.generated.resources.ic_properties_dark
 import kei_1111_admin.app.core.designsystem.generated.resources.ic_properties_light
+import kei_1111_admin.app.core.designsystem.generated.resources.ic_refresh_dark
+import kei_1111_admin.app.core.designsystem.generated.resources.ic_refresh_light
 import kei_1111_admin.app.core.designsystem.generated.resources.ic_resources_root_dark
 import kei_1111_admin.app.core.designsystem.generated.resources.ic_resources_root_light
+import kei_1111_admin.app.core.designsystem.generated.resources.ic_run_dark
+import kei_1111_admin.app.core.designsystem.generated.resources.ic_run_light
+import kei_1111_admin.app.core.designsystem.generated.resources.ic_save_dark
+import kei_1111_admin.app.core.designsystem.generated.resources.ic_save_light
 import kei_1111_admin.app.core.designsystem.generated.resources.ic_search
 import kei_1111_admin.app.core.designsystem.generated.resources.ic_show
 import kei_1111_admin.app.core.designsystem.generated.resources.ic_source_root_dark
@@ -120,9 +128,13 @@ data class KeiIcons(
     val inspectionsOk: ThemedIcon,
     val inspectionsError: ThemedIcon,
     val warning: ThemedIcon,
+    val add: ThemedIcon,
     val chevronDown: ThemedIcon,
     val chevronRight: ThemedIcon,
     val closeSmall: ThemedIcon,
+    val refresh: ThemedIcon,
+    val run: ThemedIcon,
+    val save: ThemedIcon,
     val moreVertical: ThemedIcon,
     val properties: ThemedIcon,
     val layout: ThemedIcon,
@@ -188,9 +200,13 @@ val keiIcons: KeiIcons = KeiIcons(
     inspectionsOk = ThemedIcon(Res.drawable.ic_inspections_ok_dark, Res.drawable.ic_inspections_ok_light),
     inspectionsError = ThemedIcon(Res.drawable.ic_inspections_error_dark, Res.drawable.ic_inspections_error_light),
     warning = ThemedIcon(Res.drawable.ic_warning_dark, Res.drawable.ic_warning_light),
+    add = ThemedIcon(Res.drawable.ic_add_dark, Res.drawable.ic_add_light),
     chevronDown = ThemedIcon(Res.drawable.ic_chevron_down_dark, Res.drawable.ic_chevron_down_light),
     chevronRight = ThemedIcon(Res.drawable.ic_chevron_right_dark, Res.drawable.ic_chevron_right_light),
     closeSmall = ThemedIcon(Res.drawable.ic_close_small_dark, Res.drawable.ic_close_small_light),
+    refresh = ThemedIcon(Res.drawable.ic_refresh_dark, Res.drawable.ic_refresh_light),
+    run = ThemedIcon(Res.drawable.ic_run_dark, Res.drawable.ic_run_light),
+    save = ThemedIcon(Res.drawable.ic_save_dark, Res.drawable.ic_save_light),
     moreVertical = ThemedIcon(Res.drawable.ic_more_vertical_dark, Res.drawable.ic_more_vertical_light),
     properties = ThemedIcon(Res.drawable.ic_properties_dark, Res.drawable.ic_properties_light),
     layout = ThemedIcon(Res.drawable.ic_layout_dark, Res.drawable.ic_layout_light),
