@@ -35,6 +35,7 @@ internal fun Work.toPortfolioWork(): io.github.kei_1111.admin.shared.model.portf
 /** GitHub 由来の統計は [base] から引き継ぎ、編集可能なフィールドだけを上書きする。 */
 internal fun AdminProfile.overlayOn(base: GitHubProfile): GitHubProfile = base.copy(
     name = LocalizedText(ja = displayName, en = displayNameEn.ifBlank { displayName }),
+    iconUrl = avatarUrl.takeIf { it.isNotBlank() } ?: base.iconUrl,
     role = role,
     location = location,
     pinnedRepos = base.pinnedRepos

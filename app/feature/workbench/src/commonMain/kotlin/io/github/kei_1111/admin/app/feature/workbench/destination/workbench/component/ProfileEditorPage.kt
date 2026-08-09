@@ -65,6 +65,7 @@ internal fun ProfileEditorPage(
     Row(modifier = modifier.padding(WorkbenchDimensions.IslandPadding)) {
         ProfileForm(
             profile = profile,
+            liveAvatarUrl = state.portfolioProfile?.iconUrl,
             onChangeProfile = onChangeProfile,
             onClickAddAvatar = onClickAddAvatar,
             modifier = Modifier
@@ -104,8 +105,10 @@ internal fun ProfileEditorPage(
 }
 
 @Composable
+@Suppress("LongParameterList")
 private fun ProfileForm(
     profile: AdminProfile,
+    liveAvatarUrl: String?,
     onChangeProfile: (AdminProfile) -> Unit,
     onClickAddAvatar: () -> Unit,
     modifier: Modifier = Modifier,
@@ -123,7 +126,12 @@ private fun ProfileForm(
             LanguageSegment()
         }
         GitHubSyncCard(profile = profile)
-        IdentitySection(profile = profile, onChangeProfile = onChangeProfile, onClickAddAvatar = onClickAddAvatar)
+        IdentitySection(
+            profile = profile,
+            liveAvatarUrl = liveAvatarUrl,
+            onChangeProfile = onChangeProfile,
+            onClickAddAvatar = onClickAddAvatar,
+        )
         LocationSection(profile = profile, onChangeProfile = onChangeProfile)
         PinnedReposSection(profile = profile, onChangeProfile = onChangeProfile)
         SocialLinksSection(profile = profile, onChangeProfile = onChangeProfile)
@@ -179,8 +187,10 @@ private fun GitHubSyncCard(
 }
 
 @Composable
+@Suppress("LongParameterList")
 private fun IdentitySection(
     profile: AdminProfile,
+    liveAvatarUrl: String?,
     onChangeProfile: (AdminProfile) -> Unit,
     onClickAddAvatar: () -> Unit,
     modifier: Modifier = Modifier,
@@ -201,9 +211,10 @@ private fun IdentitySection(
                     .clickable(onClick = onClickAddAvatar),
                 contentAlignment = Alignment.Center,
             ) {
-                if (profile.avatarUrl.isNotEmpty()) {
+                val shownAvatarUrl = profile.avatarUrl.ifBlank { liveAvatarUrl.orEmpty() }
+                if (shownAvatarUrl.isNotEmpty()) {
                     WorksAsyncImage(
-                        url = resolveWorksAssetUrl(profile.avatarUrl),
+                        url = resolveWorksAssetUrl(shownAvatarUrl),
                         modifier = Modifier.fillMaxSize(),
                     )
                 } else {

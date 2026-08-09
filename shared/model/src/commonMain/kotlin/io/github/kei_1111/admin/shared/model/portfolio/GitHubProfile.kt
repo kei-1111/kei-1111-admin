@@ -13,6 +13,9 @@ data class GitHubProfile(
     val name: LocalizedText,
     @SerialName("handle")
     val handle: String,
+    /** アバター画像。非 http(s) 値は本体サイト配信オリジン基準の相対パス。null は同梱画像を使う。 */
+    @SerialName("iconUrl")
+    val iconUrl: String? = null,
     @SerialName("location")
     val location: String,
     @SerialName("role")

@@ -46,6 +46,7 @@ import io.github.kei_1111.admin.app.core.designsystem.theme.ProfileIconImage
 import io.github.kei_1111.admin.app.core.designsystem.theme.brandColor
 import io.github.kei_1111.admin.app.core.designsystem.theme.icon
 import io.github.kei_1111.admin.app.core.ui.rememberHoverState
+import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.preview.works.WorksAsyncImage
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.theme.WorkbenchDimensions
 import io.github.kei_1111.admin.app.feature.workbench.model.forLanguage
 import io.github.kei_1111.admin.app.feature.workbench.preview.PreviewContributionCalendar
@@ -155,15 +156,25 @@ private fun ProfileAvatar(
     modifier: Modifier = Modifier,
 ) {
     val language = KeiLanguageController.language
-    Image(
-        painter = painterResource(ProfileIconImage),
-        contentDescription = profile.name.forLanguage(language),
-        contentScale = ContentScale.Crop,
+    Box(
         modifier = modifier
             .size(56.dp)
             .clip(CircleShape)
             .border(1.dp, KeiTheme.colors.outline, CircleShape),
-    )
+    ) {
+        Image(
+            painter = painterResource(ProfileIconImage),
+            contentDescription = profile.name.forLanguage(language),
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.matchParentSize(),
+        )
+        profile.iconUrl?.let { iconUrl ->
+            WorksAsyncImage(
+                url = iconUrl,
+                modifier = Modifier.matchParentSize(),
+            )
+        }
+    }
 }
 
 @Composable

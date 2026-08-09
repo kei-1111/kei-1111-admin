@@ -42,9 +42,20 @@ import kei_1111_admin.app.feature.workbench.generated.resources.Res
 import kei_1111_admin.app.feature.workbench.generated.resources.ic_play_store
 import org.jetbrains.compose.resources.painterResource
 
-/** 配布物同梱アセットの相対パス（images/works/…）を配信オリジンの絶対 URL へ解決する。http(s) はそのまま。 */
-internal fun resolveWorksAssetUrl(url: String): String =
-    if (url.startsWith("http")) url else "${appOrigin()}/${url.trimStart('/')}"
+// admin アップロード規約のパス。それ以外の相対パスは本体サイト同梱アセットとして本番オリジンから読む
+private val adminUploadedAssetPattern = Regex("^images/(?:works/[^/]+|profile)/.+")
+
+private const val PORTFOLIO_SITE_ORIGIN = "https://kei-1111.github.io"
+
+/** 相対パスの画像を実際に配信しているオリジンの絶対 URL へ解決する。http(s) はそのまま。 */
+internal fun resolveWorksAssetUrl(url: String): String {
+    val path = url.trimStart('/')
+    return when {
+        url.startsWith("http") -> url
+        adminUploadedAssetPattern.matches(path) -> "${appOrigin()}/$path"
+        else -> "$PORTFOLIO_SITE_ORIGIN/$path"
+    }
+}
 
 /**
  * 作品画像の共通ローダー。Coil の既定はレイアウトサイズへ縮小デコードするため、Preview の
