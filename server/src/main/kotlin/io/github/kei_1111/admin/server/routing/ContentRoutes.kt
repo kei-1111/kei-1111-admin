@@ -1,10 +1,13 @@
 package io.github.kei_1111.admin.server.routing
 
 import io.github.kei_1111.admin.server.service.ContentService
+import io.github.kei_1111.admin.server.service.PublishService
 import io.github.kei_1111.admin.shared.model.AdminProfile
+import io.github.kei_1111.admin.shared.model.DiscardDraftRequest
 import io.github.kei_1111.admin.shared.model.ReadmeContent
 import io.github.kei_1111.admin.shared.model.TerminalCommandsContent
 import io.github.kei_1111.admin.shared.model.WorksContent
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -13,7 +16,7 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.put
 
 /** HTTP 変換のみ。ポリシー(draft/published の分離)は ContentService が持つ。 */
-fun Route.contentRoutes(contentService: ContentService) {
+fun Route.contentRoutes(contentService: ContentService, publishService: PublishService) {
     get("/api/works") {
         call.respond(contentService.worksDraft())
     }
@@ -42,10 +45,17 @@ fun Route.contentRoutes(contentService: ContentService) {
         contentService.saveReadmeDraft(call.receive<ReadmeContent>())
         call.respond(contentService.readmeDraft())
     }
+    get("/api/published") {
+        call.respond(publishService.publishedSnapshot())
+    }
+    post("/api/drafts/discard") {
+        publishService.discardDraft(call.receive<DiscardDraftRequest>().document)
+        call.respond(HttpStatusCode.NoContent)
+    }
     get("/api/meta") {
-        call.respond(contentService.meta())
+        call.respond(publishService.meta())
     }
     post("/api/publish") {
-        call.respond(contentService.publish())
+        call.respond(publishService.publish())
     }
 }

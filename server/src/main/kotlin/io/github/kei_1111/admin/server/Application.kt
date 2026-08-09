@@ -9,6 +9,7 @@ import io.github.kei_1111.admin.server.routing.previewRoutes
 import io.github.kei_1111.admin.server.service.ContentService
 import io.github.kei_1111.admin.server.service.ImageService
 import io.github.kei_1111.admin.server.service.PortfolioPreviewService
+import io.github.kei_1111.admin.server.service.PublishService
 import io.github.kei_1111.admin.server.storage.ContentStorage
 import io.github.kei_1111.admin.server.storage.FileContentStorage
 import io.github.kei_1111.admin.server.storage.GcsContentStorage
@@ -109,8 +110,13 @@ fun Application.configureApplication(
     contentService: ContentService,
     previewService: PortfolioPreviewService,
     imageService: ImageService,
+    publishService: PublishService? = null,
     devAuthBypass: Boolean = false,
 ) {
+    val publish = publishService ?: PublishService(
+        storage = defaultStorage(devAuthBypass),
+        contentService = contentService,
+    )
     if (devAuthBypass) {
         log.warn("DEV_AUTH_BYPASS is enabled — API routes are UNAUTHENTICATED (local development only)")
     }
@@ -140,7 +146,7 @@ fun Application.configureApplication(
             get("/api/me") {
                 call.respond(MeResponse(email = "dev@localhost"))
             }
-            contentRoutes(contentService)
+            contentRoutes(contentService, publish)
             previewRoutes(previewService)
             imageRoutes(imageService)
         } else {
@@ -149,7 +155,7 @@ fun Application.configureApplication(
                     val principal = requireNotNull(call.principal<JWTPrincipal>())
                     call.respond(MeResponse(email = principal.payload.getClaim("email").asString()))
                 }
-                contentRoutes(contentService)
+                contentRoutes(contentService, publish)
                 previewRoutes(previewService)
                 imageRoutes(imageService)
             }

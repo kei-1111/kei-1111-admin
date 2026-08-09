@@ -3,10 +3,14 @@ package io.github.kei_1111.admin.server
 import io.github.kei_1111.admin.server.service.ContentService
 import io.github.kei_1111.admin.server.service.ImageService
 import io.github.kei_1111.admin.server.service.PortfolioPreviewService
+import io.github.kei_1111.admin.server.service.PublishService
 import io.github.kei_1111.admin.server.storage.ContentStorage
 import io.github.kei_1111.admin.shared.model.AdminProfile
+import io.github.kei_1111.admin.shared.model.ContentDocument
 import io.github.kei_1111.admin.shared.model.ContentMeta
 import io.github.kei_1111.admin.shared.model.ContentStatus
+import io.github.kei_1111.admin.shared.model.DiscardDraftRequest
+import io.github.kei_1111.admin.shared.model.PublishedSnapshot
 import io.github.kei_1111.admin.shared.model.ReadmeBlock
 import io.github.kei_1111.admin.shared.model.ReadmeContent
 import io.github.kei_1111.admin.shared.model.ReadmeInline
@@ -62,11 +66,17 @@ class ContentRoutesTest {
         block: suspend ApplicationTestBuilder.(HttpClient, FakeContentStorage) -> Unit,
     ) = testApplication {
         application {
+            val contentService = ContentService(storage = storage)
             configureApplication(
                 authConfig = TestGoogleAuth.authConfig,
-                contentService = ContentService(storage = storage, now = { "2026-08-08T12:00:00Z" }),
+                contentService = contentService,
                 previewService = PortfolioPreviewService { path -> """{"path":"$path"}""" },
                 imageService = ImageService(storage = storage, now = { 1723100000000 }),
+                publishService = PublishService(
+                    storage = storage,
+                    contentService = contentService,
+                    now = { "2026-08-08T12:00:00Z" },
+                ),
             )
         }
         val client = createClient {
@@ -237,6 +247,59 @@ class ContentRoutesTest {
         val path = response.body<UploadedImage>().path
         assertTrue(path.startsWith("images/profile/") && path.endsWith(".png"))
         assertTrue(storage.binaries.containsKey(path))
+    }
+
+    @Test
+    fun publishedSnapshotReturnsNullsBeforeFirstPublishAndContentAfter() = contentTestApplication { client, _ ->
+        val before = client.get("/api/published") { bearerAuth(TestGoogleAuth.token()) }
+            .body<PublishedSnapshot>()
+        assertEquals(null, before.works)
+        assertEquals(null, before.profile)
+
+        client.post("/api/publish") { bearerAuth(TestGoogleAuth.token()) }
+
+        val after = client.get("/api/published") { bearerAuth(TestGoogleAuth.token()) }
+            .body<PublishedSnapshot>()
+        assertTrue(after.works != null && after.profile != null && after.terminal != null && after.readme != null)
+    }
+
+    @Test
+    fun discardingADraftRevertsItToThePublishedContent() = contentTestApplication { client, _ ->
+        // 公開 → 下書きを書き換え → 破棄で公開内容へ戻る
+        client.post("/api/publish") { bearerAuth(TestGoogleAuth.token()) }
+        val published = client.get("/api/works") { bearerAuth(TestGoogleAuth.token()) }.body<WorksContent>()
+        client.put("/api/works") {
+            bearerAuth(TestGoogleAuth.token())
+            contentType(ContentType.Application.Json)
+            setBody(WorksContent(works = emptyList()))
+        }
+
+        val response = client.post("/api/drafts/discard") {
+            bearerAuth(TestGoogleAuth.token())
+            contentType(ContentType.Application.Json)
+            setBody(DiscardDraftRequest(document = ContentDocument.Works))
+        }
+
+        assertEquals(HttpStatusCode.NoContent, response.status)
+        assertEquals(published, client.get("/api/works") { bearerAuth(TestGoogleAuth.token()) }.body<WorksContent>())
+    }
+
+    @Test
+    fun discardingWithoutAPublishRevertsToTheSeed() = contentTestApplication { client, _ ->
+        client.put("/api/works") {
+            bearerAuth(TestGoogleAuth.token())
+            contentType(ContentType.Application.Json)
+            setBody(WorksContent(works = emptyList()))
+        }
+
+        client.post("/api/drafts/discard") {
+            bearerAuth(TestGoogleAuth.token())
+            contentType(ContentType.Application.Json)
+            setBody(DiscardDraftRequest(document = ContentDocument.Works))
+        }
+
+        val works = client.get("/api/works") { bearerAuth(TestGoogleAuth.token()) }.body<WorksContent>().works
+        assertTrue(works.any { it.id == "withmo" })
     }
 
     @Test
