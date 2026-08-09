@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
@@ -68,6 +69,7 @@ internal fun WorkEditorPage(
     onChangeWork: (Work) -> Unit,
     onClickAddScreenshot: (String) -> Unit,
     onClickAddIcon: (String) -> Unit,
+    onClickRevertWork: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val work = state.works.firstOrNull { it.id == workId }
@@ -81,8 +83,10 @@ internal fun WorkEditorPage(
             work = work,
             uploadingScreenshot = state.uploadingScreenshot,
             onChangeWork = onChangeWork,
+            dirty = work.id in state.unsavedWorkIds,
             onClickAddScreenshot = { onClickAddScreenshot(work.id) },
             onClickAddIcon = { onClickAddIcon(work.id) },
+            onClickRevertWork = { onClickRevertWork(work.id) },
             modifier = Modifier
                 .weight(1f)
                 .fillMaxSize()
@@ -134,9 +138,11 @@ private fun MissingWork(workId: String, modifier: Modifier = Modifier) {
 private fun WorkForm(
     work: Work,
     uploadingScreenshot: Boolean,
+    dirty: Boolean,
     onChangeWork: (Work) -> Unit,
     onClickAddScreenshot: () -> Unit,
     onClickAddIcon: () -> Unit,
+    onClickRevertWork: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val editingJa = KeiLanguageController.language == KeiLanguage.Ja
@@ -150,7 +156,13 @@ private fun WorkForm(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             SectionLabel(text = "EDIT LANGUAGE")
-            LanguageSegment()
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (dirty) {
+                    DiscardDraftTextButton(onClick = onClickRevertWork, label = "このアイテムの変更を破棄")
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+                LanguageSegment()
+            }
         }
         HeaderSection(work = work, onChangeWork = onChangeWork, onClickAddIcon = onClickAddIcon)
         TypePeriodSection(work = work, onChangeWork = onChangeWork)
@@ -507,6 +519,7 @@ private fun WorkEditorPagePreview() {
                 onChangeWork = {},
                 onClickAddScreenshot = {},
                 onClickAddIcon = {},
+                onClickRevertWork = {},
             )
         }
     }

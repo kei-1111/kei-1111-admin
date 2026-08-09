@@ -32,6 +32,7 @@ import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.prev
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.theme.WorkbenchDimensions
 import io.github.kei_1111.admin.app.feature.workbench.model.WorkbenchTab
 import io.github.kei_1111.admin.shared.model.AdminProfile
+import io.github.kei_1111.admin.shared.model.ContentDocument
 import io.github.kei_1111.admin.shared.model.ReadmeContent
 import io.github.kei_1111.admin.shared.model.TerminalCommandsContent
 import io.github.kei_1111.admin.shared.model.Work
@@ -52,6 +53,8 @@ internal fun MainIsland(
     onChangeProfile: (AdminProfile) -> Unit,
     onClickAddAvatar: () -> Unit,
     onClickSyncPinned: () -> Unit,
+    onClickDiscardDraft: (ContentDocument) -> Unit,
+    onClickRevertWork: (String) -> Unit,
     onChangeTerminal: (TerminalCommandsContent) -> Unit,
     onChangeReadme: (ReadmeContent) -> Unit,
     onClickRetryPreview: () -> Unit,
@@ -78,6 +81,7 @@ internal fun MainIsland(
                     onSelectWork = onSelectWork,
                     onClickCreateWork = onClickCreateWork,
                     onClickDeleteWork = onClickDeleteWork,
+                    onClickDiscardDraft = { onClickDiscardDraft(ContentDocument.Works) },
                     modifier = Modifier.fillMaxSize(),
                 )
                 is WorkbenchTab.WorkEditor -> WorkEditorPage(
@@ -87,6 +91,7 @@ internal fun MainIsland(
                     onChangeWork = onChangeWork,
                     onClickAddScreenshot = onClickAddScreenshot,
                     onClickAddIcon = onClickAddIcon,
+                    onClickRevertWork = onClickRevertWork,
                     modifier = Modifier.fillMaxSize(),
                 )
                 is WorkbenchTab.ProfileEditor -> ProfileEditorPage(
@@ -95,6 +100,7 @@ internal fun MainIsland(
                     onChangeProfile = onChangeProfile,
                     onClickAddAvatar = onClickAddAvatar,
                     onClickSyncPinned = onClickSyncPinned,
+                    onClickDiscardDraft = { onClickDiscardDraft(ContentDocument.Profile) },
                     onClickRetryPreview = onClickRetryPreview,
                     modifier = Modifier.fillMaxSize(),
                 )
@@ -102,12 +108,14 @@ internal fun MainIsland(
                     state = state,
                     isMobile = isMobile,
                     onChangeReadme = onChangeReadme,
+                    onClickDiscardDraft = { onClickDiscardDraft(ContentDocument.Readme) },
                     modifier = Modifier.fillMaxSize(),
                 )
                 is WorkbenchTab.TerminalEditor -> TerminalEditorPage(
                     state = state,
                     isMobile = isMobile,
                     onChangeTerminal = onChangeTerminal,
+                    onClickDiscardDraft = { onClickDiscardDraft(ContentDocument.Terminal) },
                     modifier = Modifier.fillMaxSize(),
                 )
             }
@@ -248,6 +256,8 @@ private fun MainIslandPreview() {
                 onChangeProfile = {},
                 onClickAddAvatar = {},
                 onClickSyncPinned = {},
+                onClickDiscardDraft = {},
+                onClickRevertWork = {},
                 onChangeTerminal = {},
                 onChangeReadme = {},
                 onClickRetryPreview = {},

@@ -29,6 +29,8 @@ internal fun WorkbenchMainIsland(
         onChangeProfile = { onIntent(WorkbenchIntent.UpdateProfileDraft(it)) },
         onClickAddAvatar = { onIntent(WorkbenchIntent.AddProfileAvatar) },
         onClickSyncPinned = { onIntent(WorkbenchIntent.SyncPinnedRepos) },
+        onClickDiscardDraft = { onIntent(WorkbenchIntent.RequestDiscardDraft(it)) },
+        onClickRevertWork = { onIntent(WorkbenchIntent.RequestRevertWork(it)) },
         onChangeTerminal = { onIntent(WorkbenchIntent.UpdateTerminalDraft(it)) },
         onChangeReadme = { onIntent(WorkbenchIntent.UpdateReadmeDraft(it)) },
         onClickRetryPreview = { onIntent(WorkbenchIntent.RetryPreview) },

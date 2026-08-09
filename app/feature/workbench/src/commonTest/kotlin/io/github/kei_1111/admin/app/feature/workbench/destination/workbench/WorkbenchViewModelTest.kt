@@ -1,10 +1,12 @@
 package io.github.kei_1111.admin.app.feature.workbench.destination.workbench
 
 import io.github.kei_1111.admin.app.core.common.auth.AdminAuthController
+import io.github.kei_1111.admin.app.core.domain.usecase.DiscardDraftUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetContentMetaUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetPortfolioContributionsUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetPortfolioProfileUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetProfileDraftUseCase
+import io.github.kei_1111.admin.app.core.domain.usecase.GetPublishedSnapshotUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetReadmeDraftUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetTerminalDraftUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetWorksDraftUseCase
@@ -20,13 +22,16 @@ import io.github.kei_1111.admin.app.core.testing.ViewModelTestBase
 import io.github.kei_1111.admin.app.core.testing.startCollecting
 import io.github.kei_1111.admin.app.core.utils.PickedImageFile
 import io.github.kei_1111.admin.app.feature.workbench.model.AdminNode
+import io.github.kei_1111.admin.app.feature.workbench.model.WorkChangeKind
 import io.github.kei_1111.admin.app.feature.workbench.model.WorkbenchTab
 import io.github.kei_1111.admin.app.feature.workbench.preview.PreviewContributionCalendar
 import io.github.kei_1111.admin.app.feature.workbench.preview.PreviewGitHubProfile
 import io.github.kei_1111.admin.shared.model.AdminProfile
+import io.github.kei_1111.admin.shared.model.ContentDocument
 import io.github.kei_1111.admin.shared.model.ContentMeta
 import io.github.kei_1111.admin.shared.model.ContentStatus
 import io.github.kei_1111.admin.shared.model.PinnedRepoSetting
+import io.github.kei_1111.admin.shared.model.PublishedSnapshot
 import io.github.kei_1111.admin.shared.model.ReadmeBlock
 import io.github.kei_1111.admin.shared.model.ReadmeContent
 import io.github.kei_1111.admin.shared.model.ReadmeInline
@@ -59,10 +64,13 @@ private class FakeAdminContentRepository(
     var terminal: TerminalCommandsContent = TerminalCommandsContent(),
     var readme: ReadmeContent = ReadmeContent(),
     var meta: ContentMeta = ContentMeta(),
+    var published: PublishedSnapshot = PublishedSnapshot(),
     var failing: Boolean = false,
     var previewFailing: Boolean = false,
+    var publishedFailing: Boolean = false,
 ) {
     var publishCount = 0
+    var discardedDocuments = mutableListOf<ContentDocument>()
 
     fun failIfRequested() {
         check(!failing) { "fake failure" }
@@ -160,6 +168,22 @@ private fun viewModel(
             repository.failIfRequested()
             repository.readme = content
             return content
+        }
+    },
+    getPublishedSnapshot = object : GetPublishedSnapshotUseCase {
+        override suspend fun invoke(): PublishedSnapshot {
+            check(!repository.publishedFailing) { "fake published failure" }
+            return repository.published
+        }
+    },
+    discardDraft = object : DiscardDraftUseCase {
+        override suspend fun invoke(document: ContentDocument) {
+            repository.failIfRequested()
+            repository.discardedDocuments.add(document)
+            // 破棄=公開内容(無ければシード相当)へ戻す。フェイクでは works のみ再現
+            if (document == ContentDocument.Works) {
+                repository.works = repository.published.works ?: WorksContent(works = SeedWorks)
+            }
         }
     },
 )
@@ -655,6 +679,97 @@ class WorkbenchViewModelTest : ViewModelTestBase() {
         val state = viewModel.state.value
         assertEquals("images/profile/uploaded-avatar.png", state.profile.avatarUrl)
         assertTrue(state.profileUnsaved)
+    }
+
+    @Test
+    fun requestingPublishLoadsTheDiffAgainstThePublishedSnapshot() = runTest {
+        signIn()
+        val repository = FakeAdminContentRepository(
+            published = PublishedSnapshot(works = WorksContent(works = SeedWorks.filter { it.id == "withmo" })),
+        )
+        val viewModel = viewModel(repository)
+        startCollecting(viewModel.state)
+        runCurrent()
+        val withmo = viewModel.state.value.works.first { it.id == "withmo" }
+        viewModel.onIntent(WorkbenchIntent.UpdateWorkDraft(withmo.copy(about = "更新")))
+        runCurrent()
+
+        viewModel.onIntent(WorkbenchIntent.RequestPublish)
+        runCurrent()
+
+        val diff = viewModel.state.value.publishDiff
+        assertNotNull(diff)
+        assertFalse(diff.isFirstPublish)
+        assertEquals(
+            WorkChangeKind.Changed,
+            diff.works.first { it.name == "withmo" }.kind,
+        )
+        // TimeLog は status=Draft → 除外として表示
+        assertEquals(
+            WorkChangeKind.Excluded,
+            diff.works.first { it.name == "TimeLog" }.kind,
+        )
+    }
+
+    @Test
+    fun publishDiffFailureFlagsTheDialogInsteadOfSilentlyDegrading() = runTest {
+        signIn()
+        val repository = FakeAdminContentRepository(publishedFailing = true)
+        val viewModel = viewModel(repository)
+        startCollecting(viewModel.state)
+        runCurrent()
+
+        viewModel.onIntent(WorkbenchIntent.RequestPublish)
+        runCurrent()
+
+        val state = viewModel.state.value
+        assertNull(state.publishDiff)
+        assertTrue(state.publishDiffFailed)
+    }
+
+    @Test
+    fun confirmedDiscardRevertsTheDocumentAndClearsItsBuffers() = runTest {
+        signIn()
+        val repository = FakeAdminContentRepository()
+        val viewModel = viewModel(repository)
+        startCollecting(viewModel.state)
+        runCurrent()
+        val work = viewModel.state.value.works.first()
+        viewModel.onIntent(WorkbenchIntent.UpdateWorkDraft(work.copy(about = "捨てられる編集")))
+        runCurrent()
+        assertEquals(1, viewModel.state.value.unsavedCount)
+
+        viewModel.onIntent(WorkbenchIntent.RequestDiscardDraft(ContentDocument.Works))
+        runCurrent()
+        assertEquals(ContentDocument.Works, viewModel.state.value.discardConfirmDocument)
+        viewModel.onIntent(WorkbenchIntent.ConfirmDiscardDraft)
+        runCurrent()
+
+        val state = viewModel.state.value
+        assertEquals(listOf(ContentDocument.Works), repository.discardedDocuments)
+        assertEquals(0, state.unsavedCount)
+        assertEquals(work.about, state.works.first { it.id == work.id }.about)
+    }
+
+    @Test
+    fun confirmedRevertDropsOnlyThatWorksBuffer() = runTest {
+        signIn()
+        val viewModel = viewModel(FakeAdminContentRepository())
+        startCollecting(viewModel.state)
+        runCurrent()
+        val work = viewModel.state.value.works.first()
+        viewModel.onIntent(WorkbenchIntent.UpdateWorkDraft(work.copy(about = "編集")))
+        runCurrent()
+
+        viewModel.onIntent(WorkbenchIntent.RequestRevertWork(work.id))
+        runCurrent()
+        assertEquals(work.id, viewModel.state.value.revertConfirmWork?.id)
+        viewModel.onIntent(WorkbenchIntent.ConfirmRevertWork)
+        runCurrent()
+
+        val state = viewModel.state.value
+        assertEquals(0, state.unsavedCount)
+        assertEquals(work.about, state.works.first { it.id == work.id }.about)
     }
 
     @Test

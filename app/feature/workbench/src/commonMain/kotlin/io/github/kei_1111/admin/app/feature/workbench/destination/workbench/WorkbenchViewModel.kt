@@ -9,10 +9,12 @@ import dev.zacsweers.metro.binding
 import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import io.github.kei_1111.admin.app.core.common.auth.AdminAuthController
 import io.github.kei_1111.admin.app.core.common.coroutines.recoverOrElse
+import io.github.kei_1111.admin.app.core.domain.usecase.DiscardDraftUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetContentMetaUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetPortfolioContributionsUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetPortfolioProfileUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetProfileDraftUseCase
+import io.github.kei_1111.admin.app.core.domain.usecase.GetPublishedSnapshotUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetReadmeDraftUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetTerminalDraftUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetWorksDraftUseCase
@@ -25,9 +27,12 @@ import io.github.kei_1111.admin.app.core.domain.usecase.SaveWorksDraftUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.UploadProfileImageUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.UploadWorkImageUseCase
 import io.github.kei_1111.admin.app.core.mvi.MviViewModel
+import io.github.kei_1111.admin.app.core.utils.PickedImageFile
 import io.github.kei_1111.admin.app.feature.workbench.model.AdminNode
 import io.github.kei_1111.admin.app.feature.workbench.model.WorkbenchTab
+import io.github.kei_1111.admin.app.feature.workbench.model.computePublishDiff
 import io.github.kei_1111.admin.shared.model.AdminProfile
+import io.github.kei_1111.admin.shared.model.ContentDocument
 import io.github.kei_1111.admin.shared.model.ContentStatus
 import io.github.kei_1111.admin.shared.model.PinnedRepoSetting
 import io.github.kei_1111.admin.shared.model.ReadmeContent
@@ -60,6 +65,8 @@ internal class WorkbenchViewModel(
     private val saveTerminalDraft: SaveTerminalDraftUseCase,
     private val getReadmeDraft: GetReadmeDraftUseCase,
     private val saveReadmeDraft: SaveReadmeDraftUseCase,
+    private val getPublishedSnapshot: GetPublishedSnapshotUseCase,
+    private val discardDraft: DiscardDraftUseCase,
 ) : MviViewModel<WorkbenchViewModelState, WorkbenchState, WorkbenchIntent>() {
 
     init {
@@ -94,7 +101,7 @@ internal class WorkbenchViewModel(
 
             is WorkbenchIntent.ConfirmCloseTab -> updateViewModelState {
                 val tab = closeConfirmTab ?: return@updateViewModelState this
-                discardDraft(tab).closeTab(tab).copy(closeConfirmTab = null)
+                clearLocalDraft(tab).closeTab(tab).copy(closeConfirmTab = null)
             }
 
             is WorkbenchIntent.DismissCloseConfirm -> updateViewModelState { copy(closeConfirmTab = null) }
@@ -109,13 +116,13 @@ internal class WorkbenchViewModel(
                     .selectNode(AdminNode.WorkItem(newWork.id))
             }
 
-            is WorkbenchIntent.AddScreenshot -> uploadWorkImageInto(intent.workId) { work, path ->
-                work.copy(screenshots = work.screenshots + path)
-            }
+            is WorkbenchIntent.AddScreenshot -> uploadImageInto(
+                upload = { uploadWorkImage(intent.workId, it) },
+            ) { path -> applyToWorkDraft(intent.workId) { it.copy(screenshots = it.screenshots + path) } }
 
-            is WorkbenchIntent.AddWorkIcon -> uploadWorkImageInto(intent.workId) { work, path ->
-                work.copy(iconUrl = path)
-            }
+            is WorkbenchIntent.AddWorkIcon -> uploadImageInto(
+                upload = { uploadWorkImage(intent.workId, it) },
+            ) { path -> applyToWorkDraft(intent.workId) { it.copy(iconUrl = path) } }
 
             is WorkbenchIntent.RequestDeleteWork -> updateViewModelState {
                 copy(deleteConfirmWorkId = intent.workId)
@@ -148,7 +155,9 @@ internal class WorkbenchViewModel(
                 copy(readmeDraft = intent.content)
             }
 
-            is WorkbenchIntent.AddProfileAvatar -> addProfileAvatar()
+            is WorkbenchIntent.AddProfileAvatar -> uploadImageInto(
+                upload = { uploadProfileImage(it) },
+            ) { path -> copy(profileDraft = (profileDraft ?: savedProfile).copy(avatarUrl = path)) }
 
             is WorkbenchIntent.SyncPinnedRepos -> updateViewModelState { syncPinnedRepos() }
 
@@ -156,9 +165,51 @@ internal class WorkbenchViewModel(
 
             is WorkbenchIntent.RetryPreview -> viewModelScope.launch { loadPreviewData() }
 
-            is WorkbenchIntent.RequestPublish -> updateViewModelState {
-                if (saving) this else copy(publishConfirmVisible = true)
+            is WorkbenchIntent.RequestPublish -> {
+                if (!_viewModelState.value.saving) {
+                    updateViewModelState {
+                        copy(publishConfirmVisible = true, publishDiff = null, publishDiffFailed = false)
+                    }
+                    loadPublishDiff()
+                }
             }
+
+            is WorkbenchIntent.RequestDiscardDraft -> updateViewModelState {
+                copy(discardConfirmDocument = intent.document)
+            }
+
+            is WorkbenchIntent.ConfirmDiscardDraft -> {
+                val document = _viewModelState.value.discardConfirmDocument
+                if (document != null && !_viewModelState.value.saving) {
+                    updateViewModelState { copy(discardConfirmDocument = null, saving = true) }
+                    viewModelScope.launch {
+                        val succeeded = recoverOrElse({
+                            discardDraft(document)
+                            true
+                        }) { false }
+                        if (succeeded) {
+                            updateViewModelState { clearBuffers(document) }
+                            loadContent()
+                        }
+                        updateViewModelState {
+                            copy(saving = false, syncError = if (succeeded) syncError else SyncErrorKind.Discard)
+                        }
+                    }
+                }
+            }
+
+            is WorkbenchIntent.DismissDiscardConfirm -> updateViewModelState { copy(discardConfirmDocument = null) }
+
+            is WorkbenchIntent.RequestRevertWork -> updateViewModelState {
+                copy(revertConfirmWorkId = intent.workId)
+            }
+
+            is WorkbenchIntent.ConfirmRevertWork -> updateViewModelState {
+                val workId = revertConfirmWorkId ?: return@updateViewModelState this
+                copy(workDrafts = workDrafts - workId, revertConfirmWorkId = null)
+            }
+
+            is WorkbenchIntent.DismissRevertConfirm -> updateViewModelState { copy(revertConfirmWorkId = null) }
 
             is WorkbenchIntent.ConfirmPublish -> {
                 updateViewModelState { copy(publishConfirmVisible = false) }
@@ -173,7 +224,9 @@ internal class WorkbenchViewModel(
 
             is WorkbenchIntent.DismissLanguageOutdated -> updateViewModelState { copy(languageOutdatedWarning = null) }
 
-            is WorkbenchIntent.DismissPublishConfirm -> updateViewModelState { copy(publishConfirmVisible = false) }
+            is WorkbenchIntent.DismissPublishConfirm -> updateViewModelState {
+                copy(publishConfirmVisible = false, publishDiff = null, publishDiffFailed = false)
+            }
         }
     }
 
@@ -209,8 +262,11 @@ internal class WorkbenchViewModel(
         }
     }
 
-    /** アバター画像を選択してアップロードし、profile draft の avatarUrl を差し替える。 */
-    private fun addProfileAvatar() {
+    /** 画像を選択してアップロードし、成功時だけ [applyPath] で draft に反映する。 */
+    private fun uploadImageInto(
+        upload: suspend (PickedImageFile) -> String,
+        applyPath: WorkbenchViewModelState.(String) -> WorkbenchViewModelState,
+    ) {
         if (_viewModelState.value.uploadingScreenshot) return
         updateViewModelState { copy(uploadingScreenshot = true) }
         viewModelScope.launch {
@@ -219,39 +275,36 @@ internal class WorkbenchViewModel(
                 updateViewModelState { copy(uploadingScreenshot = false) }
                 return@launch
             }
-            val path = recoverOrElse({ uploadProfileImage(picked) }) { null }
+            val path = recoverOrElse({ upload(picked) }) { null }
             updateViewModelState {
                 if (path == null) {
                     copy(uploadingScreenshot = false, syncError = SyncErrorKind.Upload)
                 } else {
-                    copy(
-                        uploadingScreenshot = false,
-                        profileDraft = (profileDraft ?: savedProfile).copy(avatarUrl = path),
-                    )
+                    applyPath(path).copy(uploadingScreenshot = false)
                 }
             }
         }
     }
 
-    /** 画像を選択して作品ディレクトリへアップロードし、[applyPath] で draft に反映する。 */
-    private fun uploadWorkImageInto(workId: String, applyPath: (Work, String) -> Work) {
-        if (_viewModelState.value.uploadingScreenshot) return
-        updateViewModelState { copy(uploadingScreenshot = true) }
+    /** 公開確認ダイアログ用に published/ を取得し、公開予定内容との差分を計算する。 */
+    private fun loadPublishDiff() {
         viewModelScope.launch {
-            val picked = pickImage()
-            if (picked == null) {
-                updateViewModelState { copy(uploadingScreenshot = false) }
-                return@launch
-            }
-            val path = recoverOrElse({ uploadWorkImage(workId, picked) }) { null }
+            val snapshot = recoverOrElse({ getPublishedSnapshot() }) { null }
             updateViewModelState {
-                val current = workDrafts[workId] ?: savedWorks.firstOrNull { it.id == workId }
-                if (path == null || current == null) {
-                    copy(uploadingScreenshot = false, syncError = if (path == null) SyncErrorKind.Upload else syncError)
+                if (!publishConfirmVisible) {
+                    this
+                } else if (snapshot == null) {
+                    copy(publishDiffFailed = true)
                 } else {
                     copy(
-                        uploadingScreenshot = false,
-                        workDrafts = workDrafts + (workId to applyPath(current, path)),
+                        publishDiff = computePublishDiff(
+                            mergedWorks = mergedWorks(),
+                            mergedProfile = profileDraft ?: savedProfile,
+                            mergedTerminal = terminalDraft ?: savedTerminal,
+                            mergedReadme = readmeDraft ?: savedReadme,
+                            published = snapshot,
+                        ),
+                        publishDiffFailed = false,
                     )
                 }
             }
@@ -306,10 +359,7 @@ internal class WorkbenchViewModel(
         viewModelScope.launch {
             updateViewModelState { copy(saving = true, publishing = alsoPublish) }
             val snapshot = _viewModelState.value
-            val mergedWorks = (
-                snapshot.savedWorks.map { snapshot.workDrafts[it.id] ?: it } +
-                    snapshot.workDrafts.values.filter { draft -> snapshot.savedWorks.none { it.id == draft.id } }
-                ).filterNot { it.id in snapshot.deletedWorkIds }
+            val mergedWorks = snapshot.mergedWorks()
             val mergedProfile = snapshot.profileDraft ?: snapshot.savedProfile
 
             val saved = saveAllDrafts(mergedWorks, mergedProfile, snapshot)
@@ -363,6 +413,29 @@ private fun WorkbenchViewModelState.syncPinnedRepos(): WorkbenchViewModelState {
     return copy(profileDraft = current.copy(pinnedRepos = merged))
 }
 
+/** 保存/公開/差分計算が共有する「現在の作品一覧」(下書き優先・削除予定を除く)。 */
+private fun WorkbenchViewModelState.mergedWorks(): List<Work> = (
+    savedWorks.map { workDrafts[it.id] ?: it } +
+        workDrafts.values.filter { draft -> savedWorks.none { it.id == draft.id } }
+    ).filterNot { it.id in deletedWorkIds }
+
+/** 対象 work の現在値(draft 優先)に変換を適用して draft に置く。見つからなければ何もしない。 */
+private fun WorkbenchViewModelState.applyToWorkDraft(
+    workId: String,
+    transform: (Work) -> Work,
+): WorkbenchViewModelState {
+    val current = workDrafts[workId] ?: savedWorks.firstOrNull { it.id == workId } ?: return this
+    return copy(workDrafts = workDrafts + (workId to transform(current)))
+}
+
+private fun WorkbenchViewModelState.clearBuffers(document: ContentDocument): WorkbenchViewModelState =
+    when (document) {
+        ContentDocument.Works -> copy(workDrafts = emptyMap(), deletedWorkIds = emptySet())
+        ContentDocument.Profile -> copy(profileDraft = null)
+        ContentDocument.Terminal -> copy(terminalDraft = null)
+        ContentDocument.Readme -> copy(readmeDraft = null)
+    }
+
 private fun WorkbenchViewModelState.nextWorkId(): String {
     val existing = savedWorks.map { it.id } + workDrafts.keys + deletedWorkIds
     val next = existing.mapNotNull { it.removePrefix("work-").toIntOrNull() }.maxOrNull()?.plus(1) ?: 1
@@ -410,7 +483,8 @@ private fun WorkbenchTab.isDirty(state: WorkbenchViewModelState): Boolean = when
         state.terminalDraft != null && state.terminalDraft != state.savedTerminal
 }
 
-private fun WorkbenchViewModelState.discardDraft(tab: WorkbenchTab): WorkbenchViewModelState = when (tab) {
+/** タブを閉じるときのメモリ内編集バッファ破棄(サーバーの下書きは触らない)。 */
+private fun WorkbenchViewModelState.clearLocalDraft(tab: WorkbenchTab): WorkbenchViewModelState = when (tab) {
     is WorkbenchTab.WorksList -> this
     is WorkbenchTab.WorkEditor -> copy(workDrafts = workDrafts - tab.workId)
     is WorkbenchTab.ProfileEditor -> copy(profileDraft = null)

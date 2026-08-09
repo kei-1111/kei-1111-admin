@@ -1,7 +1,6 @@
 package io.github.kei_1111.admin.app.core.data.repository
 
 import io.github.kei_1111.admin.shared.model.AdminProfile
-import io.github.kei_1111.admin.shared.model.ContentMeta
 import io.github.kei_1111.admin.shared.model.ReadmeContent
 import io.github.kei_1111.admin.shared.model.TerminalCommandsContent
 import io.github.kei_1111.admin.shared.model.WorksContent
@@ -15,8 +14,6 @@ interface AdminContentRepository {
     suspend fun saveWorksDraft(content: WorksContent): WorksContent
     suspend fun fetchProfileDraft(): AdminProfile
     suspend fun saveProfileDraft(profile: AdminProfile): AdminProfile
-    suspend fun fetchMeta(): ContentMeta
-    suspend fun publish(): ContentMeta
 
     /** Preview カード用: 本体サイト API のプロキシから GitHub 由来データを取り寄せる。 */
 

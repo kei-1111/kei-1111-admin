@@ -16,6 +16,7 @@ import io.github.kei_1111.admin.app.core.designsystem.layout.windowLayoutFor
 import io.github.kei_1111.admin.app.core.designsystem.theme.KeiTheme
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.ConfirmDialog
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.MobileNavRow
+import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.PublishConfirmDialog
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.StatusBar
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.TitleBar
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.content.WorkbenchDesktopContent
@@ -23,7 +24,7 @@ import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.cont
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.preview.PreviewWorkbenchState
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.theme.WorkbenchDimensions
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.theme.deskBackground
-import io.github.kei_1111.admin.shared.model.ContentStatus
+import io.github.kei_1111.admin.shared.model.ContentDocument
 
 @Composable
 internal fun WorkbenchScreen(
@@ -118,21 +119,33 @@ internal fun WorkbenchScreen(
         )
     }
     if (state.publishConfirmVisible) {
-        val published = state.works.count { it.status == ContentStatus.Published }
-        val excluded = state.works.size - published
-        ConfirmDialog(
-            title = "公開する",
-            message = buildString {
-                appendLine("現在の下書きを本番へ公開します。")
-                append("公開対象: ${published}件")
-                if (excluded > 0) append(" / STATUS が「下書き」のため除外: ${excluded}件")
-                appendLine()
-                append("よろしいですか?")
-            },
-            confirmLabel = "公開する",
-            destructive = false,
+        PublishConfirmDialog(
+            diff = state.publishDiff,
+            diffFailed = state.publishDiffFailed,
+            onRetry = { onIntent(WorkbenchIntent.RequestPublish) },
             onConfirm = { onIntent(WorkbenchIntent.ConfirmPublish) },
             onDismiss = { onIntent(WorkbenchIntent.DismissPublishConfirm) },
+        )
+    }
+    state.discardConfirmDocument?.let { document ->
+        ConfirmDialog(
+            title = "変更を破棄",
+            message = "「${document.displayName()}」の保存済み下書きを直前の公開内容(未公開の場合は初期状態)に戻し、" +
+                "未保存の変更もすべて破棄します。よろしいですか?",
+            confirmLabel = "破棄する",
+            destructive = true,
+            onConfirm = { onIntent(WorkbenchIntent.ConfirmDiscardDraft) },
+            onDismiss = { onIntent(WorkbenchIntent.DismissDiscardConfirm) },
+        )
+    }
+    state.revertConfirmWork?.let { work ->
+        ConfirmDialog(
+            title = "変更を破棄",
+            message = "「${work.name}」の未保存の変更を破棄して、保存済みの内容に戻します。よろしいですか?",
+            confirmLabel = "破棄する",
+            destructive = true,
+            onConfirm = { onIntent(WorkbenchIntent.ConfirmRevertWork) },
+            onDismiss = { onIntent(WorkbenchIntent.DismissRevertConfirm) },
         )
     }
 }
@@ -158,4 +171,11 @@ private fun WorkbenchScreenPreview() {
             WorkbenchScreen(state = PreviewWorkbenchState, onIntent = {})
         }
     }
+}
+
+private fun ContentDocument.displayName(): String = when (this) {
+    ContentDocument.Works -> "作品"
+    ContentDocument.Profile -> "プロフィール"
+    ContentDocument.Terminal -> "ターミナルコマンド"
+    ContentDocument.Readme -> "README"
 }

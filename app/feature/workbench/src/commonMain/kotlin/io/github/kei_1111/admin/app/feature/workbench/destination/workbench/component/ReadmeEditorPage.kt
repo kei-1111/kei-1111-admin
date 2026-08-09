@@ -54,6 +54,7 @@ internal fun ReadmeEditorPage(
     state: WorkbenchState,
     isMobile: Boolean,
     onChangeReadme: (ReadmeContent) -> Unit,
+    onClickDiscardDraft: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val editingJa = KeiLanguageController.language == KeiLanguage.Ja
@@ -62,6 +63,7 @@ internal fun ReadmeEditorPage(
             readme = state.readme,
             editingJa = editingJa,
             onChangeReadme = onChangeReadme,
+            onClickDiscardDraft = onClickDiscardDraft,
             modifier = Modifier.weight(1f).fillMaxSize(),
         )
         if (!isMobile) {
@@ -85,6 +87,7 @@ private fun ReadmeForm(
     readme: ReadmeContent,
     editingJa: Boolean,
     onChangeReadme: (ReadmeContent) -> Unit,
+    onClickDiscardDraft: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.verticalScroll(rememberScrollState())) {
@@ -94,6 +97,8 @@ private fun ReadmeForm(
         ) {
             SectionLabel(text = "EDIT LANGUAGE")
             Spacer(modifier = Modifier.weight(1f))
+            DiscardDraftTextButton(onClick = onClickDiscardDraft)
+            Spacer(modifier = Modifier.width(8.dp))
             LanguageSegment()
         }
         Spacer(modifier = Modifier.height(10.dp))
@@ -217,6 +222,7 @@ private fun ReadmeEditorPagePreview() {
                 state = PreviewWorkbenchState,
                 isMobile = false,
                 onChangeReadme = {},
+                onClickDiscardDraft = {},
             )
         }
     }

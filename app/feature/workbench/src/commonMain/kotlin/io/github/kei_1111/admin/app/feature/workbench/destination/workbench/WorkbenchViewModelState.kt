@@ -2,8 +2,10 @@ package io.github.kei_1111.admin.app.feature.workbench.destination.workbench
 
 import io.github.kei_1111.admin.app.core.mvi.ViewModelState
 import io.github.kei_1111.admin.app.feature.workbench.model.AdminNode
+import io.github.kei_1111.admin.app.feature.workbench.model.PublishDiff
 import io.github.kei_1111.admin.app.feature.workbench.model.WorkbenchTab
 import io.github.kei_1111.admin.shared.model.AdminProfile
+import io.github.kei_1111.admin.shared.model.ContentDocument
 import io.github.kei_1111.admin.shared.model.ReadmeContent
 import io.github.kei_1111.admin.shared.model.TerminalCommandsContent
 import io.github.kei_1111.admin.shared.model.Work
@@ -30,6 +32,13 @@ internal data class WorkbenchViewModelState(
     val lastDeploy: String = "",
     val closeConfirmTab: WorkbenchTab? = null,
     val publishConfirmVisible: Boolean = false,
+    /** 公開確認ダイアログに出す差分。null はロード中(確定ボタン無効)。 */
+    val publishDiff: PublishDiff? = null,
+    val publishDiffFailed: Boolean = false,
+    /** 破棄確認待ちのドキュメント。 */
+    val discardConfirmDocument: ContentDocument? = null,
+    /** 単一作品の編集バッファ破棄の確認待ち。 */
+    val revertConfirmWorkId: String? = null,
     /** 次回保存で下書きから取り除く作品 id。保存されるまでは未保存の変更として数える。 */
     val deletedWorkIds: Set<String> = emptySet(),
     val deleteConfirmWorkId: String? = null,
@@ -91,6 +100,10 @@ internal data class WorkbenchViewModelState(
             lastDeploy = lastDeploy,
             closeConfirmTab = closeConfirmTab,
             publishConfirmVisible = publishConfirmVisible,
+            publishDiff = publishDiff,
+            publishDiffFailed = publishDiffFailed,
+            discardConfirmDocument = discardConfirmDocument,
+            revertConfirmWork = revertConfirmWorkId?.let { id -> mergedWorks.firstOrNull { it.id == id } },
             deleteConfirmWork = deleteConfirmWorkId?.let { id -> mergedWorks.firstOrNull { it.id == id } },
             syncError = syncError,
             loading = loading,

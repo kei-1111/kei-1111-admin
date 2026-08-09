@@ -129,6 +129,23 @@ internal fun hoverInteraction(): Pair<MutableInteractionSource, Boolean> {
  * 編集対象言語の切替(JA/EN)。フォームの多言語フィールドと Preview カードの両方が
  * KeiLanguageController に追従する(本体サイトと同じ機構)。
  */
+/** 「変更を破棄」の控えめなテキストボタン。破壊的操作は必ず確認ダイアログを挟む前提。 */
+@Composable
+internal fun DiscardDraftTextButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    label: String = "変更を破棄",
+) {
+    Text(
+        text = label,
+        style = KeiTheme.typography.cardJp.copy(fontSize = 11.sp, color = KeiTheme.colors.muted),
+        modifier = modifier
+            .clip(KeiTheme.shapes.chip)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 6.dp, vertical = 3.dp),
+    )
+}
+
 @Composable
 internal fun LanguageSegment(modifier: Modifier = Modifier) {
     val colors = KeiTheme.colors

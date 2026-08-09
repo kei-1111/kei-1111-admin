@@ -5,8 +5,11 @@ import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.Inject
 import io.github.kei_1111.admin.app.core.data.repository.AdminContentRepository
 import io.github.kei_1111.admin.app.core.data.repository.AdminPreviewRepository
+import io.github.kei_1111.admin.app.core.data.repository.AdminPublishRepository
 import io.github.kei_1111.admin.shared.model.AdminProfile
+import io.github.kei_1111.admin.shared.model.ContentDocument
 import io.github.kei_1111.admin.shared.model.ContentMeta
+import io.github.kei_1111.admin.shared.model.PublishedSnapshot
 import io.github.kei_1111.admin.shared.model.ReadmeContent
 import io.github.kei_1111.admin.shared.model.TerminalCommandsContent
 import io.github.kei_1111.admin.shared.model.WorksContent
@@ -80,7 +83,7 @@ internal class SaveProfileDraftUseCaseImpl(
 @Inject
 @ContributesBinding(AppScope::class)
 internal class GetContentMetaUseCaseImpl(
-    private val repository: AdminContentRepository,
+    private val repository: AdminPublishRepository,
 ) : GetContentMetaUseCase {
     override suspend fun invoke(): ContentMeta = repository.fetchMeta()
 }
@@ -88,7 +91,7 @@ internal class GetContentMetaUseCaseImpl(
 @Inject
 @ContributesBinding(AppScope::class)
 internal class PublishContentUseCaseImpl(
-    private val repository: AdminContentRepository,
+    private val repository: AdminPublishRepository,
 ) : PublishContentUseCase {
     override suspend fun invoke(): ContentMeta = repository.publish()
 }
@@ -156,4 +159,29 @@ internal class SaveReadmeDraftUseCaseImpl(
     private val repository: AdminContentRepository,
 ) : SaveReadmeDraftUseCase {
     override suspend fun invoke(content: ReadmeContent): ReadmeContent = repository.saveReadmeDraft(content)
+}
+
+interface GetPublishedSnapshotUseCase {
+    suspend operator fun invoke(): PublishedSnapshot
+}
+
+@ContributesBinding(AppScope::class)
+@Inject
+internal class GetPublishedSnapshotUseCaseImpl(
+    private val repository: AdminPublishRepository,
+) : GetPublishedSnapshotUseCase {
+    override suspend fun invoke(): PublishedSnapshot = repository.fetchPublishedSnapshot()
+}
+
+/** 保存済み下書きを直前の公開内容(未公開ならシード)へ戻す。 */
+interface DiscardDraftUseCase {
+    suspend operator fun invoke(document: ContentDocument)
+}
+
+@ContributesBinding(AppScope::class)
+@Inject
+internal class DiscardDraftUseCaseImpl(
+    private val repository: AdminPublishRepository,
+) : DiscardDraftUseCase {
+    override suspend fun invoke(document: ContentDocument) = repository.discardDraft(document)
 }

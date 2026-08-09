@@ -2,8 +2,10 @@ package io.github.kei_1111.admin.app.feature.workbench.destination.workbench
 
 import io.github.kei_1111.admin.app.core.mvi.State
 import io.github.kei_1111.admin.app.feature.workbench.model.AdminNode
+import io.github.kei_1111.admin.app.feature.workbench.model.PublishDiff
 import io.github.kei_1111.admin.app.feature.workbench.model.WorkbenchTab
 import io.github.kei_1111.admin.shared.model.AdminProfile
+import io.github.kei_1111.admin.shared.model.ContentDocument
 import io.github.kei_1111.admin.shared.model.ReadmeContent
 import io.github.kei_1111.admin.shared.model.TerminalCommandsContent
 import io.github.kei_1111.admin.shared.model.Work
@@ -33,6 +35,10 @@ internal data class WorkbenchState(
     /** 未保存タブを閉じようとして確認待ちのタブ。 */
     val closeConfirmTab: WorkbenchTab? = null,
     val publishConfirmVisible: Boolean = false,
+    val publishDiff: PublishDiff? = null,
+    val publishDiffFailed: Boolean = false,
+    val discardConfirmDocument: ContentDocument? = null,
+    val revertConfirmWork: Work? = null,
     /** 削除確認待ちの作品(null 以外でダイアログ表示)。 */
     val deleteConfirmWork: Work? = null,
     val syncError: SyncErrorKind? = null,
@@ -45,4 +51,4 @@ internal data class WorkbenchState(
 ) : State
 
 /** どの操作の同期に失敗したか(ステータスバーの文言出し分け用)。 */
-internal enum class SyncErrorKind { Load, Save, Publish, Upload }
+internal enum class SyncErrorKind { Load, Save, Publish, Upload, Discard }

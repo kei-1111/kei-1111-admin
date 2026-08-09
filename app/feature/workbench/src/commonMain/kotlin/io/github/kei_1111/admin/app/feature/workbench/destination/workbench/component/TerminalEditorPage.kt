@@ -44,12 +44,14 @@ internal fun TerminalEditorPage(
     state: WorkbenchState,
     isMobile: Boolean,
     onChangeTerminal: (TerminalCommandsContent) -> Unit,
+    onClickDiscardDraft: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(modifier = modifier.padding(WorkbenchDimensions.IslandPadding)) {
         TerminalCommandsForm(
             content = state.terminal,
             onChangeTerminal = onChangeTerminal,
+            onClickDiscardDraft = onClickDiscardDraft,
             modifier = Modifier.weight(1f).fillMaxSize(),
         )
         if (!isMobile) {
@@ -72,6 +74,7 @@ internal fun TerminalEditorPage(
 private fun TerminalCommandsForm(
     content: TerminalCommandsContent,
     onChangeTerminal: (TerminalCommandsContent) -> Unit,
+    onClickDiscardDraft: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = KeiTheme.colors
@@ -79,7 +82,14 @@ private fun TerminalCommandsForm(
         modifier = modifier.verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(WorkbenchDimensions.SectionGap),
     ) {
-        SectionLabel(text = "TEXT COMMANDS")
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            SectionLabel(text = "TEXT COMMANDS")
+            Spacer(modifier = Modifier.weight(1f))
+            DiscardDraftTextButton(onClick = onClickDiscardDraft)
+        }
         content.commands.forEachIndexed { index, command ->
             CommandCard(
                 command = command,
@@ -236,6 +246,7 @@ private fun TerminalEditorPagePreview() {
                 state = PreviewWorkbenchState,
                 isMobile = false,
                 onChangeTerminal = {},
+                onClickDiscardDraft = {},
             )
         }
     }

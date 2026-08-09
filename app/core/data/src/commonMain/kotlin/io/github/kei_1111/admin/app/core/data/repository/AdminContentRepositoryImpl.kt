@@ -5,14 +5,12 @@ import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import io.github.kei_1111.admin.shared.model.AdminProfile
-import io.github.kei_1111.admin.shared.model.ContentMeta
 import io.github.kei_1111.admin.shared.model.ReadmeContent
 import io.github.kei_1111.admin.shared.model.TerminalCommandsContent
 import io.github.kei_1111.admin.shared.model.WorksContent
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
-import io.ktor.client.request.post
 
 @ContributesBinding(AppScope::class)
 @SingleIn(AppScope::class)
@@ -31,12 +29,6 @@ internal class AdminContentRepositoryImpl(
         httpClient.get("/api/profile") { authorize() }.body()
 
     override suspend fun saveProfileDraft(profile: AdminProfile): AdminProfile = httpClient.putJsonAuthorized("/api/profile", profile)
-
-    override suspend fun fetchMeta(): ContentMeta =
-        httpClient.get("/api/meta") { authorize() }.body()
-
-    override suspend fun publish(): ContentMeta =
-        httpClient.post("/api/publish") { authorize() }.body()
 
     override suspend fun fetchTerminalDraft(): TerminalCommandsContent =
         httpClient.get("/api/terminal") { authorize() }.body()

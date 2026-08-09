@@ -58,6 +58,7 @@ internal fun ProfileEditorPage(
     onChangeProfile: (AdminProfile) -> Unit,
     onClickAddAvatar: () -> Unit,
     onClickSyncPinned: () -> Unit,
+    onClickDiscardDraft: () -> Unit,
     onClickRetryPreview: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -71,6 +72,7 @@ internal fun ProfileEditorPage(
             onChangeProfile = onChangeProfile,
             onClickAddAvatar = onClickAddAvatar,
             onClickSyncPinned = onClickSyncPinned,
+            onClickDiscardDraft = onClickDiscardDraft,
             modifier = Modifier
                 .weight(1f)
                 .fillMaxSize()
@@ -116,6 +118,7 @@ private fun ProfileForm(
     onChangeProfile: (AdminProfile) -> Unit,
     onClickAddAvatar: () -> Unit,
     onClickSyncPinned: () -> Unit,
+    onClickDiscardDraft: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -128,7 +131,11 @@ private fun ProfileForm(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             SectionLabel(text = "EDIT LANGUAGE")
-            LanguageSegment()
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                DiscardDraftTextButton(onClick = onClickDiscardDraft)
+                Spacer(modifier = Modifier.width(8.dp))
+                LanguageSegment()
+            }
         }
         GitHubSyncCard(profile = profile, syncEnabled = syncEnabled, onClickSync = onClickSyncPinned)
         IdentitySection(
@@ -474,6 +481,7 @@ private fun ProfileEditorPagePreview() {
                 onChangeProfile = {},
                 onClickAddAvatar = {},
                 onClickSyncPinned = {},
+                onClickDiscardDraft = {},
                 onClickRetryPreview = {},
             )
         }

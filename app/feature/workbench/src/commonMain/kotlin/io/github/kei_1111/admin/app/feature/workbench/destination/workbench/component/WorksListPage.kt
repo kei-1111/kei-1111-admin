@@ -49,6 +49,7 @@ internal fun WorksListPage(
     onSelectWork: (String) -> Unit,
     onClickCreateWork: () -> Unit,
     onClickDeleteWork: (String) -> Unit,
+    onClickDiscardDraft: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var query by remember { mutableStateOf("") }
@@ -63,6 +64,7 @@ internal fun WorksListPage(
             isMobile = isMobile,
             onChangeQuery = { query = it },
             onClickCreate = onClickCreateWork,
+            onClickDiscardDraft = onClickDiscardDraft,
             modifier = Modifier.fillMaxWidth(),
         )
         Spacer(modifier = Modifier.height(12.dp))
@@ -97,6 +99,7 @@ private fun ListHeader(
     isMobile: Boolean,
     onChangeQuery: (String) -> Unit,
     onClickCreate: () -> Unit,
+    onClickDiscardDraft: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = KeiTheme.colors
@@ -118,6 +121,7 @@ private fun ListHeader(
             style = KeiTheme.typography.chrome.copy(fontSize = 11.sp, color = colors.muted),
         )
         Spacer(modifier = Modifier.weight(1f))
+        DiscardDraftTextButton(onClick = onClickDiscardDraft)
         if (!isMobile) {
             SearchField(query = query, onChangeQuery = onChangeQuery)
         }
@@ -294,6 +298,7 @@ private fun WorksListPagePreview() {
                 onSelectWork = {},
                 onClickCreateWork = {},
                 onClickDeleteWork = {},
+                onClickDiscardDraft = {},
             )
         }
     }
