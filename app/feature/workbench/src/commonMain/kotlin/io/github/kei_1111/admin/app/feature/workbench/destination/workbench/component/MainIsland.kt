@@ -32,6 +32,8 @@ import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.prev
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.theme.WorkbenchDimensions
 import io.github.kei_1111.admin.app.feature.workbench.model.WorkbenchTab
 import io.github.kei_1111.admin.shared.model.AdminProfile
+import io.github.kei_1111.admin.shared.model.ReadmeContent
+import io.github.kei_1111.admin.shared.model.TerminalCommandsContent
 import io.github.kei_1111.admin.shared.model.Work
 
 @Composable
@@ -47,6 +49,9 @@ internal fun MainIsland(
     onChangeWork: (Work) -> Unit,
     onClickAddScreenshot: (String) -> Unit,
     onChangeProfile: (AdminProfile) -> Unit,
+    onClickAddAvatar: () -> Unit,
+    onChangeTerminal: (TerminalCommandsContent) -> Unit,
+    onChangeReadme: (ReadmeContent) -> Unit,
     onClickRetryPreview: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -85,7 +90,20 @@ internal fun MainIsland(
                     state = state,
                     isMobile = isMobile,
                     onChangeProfile = onChangeProfile,
+                    onClickAddAvatar = onClickAddAvatar,
                     onClickRetryPreview = onClickRetryPreview,
+                    modifier = Modifier.fillMaxSize(),
+                )
+                is WorkbenchTab.ReadmeEditor -> ReadmeEditorPage(
+                    state = state,
+                    isMobile = isMobile,
+                    onChangeReadme = onChangeReadme,
+                    modifier = Modifier.fillMaxSize(),
+                )
+                is WorkbenchTab.TerminalEditor -> TerminalEditorPage(
+                    state = state,
+                    isMobile = isMobile,
+                    onChangeTerminal = onChangeTerminal,
                     modifier = Modifier.fillMaxSize(),
                 )
             }
@@ -122,6 +140,8 @@ private fun WorkbenchTab.label(state: WorkbenchState): String = when (this) {
     is WorkbenchTab.WorksList -> "works"
     is WorkbenchTab.WorkEditor -> state.works.firstOrNull { it.id == workId }?.name ?: workId
     is WorkbenchTab.ProfileEditor -> "profile"
+    is WorkbenchTab.ReadmeEditor -> "README.md"
+    is WorkbenchTab.TerminalEditor -> "terminal"
 }
 
 /** 本家 EditorTab と同じ様式: 選択タブは tabSelected + ボーダー、✕ は選択中かホバー時のみ。 */
@@ -201,6 +221,8 @@ private fun WorkbenchTab.fileIcon() = when (this) {
     is WorkbenchTab.WorksList -> KeiTheme.icons.markdown
     is WorkbenchTab.WorkEditor -> KeiTheme.icons.kotlin
     is WorkbenchTab.ProfileEditor -> KeiTheme.icons.properties
+    is WorkbenchTab.ReadmeEditor -> KeiTheme.icons.markdown
+    is WorkbenchTab.TerminalEditor -> KeiTheme.icons.properties
 }
 
 @Preview
@@ -219,6 +241,9 @@ private fun MainIslandPreview() {
                 onChangeWork = {},
                 onClickAddScreenshot = {},
                 onChangeProfile = {},
+                onClickAddAvatar = {},
+                onChangeTerminal = {},
+                onChangeReadme = {},
                 onClickRetryPreview = {},
             )
         }

@@ -5,4 +5,6 @@ internal sealed interface WorkbenchTab {
     data object WorksList : WorkbenchTab
     data class WorkEditor(val workId: String) : WorkbenchTab
     data object ProfileEditor : WorkbenchTab
+    data object ReadmeEditor : WorkbenchTab
+    data object TerminalEditor : WorkbenchTab
 }

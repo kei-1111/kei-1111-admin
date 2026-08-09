@@ -5,6 +5,8 @@ internal sealed interface AdminNode {
     data object Works : AdminNode
     data class WorkItem(val workId: String) : AdminNode
     data object Profile : AdminNode
+    data object Readme : AdminNode
+    data object Terminal : AdminNode
     data object DeployHistory : AdminNode
     data object Settings : AdminNode
 }

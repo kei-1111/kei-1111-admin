@@ -117,6 +117,22 @@ internal fun NavTree(
                 showDraftDot = state.profileUnsaved,
                 onClick = { onSelectNode(AdminNode.Profile) },
             )
+            FileRow(
+                depth = 1,
+                label = "README.md",
+                icon = KeiTheme.icons.markdown,
+                selected = state.selectedNode == AdminNode.Readme,
+                showDraftDot = state.readmeUnsaved,
+                onClick = { onSelectNode(AdminNode.Readme) },
+            )
+            FileRow(
+                depth = 1,
+                label = "terminal",
+                icon = KeiTheme.icons.properties,
+                selected = state.selectedNode == AdminNode.Terminal,
+                showDraftDot = state.terminalUnsaved,
+                onClick = { onSelectNode(AdminNode.Terminal) },
+            )
             FolderRow(
                 depth = 1,
                 expanded = systemExpanded,

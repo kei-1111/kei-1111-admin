@@ -40,18 +40,23 @@ import io.github.kei_1111.admin.app.core.utils.openUrl
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.WorkbenchState
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.form.KeiTextField
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.preview.GitHubPreviewCard
+import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.preview.works.WorksAsyncImage
+import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.preview.works.resolveWorksAssetUrl
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.preview.PreviewWorkbenchState
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.theme.WorkbenchDimensions
 import io.github.kei_1111.admin.app.feature.workbench.model.overlayOn
 import io.github.kei_1111.admin.app.feature.workbench.preview.PreviewGitHubProfile
 import io.github.kei_1111.admin.shared.model.AdminProfile
+import io.github.kei_1111.admin.shared.model.PinnedRepoSetting
 import io.github.kei_1111.admin.shared.model.SocialLink
 
 @Composable
+@Suppress("LongParameterList")
 internal fun ProfileEditorPage(
     state: WorkbenchState,
     isMobile: Boolean,
     onChangeProfile: (AdminProfile) -> Unit,
+    onClickAddAvatar: () -> Unit,
     onClickRetryPreview: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -61,6 +66,7 @@ internal fun ProfileEditorPage(
         ProfileForm(
             profile = profile,
             onChangeProfile = onChangeProfile,
+            onClickAddAvatar = onClickAddAvatar,
             modifier = Modifier
                 .weight(1f)
                 .fillMaxSize()
@@ -101,6 +107,7 @@ internal fun ProfileEditorPage(
 private fun ProfileForm(
     profile: AdminProfile,
     onChangeProfile: (AdminProfile) -> Unit,
+    onClickAddAvatar: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -116,7 +123,7 @@ private fun ProfileForm(
             LanguageSegment()
         }
         GitHubSyncCard(profile = profile)
-        IdentitySection(profile = profile, onChangeProfile = onChangeProfile)
+        IdentitySection(profile = profile, onChangeProfile = onChangeProfile, onClickAddAvatar = onClickAddAvatar)
         LocationSection(profile = profile, onChangeProfile = onChangeProfile)
         PinnedReposSection(profile = profile, onChangeProfile = onChangeProfile)
         SocialLinksSection(profile = profile, onChangeProfile = onChangeProfile)
@@ -175,6 +182,7 @@ private fun GitHubSyncCard(
 private fun IdentitySection(
     profile: AdminProfile,
     onChangeProfile: (AdminProfile) -> Unit,
+    onClickAddAvatar: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -189,18 +197,31 @@ private fun IdentitySection(
                     .padding(top = 4.dp)
                     .size(44.dp)
                     .clip(CircleShape)
-                    .background(KeiTheme.colors.chip),
+                    .background(KeiTheme.colors.chip)
+                    .clickable(onClick = onClickAddAvatar),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(
-                    text = profile.displayName.take(1).ifEmpty { "?" },
-                    style = KeiTheme.typography.cardJp.copy(
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = KeiTheme.colors.textPrimary,
-                    ),
-                )
+                if (profile.avatarUrl.isNotEmpty()) {
+                    WorksAsyncImage(
+                        url = resolveWorksAssetUrl(profile.avatarUrl),
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                } else {
+                    Text(
+                        text = profile.displayName.take(1).ifEmpty { "?" },
+                        style = KeiTheme.typography.cardJp.copy(
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = KeiTheme.colors.textPrimary,
+                        ),
+                    )
+                }
             }
+            Text(
+                text = "クリックで変更",
+                style = KeiTheme.typography.cardJp.copy(fontSize = 9.sp, color = KeiTheme.colors.muted),
+                modifier = Modifier.padding(top = 2.dp),
+            )
         }
         if (KeiLanguageController.language == KeiLanguage.Ja) {
             KeiTextField(
@@ -288,8 +309,44 @@ private fun PinnedReposSection(
                         },
                     )
                 }
+                PinnedDescriptionOverrideField(
+                    repo = repo,
+                    onChangeRepo = { updated ->
+                        onChangeProfile(
+                            profile.copy(
+                                pinnedRepos = profile.pinnedRepos.toMutableList().apply { set(index, updated) },
+                            ),
+                        )
+                    },
+                )
             }
         }
+    }
+}
+
+/** 説明文の上書き。空なら GitHub の説明のまま配信される。編集言語に応じて ja / en を切り替える。 */
+@Composable
+private fun PinnedDescriptionOverrideField(
+    repo: PinnedRepoSetting,
+    onChangeRepo: (PinnedRepoSetting) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    if (KeiLanguageController.language == KeiLanguage.Ja) {
+        KeiTextField(
+            label = "DESCRIPTION OVERRIDE (日本語)",
+            value = repo.descriptionJa,
+            onValueChange = { onChangeRepo(repo.copy(descriptionJa = it)) },
+            modifier = modifier.fillMaxWidth().padding(start = 10.dp, end = 10.dp, bottom = 6.dp),
+            placeholder = "空なら GitHub の説明をそのまま表示",
+        )
+    } else {
+        KeiTextField(
+            label = "DESCRIPTION OVERRIDE (ENGLISH)",
+            value = repo.descriptionEn,
+            onValueChange = { onChangeRepo(repo.copy(descriptionEn = it)) },
+            modifier = modifier.fillMaxWidth().padding(start = 10.dp, end = 10.dp, bottom = 6.dp),
+            placeholder = "空なら日本語版、それも空なら GitHub の説明",
+        )
     }
 }
 
@@ -397,6 +454,7 @@ private fun ProfileEditorPagePreview() {
                 state = PreviewWorkbenchState,
                 isMobile = false,
                 onChangeProfile = {},
+                onClickAddAvatar = {},
                 onClickRetryPreview = {},
             )
         }

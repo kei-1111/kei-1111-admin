@@ -26,6 +26,9 @@ internal fun WorkbenchMainIsland(
         onChangeWork = { onIntent(WorkbenchIntent.UpdateWorkDraft(it)) },
         onClickAddScreenshot = { onIntent(WorkbenchIntent.AddScreenshot(it)) },
         onChangeProfile = { onIntent(WorkbenchIntent.UpdateProfileDraft(it)) },
+        onClickAddAvatar = { onIntent(WorkbenchIntent.AddProfileAvatar) },
+        onChangeTerminal = { onIntent(WorkbenchIntent.UpdateTerminalDraft(it)) },
+        onChangeReadme = { onIntent(WorkbenchIntent.UpdateReadmeDraft(it)) },
         onClickRetryPreview = { onIntent(WorkbenchIntent.RetryPreview) },
         modifier = modifier,
     )

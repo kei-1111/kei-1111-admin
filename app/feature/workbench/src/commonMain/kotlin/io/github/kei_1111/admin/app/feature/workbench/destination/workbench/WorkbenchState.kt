@@ -4,6 +4,8 @@ import io.github.kei_1111.admin.app.core.mvi.State
 import io.github.kei_1111.admin.app.feature.workbench.model.AdminNode
 import io.github.kei_1111.admin.app.feature.workbench.model.WorkbenchTab
 import io.github.kei_1111.admin.shared.model.AdminProfile
+import io.github.kei_1111.admin.shared.model.ReadmeContent
+import io.github.kei_1111.admin.shared.model.TerminalCommandsContent
 import io.github.kei_1111.admin.shared.model.Work
 import io.github.kei_1111.admin.shared.model.portfolio.ContributionCalendar
 import io.github.kei_1111.admin.shared.model.portfolio.GitHubProfile
@@ -20,6 +22,10 @@ internal data class WorkbenchState(
     /** 未保存の変更を持つ Work id 集合(ツリーの黄ドット用)。 */
     val unsavedWorkIds: Set<String> = emptySet(),
     val profileUnsaved: Boolean = false,
+    val terminal: TerminalCommandsContent = TerminalCommandsContent(),
+    val terminalUnsaved: Boolean = false,
+    val readme: ReadmeContent = ReadmeContent(),
+    val readmeUnsaved: Boolean = false,
     val saving: Boolean = false,
     val uploadingScreenshot: Boolean = false,
     val publishing: Boolean = false,

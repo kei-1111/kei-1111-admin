@@ -13,16 +13,24 @@ import io.github.kei_1111.admin.app.core.domain.usecase.GetContentMetaUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetPortfolioContributionsUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetPortfolioProfileUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetProfileDraftUseCase
+import io.github.kei_1111.admin.app.core.domain.usecase.GetReadmeDraftUseCase
+import io.github.kei_1111.admin.app.core.domain.usecase.GetTerminalDraftUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetWorksDraftUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.PickImageUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.PublishContentUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.SaveProfileDraftUseCase
+import io.github.kei_1111.admin.app.core.domain.usecase.SaveReadmeDraftUseCase
+import io.github.kei_1111.admin.app.core.domain.usecase.SaveTerminalDraftUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.SaveWorksDraftUseCase
+import io.github.kei_1111.admin.app.core.domain.usecase.UploadProfileImageUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.UploadWorkImageUseCase
 import io.github.kei_1111.admin.app.core.mvi.MviViewModel
 import io.github.kei_1111.admin.app.feature.workbench.model.AdminNode
 import io.github.kei_1111.admin.app.feature.workbench.model.WorkbenchTab
+import io.github.kei_1111.admin.shared.model.AdminProfile
 import io.github.kei_1111.admin.shared.model.ContentStatus
+import io.github.kei_1111.admin.shared.model.ReadmeContent
+import io.github.kei_1111.admin.shared.model.TerminalCommandsContent
 import io.github.kei_1111.admin.shared.model.Work
 import io.github.kei_1111.admin.shared.model.WorksContent
 import kotlinx.coroutines.flow.filterNotNull
@@ -46,6 +54,11 @@ internal class WorkbenchViewModel(
     private val getPortfolioContributions: GetPortfolioContributionsUseCase,
     private val pickImage: PickImageUseCase,
     private val uploadWorkImage: UploadWorkImageUseCase,
+    private val uploadProfileImage: UploadProfileImageUseCase,
+    private val getTerminalDraft: GetTerminalDraftUseCase,
+    private val saveTerminalDraft: SaveTerminalDraftUseCase,
+    private val getReadmeDraft: GetReadmeDraftUseCase,
+    private val saveReadmeDraft: SaveReadmeDraftUseCase,
 ) : MviViewModel<WorkbenchViewModelState, WorkbenchState, WorkbenchIntent>() {
 
     init {
@@ -120,6 +133,16 @@ internal class WorkbenchViewModel(
                 copy(profileDraft = intent.profile)
             }
 
+            is WorkbenchIntent.UpdateTerminalDraft -> updateViewModelState {
+                copy(terminalDraft = intent.content)
+            }
+
+            is WorkbenchIntent.UpdateReadmeDraft -> updateViewModelState {
+                copy(readmeDraft = intent.content)
+            }
+
+            is WorkbenchIntent.AddProfileAvatar -> addProfileAvatar()
+
             is WorkbenchIntent.SaveDraft -> maybeWarnThenPersist(alsoPublish = false)
 
             is WorkbenchIntent.RetryPreview -> viewModelScope.launch { loadPreviewData() }
@@ -148,11 +171,15 @@ internal class WorkbenchViewModel(
     private suspend fun loadContent() {
         val works = recoverOrElse({ getWorksDraft() }) { null }
         val profile = recoverOrElse({ getProfileDraft() }) { null }
+        val terminal = recoverOrElse({ getTerminalDraft() }) { null }
+        val readme = recoverOrElse({ getReadmeDraft() }) { null }
         val meta = recoverOrElse({ getContentMeta() }) { null }
         updateViewModelState {
             copy(
                 savedWorks = works?.works ?: savedWorks,
                 savedProfile = profile ?: savedProfile,
+                savedTerminal = terminal ?: savedTerminal,
+                savedReadme = readme ?: savedReadme,
                 lastDeploy = meta?.lastPublishedAt?.takeIf { it.isNotEmpty() }?.toDeployDisplay() ?: lastDeploy,
                 syncError = if (works == null || profile == null) SyncErrorKind.Load else null,
                 loading = false,
@@ -170,6 +197,30 @@ internal class WorkbenchViewModel(
                 contributions = fetchedContributions ?: contributions,
                 contributionsFailed = fetchedContributions == null,
             )
+        }
+    }
+
+    /** アバター画像を選択してアップロードし、profile draft の avatarUrl を差し替える。 */
+    private fun addProfileAvatar() {
+        if (_viewModelState.value.uploadingScreenshot) return
+        updateViewModelState { copy(uploadingScreenshot = true) }
+        viewModelScope.launch {
+            val picked = pickImage()
+            if (picked == null) {
+                updateViewModelState { copy(uploadingScreenshot = false) }
+                return@launch
+            }
+            val path = recoverOrElse({ uploadProfileImage(picked) }) { null }
+            updateViewModelState {
+                if (path == null) {
+                    copy(uploadingScreenshot = false, syncError = SyncErrorKind.Upload)
+                } else {
+                    copy(
+                        uploadingScreenshot = false,
+                        profileDraft = (profileDraft ?: savedProfile).copy(avatarUrl = path),
+                    )
+                }
+            }
         }
     }
 
@@ -198,6 +249,35 @@ internal class WorkbenchViewModel(
         }
     }
 
+    /** 4ドキュメントをまとめて保存する。1つでも失敗したら null(呼び出し側が Save エラーにする)。 */
+    private suspend fun saveAllDrafts(
+        mergedWorks: List<Work>,
+        mergedProfile: AdminProfile,
+        snapshot: WorkbenchViewModelState,
+    ): SavedDrafts? {
+        val works = recoverOrElse({ saveWorksDraft(WorksContent(works = mergedWorks)) }) { null }
+        val profile = recoverOrElse({ saveProfileDraft(mergedProfile) }) { null }
+        val terminal = recoverOrElse({ saveTerminalDraft(snapshot.terminalDraft ?: snapshot.savedTerminal) }) { null }
+        val readme = recoverOrElse({ saveReadmeDraft(snapshot.readmeDraft ?: snapshot.savedReadme) }) { null }
+        return if (listOf(works, profile, terminal, readme).any { it == null }) {
+            null
+        } else {
+            SavedDrafts(
+                works = checkNotNull(works),
+                profile = checkNotNull(profile),
+                terminal = checkNotNull(terminal),
+                readme = checkNotNull(readme),
+            )
+        }
+    }
+
+    private data class SavedDrafts(
+        val works: WorksContent,
+        val profile: AdminProfile,
+        val terminal: TerminalCommandsContent,
+        val readme: ReadmeContent,
+    )
+
     /** 片方の言語だけ変更された項目があれば、保存前に確認を挟む。 */
     private fun maybeWarnThenPersist(alsoPublish: Boolean) {
         val outdated = _viewModelState.value.languageOutdatedItems()
@@ -223,19 +303,21 @@ internal class WorkbenchViewModel(
                 ).filterNot { it.id in snapshot.deletedWorkIds }
             val mergedProfile = snapshot.profileDraft ?: snapshot.savedProfile
 
-            val savedWorks = recoverOrElse({ saveWorksDraft(WorksContent(works = mergedWorks)) }) { null }
-            val savedProfile = recoverOrElse({ saveProfileDraft(mergedProfile) }) { null }
-            val saveSucceeded = savedWorks != null && savedProfile != null
-            val meta = if (alsoPublish && saveSucceeded) recoverOrElse({ publishContent() }) { null } else null
+            val saved = saveAllDrafts(mergedWorks, mergedProfile, snapshot)
+            val meta = if (alsoPublish && saved != null) recoverOrElse({ publishContent() }) { null } else null
 
             updateViewModelState {
-                if (saveSucceeded) {
+                if (saved != null) {
                     copy(
-                        savedWorks = savedWorks.works,
-                        savedProfile = savedProfile,
+                        savedWorks = saved.works.works,
+                        savedProfile = saved.profile,
                         // 保存中に入力された編集(スナップショットとの差分)は消さずに残す
                         workDrafts = workDrafts.filter { (id, draft) -> draft != snapshot.workDrafts[id] },
                         profileDraft = profileDraft?.takeIf { it != snapshot.profileDraft },
+                        savedTerminal = saved.terminal,
+                        terminalDraft = terminalDraft?.takeIf { it != snapshot.terminalDraft },
+                        savedReadme = saved.readme,
+                        readmeDraft = readmeDraft?.takeIf { it != snapshot.readmeDraft },
                         deletedWorkIds = deletedWorkIds - snapshot.deletedWorkIds,
                         saving = false,
                         publishing = false,
@@ -265,6 +347,8 @@ private fun WorkbenchViewModelState.selectNode(node: AdminNode): WorkbenchViewMo
         is AdminNode.Works -> WorkbenchTab.WorksList
         is AdminNode.WorkItem -> WorkbenchTab.WorkEditor(node.workId)
         is AdminNode.Profile -> WorkbenchTab.ProfileEditor
+        is AdminNode.Readme -> WorkbenchTab.ReadmeEditor
+        is AdminNode.Terminal -> WorkbenchTab.TerminalEditor
         // 未実装ノードはタブを開かず選択だけ反映する
         is AdminNode.DeployHistory, is AdminNode.Settings -> null
     }
@@ -283,6 +367,8 @@ private fun WorkbenchTab.correspondingNode(): AdminNode = when (this) {
     is WorkbenchTab.WorksList -> AdminNode.Works
     is WorkbenchTab.WorkEditor -> AdminNode.WorkItem(workId)
     is WorkbenchTab.ProfileEditor -> AdminNode.Profile
+    is WorkbenchTab.ReadmeEditor -> AdminNode.Readme
+    is WorkbenchTab.TerminalEditor -> AdminNode.Terminal
 }
 
 private fun WorkbenchTab.isDirty(state: WorkbenchViewModelState): Boolean = when (this) {
@@ -291,12 +377,18 @@ private fun WorkbenchTab.isDirty(state: WorkbenchViewModelState): Boolean = when
         state.workDrafts[workId] != null && state.savedWorks.none { it == state.workDrafts[workId] }
     is WorkbenchTab.ProfileEditor ->
         state.profileDraft != null && state.profileDraft != state.savedProfile
+    is WorkbenchTab.ReadmeEditor ->
+        state.readmeDraft != null && state.readmeDraft != state.savedReadme
+    is WorkbenchTab.TerminalEditor ->
+        state.terminalDraft != null && state.terminalDraft != state.savedTerminal
 }
 
 private fun WorkbenchViewModelState.discardDraft(tab: WorkbenchTab): WorkbenchViewModelState = when (tab) {
     is WorkbenchTab.WorksList -> this
     is WorkbenchTab.WorkEditor -> copy(workDrafts = workDrafts - tab.workId)
     is WorkbenchTab.ProfileEditor -> copy(profileDraft = null)
+    is WorkbenchTab.ReadmeEditor -> copy(readmeDraft = null)
+    is WorkbenchTab.TerminalEditor -> copy(terminalDraft = null)
 }
 
 private fun WorkbenchViewModelState.closeTab(tab: WorkbenchTab): WorkbenchViewModelState {
@@ -319,6 +411,13 @@ private fun WorkbenchViewModelState.languageOutdatedItems(): List<WorkbenchViewM
             name = "Profile",
             jaChanged = draft.displayName != savedProfile.displayName,
             enChanged = draft.displayNameEn != savedProfile.displayNameEn,
+        )?.let(::add)
+    }
+    readmeDraft?.let { draft ->
+        outdatedItemOf(
+            name = "README",
+            jaChanged = draft.ja != savedReadme.ja,
+            enChanged = draft.en != savedReadme.en,
         )?.let(::add)
     }
 }

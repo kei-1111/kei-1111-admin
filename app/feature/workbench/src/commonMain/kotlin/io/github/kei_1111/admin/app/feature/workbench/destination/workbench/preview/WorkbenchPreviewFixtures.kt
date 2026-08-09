@@ -3,7 +3,12 @@ package io.github.kei_1111.admin.app.feature.workbench.destination.workbench.pre
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.WorkbenchState
 import io.github.kei_1111.admin.shared.model.AdminProfile
 import io.github.kei_1111.admin.shared.model.ContentStatus
+import io.github.kei_1111.admin.shared.model.ReadmeBlock
+import io.github.kei_1111.admin.shared.model.ReadmeContent
+import io.github.kei_1111.admin.shared.model.ReadmeInline
 import io.github.kei_1111.admin.shared.model.SocialLink
+import io.github.kei_1111.admin.shared.model.TerminalCommandsContent
+import io.github.kei_1111.admin.shared.model.TerminalTextCommand
 import io.github.kei_1111.admin.shared.model.Work
 
 // Preview 専用のサンプル State。実配信内容とは独立で、レイアウト確認に足る最小構成にする。
@@ -46,6 +51,19 @@ internal val PreviewAdminProfile = AdminProfile(
 internal val PreviewWorkbenchState = WorkbenchState(
     works = PreviewAdminWorks,
     profile = PreviewAdminProfile,
+    terminal = TerminalCommandsContent(
+        commands = listOf(TerminalTextCommand(keyword = "coffee", lines = listOf("brewing...", "done!"))),
+    ),
+    readme = ReadmeContent(
+        ja = listOf(
+            ReadmeBlock.Heading(level = 1, inlines = listOf(ReadmeInline.PlainText("kei-1111.github.io"))),
+            ReadmeBlock.Paragraph(inlines = listOf(ReadmeInline.PlainText("サンプル段落"))),
+        ),
+        en = listOf(
+            ReadmeBlock.Heading(level = 1, inlines = listOf(ReadmeInline.PlainText("kei-1111.github.io"))),
+            ReadmeBlock.Paragraph(inlines = listOf(ReadmeInline.PlainText("Sample paragraph"))),
+        ),
+    ),
     lastDeploy = "2026-08-08 12:34",
     loading = false,
 )

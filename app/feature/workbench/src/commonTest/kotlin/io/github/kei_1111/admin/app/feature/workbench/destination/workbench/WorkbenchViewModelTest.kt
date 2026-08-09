@@ -5,11 +5,16 @@ import io.github.kei_1111.admin.app.core.domain.usecase.GetContentMetaUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetPortfolioContributionsUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetPortfolioProfileUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetProfileDraftUseCase
+import io.github.kei_1111.admin.app.core.domain.usecase.GetReadmeDraftUseCase
+import io.github.kei_1111.admin.app.core.domain.usecase.GetTerminalDraftUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetWorksDraftUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.PickImageUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.PublishContentUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.SaveProfileDraftUseCase
+import io.github.kei_1111.admin.app.core.domain.usecase.SaveReadmeDraftUseCase
+import io.github.kei_1111.admin.app.core.domain.usecase.SaveTerminalDraftUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.SaveWorksDraftUseCase
+import io.github.kei_1111.admin.app.core.domain.usecase.UploadProfileImageUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.UploadWorkImageUseCase
 import io.github.kei_1111.admin.app.core.testing.ViewModelTestBase
 import io.github.kei_1111.admin.app.core.testing.startCollecting
@@ -21,6 +26,11 @@ import io.github.kei_1111.admin.app.feature.workbench.preview.PreviewGitHubProfi
 import io.github.kei_1111.admin.shared.model.AdminProfile
 import io.github.kei_1111.admin.shared.model.ContentMeta
 import io.github.kei_1111.admin.shared.model.ContentStatus
+import io.github.kei_1111.admin.shared.model.ReadmeBlock
+import io.github.kei_1111.admin.shared.model.ReadmeContent
+import io.github.kei_1111.admin.shared.model.ReadmeInline
+import io.github.kei_1111.admin.shared.model.TerminalCommandsContent
+import io.github.kei_1111.admin.shared.model.TerminalTextCommand
 import io.github.kei_1111.admin.shared.model.Work
 import io.github.kei_1111.admin.shared.model.WorksContent
 import io.github.kei_1111.admin.shared.model.portfolio.ContributionCalendar
@@ -45,6 +55,8 @@ private val SeedProfile = AdminProfile(displayName = "けい")
 private class FakeAdminContentRepository(
     var works: WorksContent = WorksContent(works = SeedWorks),
     var profile: AdminProfile = SeedProfile,
+    var terminal: TerminalCommandsContent = TerminalCommandsContent(),
+    var readme: ReadmeContent = ReadmeContent(),
     var meta: ContentMeta = ContentMeta(),
     var failing: Boolean = false,
     var previewFailing: Boolean = false,
@@ -119,6 +131,35 @@ private fun viewModel(
     object : UploadWorkImageUseCase {
         override suspend fun invoke(workId: String, file: PickedImageFile): String =
             "images/works/$workId/uploaded-${file.name}"
+    },
+    uploadProfileImage = object : UploadProfileImageUseCase {
+        override suspend fun invoke(file: PickedImageFile): String = "images/profile/uploaded-${file.name}"
+    },
+    getTerminalDraft = object : GetTerminalDraftUseCase {
+        override suspend fun invoke(): TerminalCommandsContent {
+            repository.failIfRequested()
+            return repository.terminal
+        }
+    },
+    saveTerminalDraft = object : SaveTerminalDraftUseCase {
+        override suspend fun invoke(content: TerminalCommandsContent): TerminalCommandsContent {
+            repository.failIfRequested()
+            repository.terminal = content
+            return content
+        }
+    },
+    getReadmeDraft = object : GetReadmeDraftUseCase {
+        override suspend fun invoke(): ReadmeContent {
+            repository.failIfRequested()
+            return repository.readme
+        }
+    },
+    saveReadmeDraft = object : SaveReadmeDraftUseCase {
+        override suspend fun invoke(content: ReadmeContent): ReadmeContent {
+            repository.failIfRequested()
+            repository.readme = content
+            return content
+        }
     },
 )
 
@@ -500,6 +541,69 @@ class WorkbenchViewModelTest : ViewModelTestBase() {
         val state = viewModel.state.value
         assertEquals(0, state.unsavedCount)
         assertFalse(state.uploadingScreenshot)
+    }
+
+    @Test
+    fun terminalDraftSavesThroughTheRepository() = runTest {
+        signIn()
+        val repository = FakeAdminContentRepository()
+        val viewModel = viewModel(repository)
+        startCollecting(viewModel.state)
+        runCurrent()
+
+        val edited = TerminalCommandsContent(
+            commands = listOf(TerminalTextCommand(keyword = "coffee", lines = listOf("brewing..."))),
+        )
+        viewModel.onIntent(WorkbenchIntent.UpdateTerminalDraft(edited))
+        runCurrent()
+        assertEquals(1, viewModel.state.value.unsavedCount)
+
+        viewModel.onIntent(WorkbenchIntent.SaveDraft)
+        runCurrent()
+
+        assertEquals(0, viewModel.state.value.unsavedCount)
+        assertEquals(edited, repository.terminal)
+    }
+
+    @Test
+    fun japaneseOnlyReadmeChangeWarnsBeforeSaving() = runTest {
+        signIn()
+        val repository = FakeAdminContentRepository()
+        val viewModel = viewModel(repository)
+        startCollecting(viewModel.state)
+        runCurrent()
+
+        val edited = ReadmeContent(
+            ja = listOf(ReadmeBlock.Paragraph(inlines = listOf(ReadmeInline.PlainText("日本語のみ更新")))),
+            en = repository.readme.en,
+        )
+        viewModel.onIntent(WorkbenchIntent.UpdateReadmeDraft(edited))
+        runCurrent()
+        viewModel.onIntent(WorkbenchIntent.SaveDraft)
+        runCurrent()
+
+        val warning = viewModel.state.value.languageOutdatedWarning
+        assertNotNull(warning)
+        assertEquals(listOf("README"), warning.items.map { it.name })
+    }
+
+    @Test
+    fun addProfileAvatarUploadsAndReplacesTheAvatarUrl() = runTest {
+        signIn()
+        val repository = FakeAdminContentRepository()
+        val viewModel = viewModel(
+            repository,
+            pickedImage = PickedImageFile(name = "avatar.png", mimeType = "image/png", bytes = byteArrayOf(1)),
+        )
+        startCollecting(viewModel.state)
+        runCurrent()
+
+        viewModel.onIntent(WorkbenchIntent.AddProfileAvatar)
+        runCurrent()
+
+        val state = viewModel.state.value
+        assertEquals("images/profile/uploaded-avatar.png", state.profile.avatarUrl)
+        assertTrue(state.profileUnsaved)
     }
 
     @Test

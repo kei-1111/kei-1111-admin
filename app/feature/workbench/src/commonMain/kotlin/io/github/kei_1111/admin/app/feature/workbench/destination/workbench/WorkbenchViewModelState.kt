@@ -4,6 +4,8 @@ import io.github.kei_1111.admin.app.core.mvi.ViewModelState
 import io.github.kei_1111.admin.app.feature.workbench.model.AdminNode
 import io.github.kei_1111.admin.app.feature.workbench.model.WorkbenchTab
 import io.github.kei_1111.admin.shared.model.AdminProfile
+import io.github.kei_1111.admin.shared.model.ReadmeContent
+import io.github.kei_1111.admin.shared.model.TerminalCommandsContent
 import io.github.kei_1111.admin.shared.model.Work
 import io.github.kei_1111.admin.shared.model.portfolio.ContributionCalendar
 import io.github.kei_1111.admin.shared.model.portfolio.GitHubProfile
@@ -15,6 +17,10 @@ internal data class WorkbenchViewModelState(
     /** 編集バッファ。保存済みと異なるエントリが「未保存の変更」。 */
     val workDrafts: Map<String, Work> = emptyMap(),
     val profileDraft: AdminProfile? = null,
+    val savedTerminal: TerminalCommandsContent = TerminalCommandsContent(),
+    val terminalDraft: TerminalCommandsContent? = null,
+    val savedReadme: ReadmeContent = ReadmeContent(),
+    val readmeDraft: ReadmeContent? = null,
     val selectedNode: AdminNode = AdminNode.Works,
     val openTabs: List<WorkbenchTab> = listOf(WorkbenchTab.WorksList),
     val activeTab: WorkbenchTab = WorkbenchTab.WorksList,
@@ -54,9 +60,14 @@ internal data class WorkbenchViewModelState(
 
     private fun isProfileDirty(): Boolean = profileDraft != null && profileDraft != savedProfile
 
+    private fun isTerminalDirty(): Boolean = terminalDraft != null && terminalDraft != savedTerminal
+
+    private fun isReadmeDirty(): Boolean = readmeDraft != null && readmeDraft != savedReadme
+
     override fun toState(): WorkbenchState {
         val dirtyIds = dirtyWorkIds()
         val profileDirty = isProfileDirty()
+        val extraDirty = (if (isTerminalDirty()) 1 else 0) + (if (isReadmeDirty()) 1 else 0)
         val mergedWorks = (
             savedWorks.map { workDrafts[it.id] ?: it } +
                 workDrafts.values.filter { draft -> savedWorks.none { it.id == draft.id } }
@@ -67,9 +78,13 @@ internal data class WorkbenchViewModelState(
             selectedNode = selectedNode,
             openTabs = openTabs,
             activeTab = activeTab,
-            unsavedCount = dirtyIds.size + deletedWorkIds.size + (if (profileDirty) 1 else 0),
+            unsavedCount = dirtyIds.size + deletedWorkIds.size + extraDirty + (if (profileDirty) 1 else 0),
             unsavedWorkIds = dirtyIds,
             profileUnsaved = profileDirty,
+            terminal = terminalDraft ?: savedTerminal,
+            terminalUnsaved = isTerminalDirty(),
+            readme = readmeDraft ?: savedReadme,
+            readmeUnsaved = isReadmeDirty(),
             saving = saving,
             uploadingScreenshot = uploadingScreenshot,
             publishing = publishing,

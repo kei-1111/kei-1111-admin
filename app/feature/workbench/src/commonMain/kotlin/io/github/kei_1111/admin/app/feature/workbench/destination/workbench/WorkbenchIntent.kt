@@ -4,6 +4,8 @@ import io.github.kei_1111.admin.app.core.mvi.Intent
 import io.github.kei_1111.admin.app.feature.workbench.model.AdminNode
 import io.github.kei_1111.admin.app.feature.workbench.model.WorkbenchTab
 import io.github.kei_1111.admin.shared.model.AdminProfile
+import io.github.kei_1111.admin.shared.model.ReadmeContent
+import io.github.kei_1111.admin.shared.model.TerminalCommandsContent
 import io.github.kei_1111.admin.shared.model.Work
 
 internal sealed interface WorkbenchIntent : Intent {
@@ -19,6 +21,9 @@ internal sealed interface WorkbenchIntent : Intent {
     data object DismissDeleteConfirm : WorkbenchIntent
     data class UpdateWorkDraft(val work: Work) : WorkbenchIntent
     data class UpdateProfileDraft(val profile: AdminProfile) : WorkbenchIntent
+    data class UpdateTerminalDraft(val content: TerminalCommandsContent) : WorkbenchIntent
+    data class UpdateReadmeDraft(val content: ReadmeContent) : WorkbenchIntent
+    data object AddProfileAvatar : WorkbenchIntent
     data object SaveDraft : WorkbenchIntent
     data object RetryPreview : WorkbenchIntent
     data object ConfirmLanguageOutdated : WorkbenchIntent
