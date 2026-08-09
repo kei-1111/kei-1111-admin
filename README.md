@@ -52,7 +52,7 @@ Details: `docs/ModuleOverview.md` / `docs/ArchitectureOverview.md` (Japanese).
 - [x] GCS bucket (`kei-1111-portfolio-content`) + service accounts (`kei-1111-admin-runtime` objectAdmin / portfolio runtime objectViewer)
 - [x] CI (detekt / compile / host tests / server tests, docs-only gated)
 - [x] CD to Cloud Run (single service `kei-1111-admin`: admin API + bundled UI, WIF)
-- [ ] Google OAuth client (Identity Services) + ID-token verification on the server
+- [x] Google OAuth client (Identity Services) + ID-token verification on the server
 - [ ] Image upload / list / delete API + UI
-- [ ] Text content (JSON) edit API + UI
+- [x] Text content (JSON) edit API + UI (Works / Profile editors, draft → publish flow)
 - [ ] Portfolio server reads content from the GCS bucket
