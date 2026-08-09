@@ -7,6 +7,8 @@ import io.github.kei_1111.admin.app.core.data.repository.AdminContentRepository
 import io.github.kei_1111.admin.shared.model.AdminProfile
 import io.github.kei_1111.admin.shared.model.ContentMeta
 import io.github.kei_1111.admin.shared.model.WorksContent
+import io.github.kei_1111.admin.shared.model.portfolio.ContributionCalendar
+import io.github.kei_1111.admin.shared.model.portfolio.GitHubProfile
 
 interface GetWorksDraftUseCase {
     suspend operator fun invoke(): WorksContent
@@ -30,6 +32,14 @@ interface GetContentMetaUseCase {
 
 interface PublishContentUseCase {
     suspend operator fun invoke(): ContentMeta
+}
+
+interface GetPortfolioProfileUseCase {
+    suspend operator fun invoke(): GitHubProfile
+}
+
+interface GetPortfolioContributionsUseCase {
+    suspend operator fun invoke(): ContributionCalendar
 }
 
 @Inject
@@ -78,4 +88,20 @@ internal class PublishContentUseCaseImpl(
     private val repository: AdminContentRepository,
 ) : PublishContentUseCase {
     override suspend fun invoke(): ContentMeta = repository.publish()
+}
+
+@Inject
+@ContributesBinding(AppScope::class)
+internal class GetPortfolioProfileUseCaseImpl(
+    private val repository: AdminContentRepository,
+) : GetPortfolioProfileUseCase {
+    override suspend fun invoke(): GitHubProfile = repository.fetchPortfolioProfile()
+}
+
+@Inject
+@ContributesBinding(AppScope::class)
+internal class GetPortfolioContributionsUseCaseImpl(
+    private val repository: AdminContentRepository,
+) : GetPortfolioContributionsUseCase {
+    override suspend fun invoke(): ContributionCalendar = repository.fetchPortfolioContributions()
 }

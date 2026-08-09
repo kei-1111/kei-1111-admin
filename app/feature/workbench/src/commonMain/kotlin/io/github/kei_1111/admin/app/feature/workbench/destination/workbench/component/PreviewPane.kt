@@ -5,11 +5,14 @@ package io.github.kei_1111.admin.app.feature.workbench.destination.workbench.com
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -20,13 +23,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.kei_1111.admin.app.core.designsystem.theme.KeiTheme
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.form.dashedBorder
 import kotlinx.coroutines.delay
+import kotlin.math.min
 
 private const val REFRESH_DEBOUNCE_MILLIS = 600L
 
@@ -69,6 +76,7 @@ internal fun PreviewPane(
                 ),
                 modifier = Modifier.weight(1f),
             )
+            LanguageSegment(modifier = Modifier.padding(end = 8.dp))
             if (upToDate) {
                 Text(
                     text = "◉ up to date",
@@ -111,6 +119,42 @@ internal fun PreviewPane(
                     )
                 }
             }
+        }
+    }
+}
+
+/**
+ * 本家カード(固定寸法)をペインに収まるよう等倍縮小して中央表示する。
+ * モックを別実装せず「実物のまま縮小表示」するための土台。
+ */
+@Composable
+internal fun ScaledCard(
+    cardWidth: Dp,
+    cardHeight: Dp,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    BoxWithConstraints(modifier = modifier, contentAlignment = Alignment.Center) {
+        val scale = min(maxWidth / cardWidth, maxHeight / cardHeight)
+        Box(
+            modifier = Modifier
+                .requiredSize(cardWidth, cardHeight)
+                .graphicsLayer {
+                    scaleX = scale
+                    scaleY = scale
+                },
+        ) {
+            content()
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewPanePreview() {
+    KeiTheme {
+        Box(modifier = Modifier.size(420.dp, 640.dp).background(KeiTheme.colors.desk).padding(8.dp)) {
+            PreviewPane(componentName = "WorksPreview", contentFingerprint = null)
         }
     }
 }

@@ -8,6 +8,8 @@ import io.github.kei_1111.admin.app.core.common.auth.AdminAuthController
 import io.github.kei_1111.admin.shared.model.AdminProfile
 import io.github.kei_1111.admin.shared.model.ContentMeta
 import io.github.kei_1111.admin.shared.model.WorksContent
+import io.github.kei_1111.admin.shared.model.portfolio.ContributionCalendar
+import io.github.kei_1111.admin.shared.model.portfolio.GitHubProfile
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.HttpRequestBuilder
@@ -53,6 +55,12 @@ internal class AdminContentRepositoryImpl(
 
     override suspend fun publish(): ContentMeta =
         httpClient.post("/api/publish") { authorize() }.body()
+
+    override suspend fun fetchPortfolioProfile(): GitHubProfile =
+        httpClient.get("/api/preview/profile") { authorize() }.body()
+
+    override suspend fun fetchPortfolioContributions(): ContributionCalendar =
+        httpClient.get("/api/preview/contributions") { authorize() }.body()
 
     private fun HttpRequestBuilder.authorize() {
         AdminAuthController.idToken.value?.let { token ->
