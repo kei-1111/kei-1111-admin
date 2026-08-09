@@ -51,6 +51,7 @@ internal fun MainIsland(
     onClickAddIcon: (String) -> Unit,
     onChangeProfile: (AdminProfile) -> Unit,
     onClickAddAvatar: () -> Unit,
+    onClickSyncPinned: () -> Unit,
     onChangeTerminal: (TerminalCommandsContent) -> Unit,
     onChangeReadme: (ReadmeContent) -> Unit,
     onClickRetryPreview: () -> Unit,
@@ -93,6 +94,7 @@ internal fun MainIsland(
                     isMobile = isMobile,
                     onChangeProfile = onChangeProfile,
                     onClickAddAvatar = onClickAddAvatar,
+                    onClickSyncPinned = onClickSyncPinned,
                     onClickRetryPreview = onClickRetryPreview,
                     modifier = Modifier.fillMaxSize(),
                 )
@@ -245,6 +247,7 @@ private fun MainIslandPreview() {
                 onClickAddIcon = {},
                 onChangeProfile = {},
                 onClickAddAvatar = {},
+                onClickSyncPinned = {},
                 onChangeTerminal = {},
                 onChangeReadme = {},
                 onClickRetryPreview = {},

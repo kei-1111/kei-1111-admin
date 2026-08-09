@@ -28,6 +28,7 @@ internal fun WorkbenchMainIsland(
         onClickAddIcon = { onIntent(WorkbenchIntent.AddWorkIcon(it)) },
         onChangeProfile = { onIntent(WorkbenchIntent.UpdateProfileDraft(it)) },
         onClickAddAvatar = { onIntent(WorkbenchIntent.AddProfileAvatar) },
+        onClickSyncPinned = { onIntent(WorkbenchIntent.SyncPinnedRepos) },
         onChangeTerminal = { onIntent(WorkbenchIntent.UpdateTerminalDraft(it)) },
         onChangeReadme = { onIntent(WorkbenchIntent.UpdateReadmeDraft(it)) },
         onClickRetryPreview = { onIntent(WorkbenchIntent.RetryPreview) },

@@ -29,6 +29,7 @@ import io.github.kei_1111.admin.app.feature.workbench.model.AdminNode
 import io.github.kei_1111.admin.app.feature.workbench.model.WorkbenchTab
 import io.github.kei_1111.admin.shared.model.AdminProfile
 import io.github.kei_1111.admin.shared.model.ContentStatus
+import io.github.kei_1111.admin.shared.model.PinnedRepoSetting
 import io.github.kei_1111.admin.shared.model.ReadmeContent
 import io.github.kei_1111.admin.shared.model.TerminalCommandsContent
 import io.github.kei_1111.admin.shared.model.Work
@@ -148,6 +149,8 @@ internal class WorkbenchViewModel(
             }
 
             is WorkbenchIntent.AddProfileAvatar -> addProfileAvatar()
+
+            is WorkbenchIntent.SyncPinnedRepos -> updateViewModelState { syncPinnedRepos() }
 
             is WorkbenchIntent.SaveDraft -> maybeWarnThenPersist(alsoPublish = false)
 
@@ -342,6 +345,24 @@ internal class WorkbenchViewModel(
 private fun String.toDeployDisplay(): String = take(DEPLOY_DISPLAY_LENGTH).replace("T", " ")
 
 /** 既存 ID の最大連番から採番する。破棄で件数が減っても既存 ID とは衝突しない。 */
+/**
+ * GitHub の実 pinned(プレビュー用に取得済み)へ設定リストを同期する。
+ * 既存の表示可否・説明上書きは保持し、新しく pin されたリポジトリは表示 ON で追加、
+ * pin 解除されたものは取り除く。
+ */
+private fun WorkbenchViewModelState.syncPinnedRepos(): WorkbenchViewModelState {
+    val live = portfolioProfile?.pinnedRepos ?: return this
+    val current = profileDraft ?: savedProfile
+    val existing = current.pinnedRepos.associateBy { it.name }
+    val merged = live.map { repo ->
+        existing[repo.name] ?: PinnedRepoSetting(
+            name = repo.name,
+            description = repo.description.ja,
+        )
+    }
+    return copy(profileDraft = current.copy(pinnedRepos = merged))
+}
+
 private fun WorkbenchViewModelState.nextWorkId(): String {
     val existing = savedWorks.map { it.id } + workDrafts.keys + deletedWorkIds
     val next = existing.mapNotNull { it.removePrefix("work-").toIntOrNull() }.maxOrNull()?.plus(1) ?: 1

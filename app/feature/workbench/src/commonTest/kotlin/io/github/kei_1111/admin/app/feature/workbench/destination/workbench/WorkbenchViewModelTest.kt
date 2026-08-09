@@ -26,6 +26,7 @@ import io.github.kei_1111.admin.app.feature.workbench.preview.PreviewGitHubProfi
 import io.github.kei_1111.admin.shared.model.AdminProfile
 import io.github.kei_1111.admin.shared.model.ContentMeta
 import io.github.kei_1111.admin.shared.model.ContentStatus
+import io.github.kei_1111.admin.shared.model.PinnedRepoSetting
 import io.github.kei_1111.admin.shared.model.ReadmeBlock
 import io.github.kei_1111.admin.shared.model.ReadmeContent
 import io.github.kei_1111.admin.shared.model.ReadmeInline
@@ -604,6 +605,37 @@ class WorkbenchViewModelTest : ViewModelTestBase() {
         val warning = viewModel.state.value.languageOutdatedWarning
         assertNotNull(warning)
         assertEquals(listOf("README"), warning.items.map { it.name })
+    }
+
+    @Test
+    fun syncPinnedReposMergesTheLiveListKeepingExistingSettings() = runTest {
+        signIn()
+        val repository = FakeAdminContentRepository(
+            profile = SeedProfile.copy(
+                pinnedRepos = listOf(
+                    PinnedRepoSetting(
+                        name = PreviewGitHubProfile.pinnedRepos.first().name,
+                        visible = false,
+                        descriptionJa = "既存の上書き",
+                    ),
+                    PinnedRepoSetting(name = "unpinned-repo"),
+                ),
+            ),
+        )
+        val viewModel = viewModel(repository)
+        startCollecting(viewModel.state)
+        runCurrent()
+
+        viewModel.onIntent(WorkbenchIntent.SyncPinnedRepos)
+        runCurrent()
+
+        val pinned = viewModel.state.value.profile.pinnedRepos
+        // ライブ一覧と同じ並び・件数になり、既存の設定(非表示・説明上書き)は保持される
+        assertEquals(PreviewGitHubProfile.pinnedRepos.map { it.name }, pinned.map { it.name })
+        assertFalse(pinned.first().visible)
+        assertEquals("既存の上書き", pinned.first().descriptionJa)
+        // pin 解除済みは取り除かれる
+        assertTrue(pinned.none { it.name == "unpinned-repo" })
     }
 
     @Test

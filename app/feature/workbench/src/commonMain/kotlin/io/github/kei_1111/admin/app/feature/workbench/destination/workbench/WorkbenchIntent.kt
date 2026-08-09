@@ -25,6 +25,7 @@ internal sealed interface WorkbenchIntent : Intent {
     data class UpdateTerminalDraft(val content: TerminalCommandsContent) : WorkbenchIntent
     data class UpdateReadmeDraft(val content: ReadmeContent) : WorkbenchIntent
     data object AddProfileAvatar : WorkbenchIntent
+    data object SyncPinnedRepos : WorkbenchIntent
     data object SaveDraft : WorkbenchIntent
     data object RetryPreview : WorkbenchIntent
     data object ConfirmLanguageOutdated : WorkbenchIntent

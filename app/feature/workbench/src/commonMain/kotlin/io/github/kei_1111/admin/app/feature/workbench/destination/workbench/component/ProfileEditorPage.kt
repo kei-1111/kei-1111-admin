@@ -57,6 +57,7 @@ internal fun ProfileEditorPage(
     isMobile: Boolean,
     onChangeProfile: (AdminProfile) -> Unit,
     onClickAddAvatar: () -> Unit,
+    onClickSyncPinned: () -> Unit,
     onClickRetryPreview: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -66,8 +67,10 @@ internal fun ProfileEditorPage(
         ProfileForm(
             profile = profile,
             liveAvatarUrl = state.portfolioProfile?.iconUrl,
+            syncEnabled = state.portfolioProfile != null,
             onChangeProfile = onChangeProfile,
             onClickAddAvatar = onClickAddAvatar,
+            onClickSyncPinned = onClickSyncPinned,
             modifier = Modifier
                 .weight(1f)
                 .fillMaxSize()
@@ -109,8 +112,10 @@ internal fun ProfileEditorPage(
 private fun ProfileForm(
     profile: AdminProfile,
     liveAvatarUrl: String?,
+    syncEnabled: Boolean,
     onChangeProfile: (AdminProfile) -> Unit,
     onClickAddAvatar: () -> Unit,
+    onClickSyncPinned: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -125,7 +130,7 @@ private fun ProfileForm(
             SectionLabel(text = "EDIT LANGUAGE")
             LanguageSegment()
         }
-        GitHubSyncCard(profile = profile)
+        GitHubSyncCard(profile = profile, syncEnabled = syncEnabled, onClickSync = onClickSyncPinned)
         IdentitySection(
             profile = profile,
             liveAvatarUrl = liveAvatarUrl,
@@ -143,6 +148,8 @@ private fun ProfileForm(
 @Composable
 private fun GitHubSyncCard(
     profile: AdminProfile,
+    syncEnabled: Boolean,
+    onClickSync: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = KeiTheme.colors
@@ -176,12 +183,12 @@ private fun GitHubSyncCard(
                 style = KeiTheme.typography.chrome.copy(fontSize = 10.sp, color = colors.androidGreen),
             )
         }
-        // Sync 実行はデータ層接続後に配線する。未配線の間は AS の非活性表示に合わせて減光する
+        // ライブ pinned が未取得の間は AS の非活性表示に合わせて減光する
         PillButton(
             label = "Sync",
-            onClick = {},
+            onClick = { if (syncEnabled) onClickSync() },
             icon = KeiTheme.icons.refresh,
-            modifier = Modifier.alpha(KeiTheme.colors.nonClickableAlpha),
+            modifier = Modifier.alpha(if (syncEnabled) 1f else KeiTheme.colors.nonClickableAlpha),
         )
     }
 }
@@ -466,6 +473,7 @@ private fun ProfileEditorPagePreview() {
                 isMobile = false,
                 onChangeProfile = {},
                 onClickAddAvatar = {},
+                onClickSyncPinned = {},
                 onClickRetryPreview = {},
             )
         }
