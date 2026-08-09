@@ -3,6 +3,7 @@ package io.github.kei_1111.admin.server.routing
 import io.github.kei_1111.admin.server.service.ImageService
 import io.github.kei_1111.admin.shared.model.UploadedImage
 import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.PartData
 import io.ktor.http.content.forEachPart
@@ -70,6 +71,9 @@ private suspend fun RoutingContext.receiveValidatedImage(
     }
 }
 
+// 本体サイトは別オリジンから Coil(ブラウザ fetch)で画像を取るため、CORS 許可がないと表示できない
+private val imageCorsOrigins = setOf("https://kei-1111.github.io", "http://localhost:8080")
+
 /** 公開側のスクリーンショット配信(認証不要)。Application の routing 直下で登録する。 */
 fun Route.imageServingRoutes(imageService: ImageService) {
     get("/images/{path...}") {
@@ -78,6 +82,12 @@ fun Route.imageServingRoutes(imageService: ImageService) {
         if (image == null) {
             call.respond(HttpStatusCode.NotFound)
         } else {
+            call.request.headers[HttpHeaders.Origin]
+                ?.takeIf { it in imageCorsOrigins }
+                ?.let { origin ->
+                    call.response.headers.append(HttpHeaders.AccessControlAllowOrigin, origin)
+                    call.response.headers.append(HttpHeaders.Vary, HttpHeaders.Origin)
+                }
             call.response.headers.append("X-Content-Type-Options", "nosniff")
             call.respondBytes(image.bytes, ContentType.parse(image.contentType))
         }

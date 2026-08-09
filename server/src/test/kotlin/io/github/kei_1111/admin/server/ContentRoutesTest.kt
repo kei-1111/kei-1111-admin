@@ -26,6 +26,7 @@ import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.get
+import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
@@ -331,6 +332,32 @@ class ContentRoutesTest {
         val served = client.get("/$path")
         assertEquals(HttpStatusCode.OK, served.status)
         assertEquals("image/png", served.headers[HttpHeaders.ContentType]?.substringBefore(';'))
+    }
+
+    @Test
+    fun servesImagesWithCorsForThePortfolioOrigins() = contentTestApplication { client, storage ->
+        storage.binaries["images/works/withmo/shot.webp"] = byteArrayOf(0x52, 0x49, 0x46, 0x46)
+
+        val fromProduction = client.get("/images/works/withmo/shot.webp") {
+            header(HttpHeaders.Origin, "https://kei-1111.github.io")
+        }
+        val fromDev = client.get("/images/works/withmo/shot.webp") {
+            header(HttpHeaders.Origin, "http://localhost:8080")
+        }
+        val fromElsewhere = client.get("/images/works/withmo/shot.webp") {
+            header(HttpHeaders.Origin, "https://evil.example")
+        }
+
+        assertEquals(HttpStatusCode.OK, fromProduction.status)
+        assertEquals(
+            "https://kei-1111.github.io",
+            fromProduction.headers[HttpHeaders.AccessControlAllowOrigin],
+        )
+        assertEquals(
+            "http://localhost:8080",
+            fromDev.headers[HttpHeaders.AccessControlAllowOrigin],
+        )
+        assertEquals(null, fromElsewhere.headers[HttpHeaders.AccessControlAllowOrigin])
     }
 
     @Test
