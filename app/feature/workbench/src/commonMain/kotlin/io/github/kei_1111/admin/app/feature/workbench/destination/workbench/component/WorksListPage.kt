@@ -36,18 +36,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.kei_1111.admin.app.core.designsystem.theme.KeiIcon
 import io.github.kei_1111.admin.app.core.designsystem.theme.KeiTheme
-import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.WorkbenchIntent
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.WorkbenchState
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.preview.PreviewWorkbenchState
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.theme.WorkbenchDimensions
-import io.github.kei_1111.admin.app.feature.workbench.model.AdminNode
 import io.github.kei_1111.admin.shared.model.Work
 
 @Composable
+@Suppress("LongParameterList")
 internal fun WorksListPage(
     state: WorkbenchState,
-    onIntent: (WorkbenchIntent) -> Unit,
     isMobile: Boolean,
+    onSelectWork: (String) -> Unit,
+    onClickCreateWork: () -> Unit,
+    onClickDeleteWork: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var query by remember { mutableStateOf("") }
@@ -61,7 +62,7 @@ internal fun WorksListPage(
             query = query,
             isMobile = isMobile,
             onChangeQuery = { query = it },
-            onClickCreate = { onIntent(WorkbenchIntent.CreateWork) },
+            onClickCreate = onClickCreateWork,
             modifier = Modifier.fillMaxWidth(),
         )
         Spacer(modifier = Modifier.height(12.dp))
@@ -79,8 +80,8 @@ internal fun WorksListPage(
                 WorkRow(
                     work = work,
                     isMobile = isMobile,
-                    onClick = { onIntent(WorkbenchIntent.SelectNode(AdminNode.WorkItem(work.id))) },
-                    onClickDelete = { onIntent(WorkbenchIntent.RequestDeleteWork(work.id)) },
+                    onClick = { onSelectWork(work.id) },
+                    onClickDelete = { onClickDeleteWork(work.id) },
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
@@ -287,7 +288,13 @@ private fun WorkRow(
 private fun WorksListPagePreview() {
     KeiTheme {
         Box(modifier = Modifier.size(1000.dp, 560.dp).background(KeiTheme.colors.island)) {
-            WorksListPage(state = PreviewWorkbenchState, onIntent = {}, isMobile = false)
+            WorksListPage(
+                state = PreviewWorkbenchState,
+                isMobile = false,
+                onSelectWork = {},
+                onClickCreateWork = {},
+                onClickDeleteWork = {},
+            )
         }
     }
 }

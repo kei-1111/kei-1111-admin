@@ -40,7 +40,6 @@ import androidx.compose.ui.unit.dp
 import io.github.kei_1111.admin.app.core.designsystem.theme.KeiIcon
 import io.github.kei_1111.admin.app.core.designsystem.theme.KeiTheme
 import io.github.kei_1111.admin.app.core.designsystem.theme.ThemedIcon
-import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.WorkbenchIntent
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.WorkbenchState
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.preview.PreviewWorkbenchState
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.theme.WorkbenchDimensions
@@ -55,7 +54,8 @@ import io.github.kei_1111.admin.shared.model.ContentStatus
 @Composable
 internal fun NavTree(
     state: WorkbenchState,
-    onIntent: (WorkbenchIntent) -> Unit,
+    onSelectNode: (AdminNode) -> Unit,
+    onClickCreateWork: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var worksExpanded by remember { mutableStateOf(true) }
@@ -80,14 +80,14 @@ internal fun NavTree(
                 expanded = worksExpanded,
                 label = "works",
                 selected = state.selectedNode == AdminNode.Works,
-                onClick = { onIntent(WorkbenchIntent.SelectNode(AdminNode.Works)) },
+                onClick = { onSelectNode(AdminNode.Works) },
                 onToggleExpand = { worksExpanded = !worksExpanded },
                 trailing = {
                     Box(
                         modifier = Modifier
                             .size(WorkbenchDimensions.TreeChevronSize)
                             .clip(KeiTheme.shapes.chip)
-                            .clickable { onIntent(WorkbenchIntent.CreateWork) },
+                            .clickable(onClick = onClickCreateWork),
                         contentAlignment = Alignment.Center,
                     ) {
                         KeiIcon(
@@ -105,7 +105,7 @@ internal fun NavTree(
                         icon = KeiTheme.icons.kotlin,
                         selected = state.selectedNode == AdminNode.WorkItem(work.id),
                         showDraftDot = work.status == ContentStatus.Draft || work.id in state.unsavedWorkIds,
-                        onClick = { onIntent(WorkbenchIntent.SelectNode(AdminNode.WorkItem(work.id))) },
+                        onClick = { onSelectNode(AdminNode.WorkItem(work.id)) },
                     )
                 }
             }
@@ -115,7 +115,7 @@ internal fun NavTree(
                 icon = KeiTheme.icons.properties,
                 selected = state.selectedNode == AdminNode.Profile,
                 showDraftDot = state.profileUnsaved,
-                onClick = { onIntent(WorkbenchIntent.SelectNode(AdminNode.Profile)) },
+                onClick = { onSelectNode(AdminNode.Profile) },
             )
             FolderRow(
                 depth = 1,
@@ -322,7 +322,7 @@ private fun TreeLabel(
 private fun NavTreePreview() {
     KeiTheme {
         Box(modifier = Modifier.size(260.dp, 560.dp).background(KeiTheme.colors.desk).padding(8.dp)) {
-            NavTree(state = PreviewWorkbenchState, onIntent = {})
+            NavTree(state = PreviewWorkbenchState, onSelectNode = {}, onClickCreateWork = {})
         }
     }
 }

@@ -3,12 +3,10 @@ package io.github.kei_1111.admin.app.feature.workbench.destination.workbench
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -17,11 +15,11 @@ import io.github.kei_1111.admin.app.core.designsystem.layout.WindowLayout
 import io.github.kei_1111.admin.app.core.designsystem.layout.windowLayoutFor
 import io.github.kei_1111.admin.app.core.designsystem.theme.KeiTheme
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.ConfirmDialog
-import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.MainIsland
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.MobileNavRow
-import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.NavTree
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.StatusBar
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.TitleBar
+import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.content.WorkbenchDesktopContent
+import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.content.WorkbenchMobileContent
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.preview.PreviewWorkbenchState
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.theme.WorkbenchDimensions
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.theme.deskBackground
@@ -55,37 +53,28 @@ internal fun WorkbenchScreen(
             if (isMobile) {
                 MobileNavRow(
                     state = state,
-                    onIntent = onIntent,
+                    onSelectNode = { onIntent(WorkbenchIntent.SelectNode(it)) },
+                    onClickCreateWork = { onIntent(WorkbenchIntent.CreateWork) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = WorkbenchDimensions.DeskPadding, vertical = 2.dp),
                 )
-            }
-            Row(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-                    .padding(horizontal = WorkbenchDimensions.DeskPadding),
-            ) {
-                if (!isMobile) {
-                    NavTree(
-                        state = state,
-                        onIntent = onIntent,
-                        modifier = Modifier
-                            .width(WorkbenchDimensions.TreeWidth)
-                            .fillMaxSize(),
-                    )
-                    androidx.compose.foundation.layout.Spacer(
-                        modifier = Modifier.width(WorkbenchDimensions.IslandGap),
-                    )
-                }
-                MainIsland(
+                WorkbenchMobileContent(
                     state = state,
                     onIntent = onIntent,
-                    isMobile = isMobile,
                     modifier = Modifier
                         .weight(1f)
-                        .fillMaxSize(),
+                        .fillMaxWidth()
+                        .padding(horizontal = WorkbenchDimensions.DeskPadding),
+                )
+            } else {
+                WorkbenchDesktopContent(
+                    state = state,
+                    onIntent = onIntent,
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .padding(horizontal = WorkbenchDimensions.DeskPadding),
                 )
             }
             StatusBar(

@@ -22,7 +22,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.kei_1111.admin.app.core.designsystem.theme.KeiTheme
-import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.WorkbenchIntent
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.WorkbenchState
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.preview.PreviewWorkbenchState
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.theme.WorkbenchDimensions
@@ -33,7 +32,8 @@ import io.github.kei_1111.admin.shared.model.ContentStatus
 @Composable
 internal fun MobileNavRow(
     state: WorkbenchState,
-    onIntent: (WorkbenchIntent) -> Unit,
+    onSelectNode: (AdminNode) -> Unit,
+    onClickCreateWork: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -44,26 +44,26 @@ internal fun MobileNavRow(
         NavChip(
             label = "Works",
             selected = state.selectedNode == AdminNode.Works,
-            onClick = { onIntent(WorkbenchIntent.SelectNode(AdminNode.Works)) },
+            onClick = { onSelectNode(AdminNode.Works) },
         )
         state.works.forEach { work ->
             NavChip(
                 label = work.name,
                 selected = state.selectedNode == AdminNode.WorkItem(work.id),
                 showDraftDot = work.status == ContentStatus.Draft || work.id in state.unsavedWorkIds,
-                onClick = { onIntent(WorkbenchIntent.SelectNode(AdminNode.WorkItem(work.id))) },
+                onClick = { onSelectNode(AdminNode.WorkItem(work.id)) },
             )
         }
         NavChip(
             label = "+ 新規",
             selected = false,
-            onClick = { onIntent(WorkbenchIntent.CreateWork) },
+            onClick = onClickCreateWork,
         )
         NavChip(
             label = "Profile",
             selected = state.selectedNode == AdminNode.Profile,
             showDraftDot = state.profileUnsaved,
-            onClick = { onIntent(WorkbenchIntent.SelectNode(AdminNode.Profile)) },
+            onClick = { onSelectNode(AdminNode.Profile) },
         )
     }
 }
@@ -110,7 +110,7 @@ private fun NavChip(
 private fun MobileNavRowPreview() {
     KeiTheme {
         Box(modifier = Modifier.width(360.dp).background(KeiTheme.colors.desk).padding(8.dp)) {
-            MobileNavRow(state = PreviewWorkbenchState, onIntent = {})
+            MobileNavRow(state = PreviewWorkbenchState, onSelectNode = {}, onClickCreateWork = {})
         }
     }
 }

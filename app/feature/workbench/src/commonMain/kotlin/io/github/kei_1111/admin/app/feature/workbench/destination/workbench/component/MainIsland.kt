@@ -27,17 +27,27 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.kei_1111.admin.app.core.designsystem.theme.KeiIcon
 import io.github.kei_1111.admin.app.core.designsystem.theme.KeiTheme
-import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.WorkbenchIntent
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.WorkbenchState
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.preview.PreviewWorkbenchState
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.theme.WorkbenchDimensions
 import io.github.kei_1111.admin.app.feature.workbench.model.WorkbenchTab
+import io.github.kei_1111.admin.shared.model.AdminProfile
+import io.github.kei_1111.admin.shared.model.Work
 
 @Composable
+@Suppress("LongParameterList")
 internal fun MainIsland(
     state: WorkbenchState,
-    onIntent: (WorkbenchIntent) -> Unit,
     isMobile: Boolean,
+    onClickTab: (WorkbenchTab) -> Unit,
+    onCloseTab: (WorkbenchTab) -> Unit,
+    onSelectWork: (String) -> Unit,
+    onClickCreateWork: () -> Unit,
+    onClickDeleteWork: (String) -> Unit,
+    onChangeWork: (Work) -> Unit,
+    onClickAddScreenshot: (String) -> Unit,
+    onChangeProfile: (AdminProfile) -> Unit,
+    onClickRetryPreview: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -47,7 +57,8 @@ internal fun MainIsland(
     ) {
         TabsRow(
             state = state,
-            onIntent = onIntent,
+            onClickTab = onClickTab,
+            onCloseTab = onCloseTab,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 8.dp, vertical = 6.dp),
@@ -56,21 +67,25 @@ internal fun MainIsland(
             when (val tab = state.activeTab) {
                 is WorkbenchTab.WorksList -> WorksListPage(
                     state = state,
-                    onIntent = onIntent,
                     isMobile = isMobile,
+                    onSelectWork = onSelectWork,
+                    onClickCreateWork = onClickCreateWork,
+                    onClickDeleteWork = onClickDeleteWork,
                     modifier = Modifier.fillMaxSize(),
                 )
                 is WorkbenchTab.WorkEditor -> WorkEditorPage(
                     workId = tab.workId,
                     state = state,
-                    onIntent = onIntent,
                     isMobile = isMobile,
+                    onChangeWork = onChangeWork,
+                    onClickAddScreenshot = onClickAddScreenshot,
                     modifier = Modifier.fillMaxSize(),
                 )
                 is WorkbenchTab.ProfileEditor -> ProfileEditorPage(
                     state = state,
-                    onIntent = onIntent,
                     isMobile = isMobile,
+                    onChangeProfile = onChangeProfile,
+                    onClickRetryPreview = onClickRetryPreview,
                     modifier = Modifier.fillMaxSize(),
                 )
             }
@@ -81,7 +96,8 @@ internal fun MainIsland(
 @Composable
 private fun TabsRow(
     state: WorkbenchState,
-    onIntent: (WorkbenchIntent) -> Unit,
+    onClickTab: (WorkbenchTab) -> Unit,
+    onCloseTab: (WorkbenchTab) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -95,8 +111,8 @@ private fun TabsRow(
                 label = tab.label(state),
                 active = state.activeTab == tab,
                 closable = tab != WorkbenchTab.WorksList || state.openTabs.size > 1,
-                onClick = { onIntent(WorkbenchIntent.ActivateTab(tab)) },
-                onClose = { onIntent(WorkbenchIntent.CloseTab(tab)) },
+                onClick = { onClickTab(tab) },
+                onClose = { onCloseTab(tab) },
             )
         }
     }
@@ -192,7 +208,19 @@ private fun WorkbenchTab.fileIcon() = when (this) {
 private fun MainIslandPreview() {
     KeiTheme {
         Box(modifier = Modifier.size(960.dp, 640.dp).background(KeiTheme.colors.desk).padding(8.dp)) {
-            MainIsland(state = PreviewWorkbenchState, onIntent = {}, isMobile = false)
+            MainIsland(
+                state = PreviewWorkbenchState,
+                isMobile = false,
+                onClickTab = {},
+                onCloseTab = {},
+                onSelectWork = {},
+                onClickCreateWork = {},
+                onClickDeleteWork = {},
+                onChangeWork = {},
+                onClickAddScreenshot = {},
+                onChangeProfile = {},
+                onClickRetryPreview = {},
+            )
         }
     }
 }

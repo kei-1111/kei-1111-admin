@@ -37,7 +37,6 @@ import io.github.kei_1111.admin.app.core.designsystem.language.KeiLanguageContro
 import io.github.kei_1111.admin.app.core.designsystem.theme.KeiIcon
 import io.github.kei_1111.admin.app.core.designsystem.theme.KeiTheme
 import io.github.kei_1111.admin.app.core.utils.openUrl
-import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.WorkbenchIntent
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.WorkbenchState
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.form.KeiTextField
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.preview.GitHubPreviewCard
@@ -51,12 +50,12 @@ import io.github.kei_1111.admin.shared.model.SocialLink
 @Composable
 internal fun ProfileEditorPage(
     state: WorkbenchState,
-    onIntent: (WorkbenchIntent) -> Unit,
     isMobile: Boolean,
+    onChangeProfile: (AdminProfile) -> Unit,
+    onClickRetryPreview: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val profile = state.profile
-    val onChangeProfile: (AdminProfile) -> Unit = { onIntent(WorkbenchIntent.UpdateProfileDraft(it)) }
 
     Row(modifier = modifier.padding(WorkbenchDimensions.IslandPadding)) {
         ProfileForm(
@@ -90,7 +89,7 @@ internal fun ProfileEditorPage(
                         contributions = state.contributions,
                         contributionsFailed = state.contributionsFailed,
                         onClickUrl = { openUrl(it) },
-                        onClickRetry = { onIntent(WorkbenchIntent.RetryPreview) },
+                        onClickRetry = onClickRetryPreview,
                     )
                 }
             }
@@ -394,7 +393,12 @@ private fun SocialLinksSection(
 private fun ProfileEditorPagePreview() {
     KeiTheme {
         Box(modifier = Modifier.size(1000.dp, 700.dp).background(KeiTheme.colors.island)) {
-            ProfileEditorPage(state = PreviewWorkbenchState, onIntent = {}, isMobile = false)
+            ProfileEditorPage(
+                state = PreviewWorkbenchState,
+                isMobile = false,
+                onChangeProfile = {},
+                onClickRetryPreview = {},
+            )
         }
     }
 }
