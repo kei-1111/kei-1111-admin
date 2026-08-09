@@ -3,6 +3,7 @@
 package io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.hoverable
@@ -13,10 +14,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,12 +23,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.kei_1111.admin.app.core.designsystem.theme.KeiIcon
 import io.github.kei_1111.admin.app.core.designsystem.theme.KeiTheme
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.WorkbenchIntent
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.WorkbenchState
+import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.preview.PreviewWorkbenchState
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.theme.WorkbenchDimensions
 import io.github.kei_1111.admin.app.feature.workbench.model.WorkbenchTab
 
@@ -37,6 +37,7 @@ import io.github.kei_1111.admin.app.feature.workbench.model.WorkbenchTab
 internal fun MainIsland(
     state: WorkbenchState,
     onIntent: (WorkbenchIntent) -> Unit,
+    isMobile: Boolean,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -56,17 +57,20 @@ internal fun MainIsland(
                 is WorkbenchTab.WorksList -> WorksListPage(
                     state = state,
                     onIntent = onIntent,
+                    isMobile = isMobile,
                     modifier = Modifier.fillMaxSize(),
                 )
                 is WorkbenchTab.WorkEditor -> WorkEditorPage(
                     workId = tab.workId,
                     state = state,
                     onIntent = onIntent,
+                    isMobile = isMobile,
                     modifier = Modifier.fillMaxSize(),
                 )
                 is WorkbenchTab.ProfileEditor -> ProfileEditorPage(
                     state = state,
                     onIntent = onIntent,
+                    isMobile = isMobile,
                     modifier = Modifier.fillMaxSize(),
                 )
             }
@@ -87,6 +91,7 @@ private fun TabsRow(
     ) {
         state.openTabs.forEach { tab ->
             TabPill(
+                tab = tab,
                 label = tab.label(state),
                 active = state.activeTab == tab,
                 closable = tab != WorkbenchTab.WorksList || state.openTabs.size > 1,
@@ -98,13 +103,16 @@ private fun TabsRow(
 }
 
 private fun WorkbenchTab.label(state: WorkbenchState): String = when (this) {
-    is WorkbenchTab.WorksList -> "Works"
+    is WorkbenchTab.WorksList -> "works"
     is WorkbenchTab.WorkEditor -> state.works.firstOrNull { it.id == workId }?.name ?: workId
-    is WorkbenchTab.ProfileEditor -> "Profile"
+    is WorkbenchTab.ProfileEditor -> "profile"
 }
 
+/** 本家 EditorTab と同じ様式: 選択タブは tabSelected + ボーダー、✕ は選択中かホバー時のみ。 */
+@Suppress("LongParameterList")
 @Composable
 private fun TabPill(
+    tab: WorkbenchTab,
     label: String,
     active: Boolean,
     closable: Boolean,
@@ -115,30 +123,45 @@ private fun TabPill(
     val colors = KeiTheme.colors
     val (interactionSource, hovered) = hoverInteraction()
     val background = when {
-        active -> colors.selectionPill
+        active -> colors.tabSelected
         hovered -> colors.chip
         else -> Color.Transparent
     }
     Row(
         modifier = modifier
-            .height(WorkbenchDimensions.TabHeight)
-            .clip(KeiTheme.shapes.pill)
+            .clip(KeiTheme.shapes.row)
             .background(background)
+            .then(
+                if (active) {
+                    Modifier.border(1.dp, colors.tabSelectedBorder, KeiTheme.shapes.row)
+                } else {
+                    Modifier
+                },
+            )
             .hoverable(interactionSource)
-            .clickable(onClick = onClick)
-            .padding(horizontal = 10.dp),
+            .padding(horizontal = 10.dp, vertical = 6.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(
-            text = label,
-            style = KeiTheme.typography.cardJp.copy(
-                fontSize = WorkbenchDimensions.ChromeLabelFontSize,
-                fontWeight = if (active) FontWeight.Medium else FontWeight.Normal,
-                color = colors.textPrimary,
-            ),
-        )
-        if (closable) {
-            Spacer(modifier = Modifier.width(6.dp))
+        Row(
+            modifier = Modifier.clickable(onClick = onClick),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            KeiIcon(
+                icon = tab.fileIcon(),
+                contentDescription = null,
+                modifier = Modifier.size(WorkbenchDimensions.ChromeIconSize),
+            )
+            Text(
+                text = label,
+                style = KeiTheme.typography.chrome.copy(
+                    fontSize = WorkbenchDimensions.ChromeLabelFontSize,
+                    color = if (active) colors.textPrimary else colors.textSecondary,
+                ),
+            )
+        }
+        if (closable && (active || hovered)) {
             Box(
                 modifier = Modifier
                     .size(WorkbenchDimensions.ChromeIconSize)
@@ -151,6 +174,25 @@ private fun TabPill(
                     contentDescription = "$label を閉じる",
                 )
             }
+        } else {
+            Spacer(modifier = Modifier.size(WorkbenchDimensions.ChromeIconSize))
+        }
+    }
+}
+
+@Composable
+private fun WorkbenchTab.fileIcon() = when (this) {
+    is WorkbenchTab.WorksList -> KeiTheme.icons.markdown
+    is WorkbenchTab.WorkEditor -> KeiTheme.icons.kotlin
+    is WorkbenchTab.ProfileEditor -> KeiTheme.icons.properties
+}
+
+@Preview
+@Composable
+private fun MainIslandPreview() {
+    KeiTheme {
+        Box(modifier = Modifier.size(960.dp, 640.dp).background(KeiTheme.colors.desk).padding(8.dp)) {
+            MainIsland(state = PreviewWorkbenchState, onIntent = {}, isMobile = false)
         }
     }
 }

@@ -2,16 +2,23 @@
 
 package io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.kei_1111.admin.app.core.designsystem.theme.KeiTheme
+import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.SyncErrorKind
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.WorkbenchState
+import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.preview.PreviewWorkbenchState
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.theme.WorkbenchDimensions
 import io.github.kei_1111.admin.app.feature.workbench.model.WorkbenchTab
 
@@ -36,9 +43,13 @@ internal fun StatusBar(
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f),
         )
-        if (state.syncError) {
+        state.syncError?.let { kind ->
             Text(
-                text = "⚠ 同期失敗",
+                text = when (kind) {
+                    SyncErrorKind.Load -> "⚠ 読み込み失敗"
+                    SyncErrorKind.Save -> "⚠ 保存失敗"
+                    SyncErrorKind.Publish -> "⚠ 公開失敗"
+                },
                 style = KeiTheme.typography.cardJp.copy(
                     fontSize = WorkbenchDimensions.ChromeLabelFontSize,
                     color = colors.logcatError,
@@ -77,4 +88,14 @@ private fun WorkbenchState.breadcrumb(): String = when (val tab = activeTab) {
     is WorkbenchTab.WorksList -> "admin › works"
     is WorkbenchTab.WorkEditor -> "admin › works › ${works.firstOrNull { it.id == tab.workId }?.name ?: tab.workId}"
     is WorkbenchTab.ProfileEditor -> "admin › profile"
+}
+
+@Preview
+@Composable
+private fun StatusBarPreview() {
+    KeiTheme {
+        Box(modifier = Modifier.width(800.dp).background(KeiTheme.colors.desk).padding(8.dp)) {
+            StatusBar(state = PreviewWorkbenchState)
+        }
+    }
 }

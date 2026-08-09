@@ -5,6 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import io.github.kei_1111.admin.app.core.common.unsaved.UnsavedChangesTracker
 import io.github.kei_1111.admin.app.feature.workbench.WorkbenchShortcuts
 import kotlinx.coroutines.flow.drop
 
@@ -20,6 +21,9 @@ internal fun WorkbenchScreenRoot(
     }
     LaunchedEffect(Unit) {
         WorkbenchShortcuts.publishTick.drop(1).collect { viewModel.onIntent(WorkbenchIntent.RequestPublish) }
+    }
+    LaunchedEffect(state.unsavedCount) {
+        UnsavedChangesTracker.hasUnsavedChanges = state.unsavedCount > 0
     }
 
     WorkbenchScreen(

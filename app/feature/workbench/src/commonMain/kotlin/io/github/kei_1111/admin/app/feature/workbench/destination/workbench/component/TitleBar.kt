@@ -5,10 +5,12 @@ package io.github.kei_1111.admin.app.feature.workbench.destination.workbench.com
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,6 +19,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.kei_1111.admin.app.core.designsystem.theme.KeiIcon
 import io.github.kei_1111.admin.app.core.designsystem.theme.KeiTheme
@@ -31,6 +34,8 @@ internal fun TitleBar(
     onClickSave: () -> Unit,
     onClickPublish: () -> Unit,
     modifier: Modifier = Modifier,
+    compact: Boolean = false,
+    saving: Boolean = false,
 ) {
     val colors = KeiTheme.colors
     Row(
@@ -40,7 +45,7 @@ internal fun TitleBar(
     ) {
         ProjectPill()
         Spacer(modifier = Modifier.weight(1f))
-        if (lastDeploy.isNotEmpty()) {
+        if (lastDeploy.isNotEmpty() && !compact) {
             Text(
                 text = "last deploy: $lastDeploy ✓",
                 style = KeiTheme.typography.chrome.copy(
@@ -51,7 +56,7 @@ internal fun TitleBar(
         }
         if (unsavedCount > 0) {
             Text(
-                text = "未保存の変更",
+                text = if (compact) "未保存" else "未保存の変更",
                 style = KeiTheme.typography.cardJp.copy(
                     fontSize = WorkbenchDimensions.ChromeLabelFontSize,
                     fontWeight = FontWeight.Medium,
@@ -63,16 +68,20 @@ internal fun TitleBar(
                     .padding(horizontal = 10.dp, vertical = 6.dp),
             )
         }
+        // 保存中は二重発火を防ぐため両ボタンを減光して無効化する
+        val actionAlpha = if (saving) KeiTheme.colors.nonClickableAlpha else 1f
         PillButton(
-            label = "下書き保存",
-            onClick = onClickSave,
+            label = if (compact) "保存" else "下書き保存",
+            onClick = { if (!saving) onClickSave() },
+            icon = KeiTheme.icons.save,
+            modifier = Modifier.alpha(actionAlpha),
         )
+        // 実 AS の Run ボタン同様、緑はアイコン側だけに乗せてボタン自体はチュール色に留める
         PillButton(
-            label = "▶ 公開する",
-            onClick = onClickPublish,
-            container = colors.androidGreen,
-            contentColor = colors.desk,
-            bold = true,
+            label = if (compact) "公開" else "公開する",
+            onClick = { if (!saving) onClickPublish() },
+            icon = KeiTheme.icons.run,
+            modifier = Modifier.alpha(actionAlpha),
         )
     }
 }
@@ -111,5 +120,20 @@ private fun ProjectPill(modifier: Modifier = Modifier) {
                 .size(WorkbenchDimensions.ChromeIconSize)
                 .alpha(colors.nonClickableAlpha),
         )
+    }
+}
+
+@Preview
+@Composable
+private fun TitleBarPreview() {
+    KeiTheme {
+        Box(modifier = Modifier.width(900.dp).background(KeiTheme.colors.desk).padding(8.dp)) {
+            TitleBar(
+                unsavedCount = 1,
+                lastDeploy = "2026-08-08 12:34",
+                onClickSave = {},
+                onClickPublish = {},
+            )
+        }
     }
 }

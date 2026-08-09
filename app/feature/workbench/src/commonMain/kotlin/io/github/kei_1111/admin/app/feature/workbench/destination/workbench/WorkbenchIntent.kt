@@ -13,9 +13,15 @@ internal sealed interface WorkbenchIntent : Intent {
     data object ConfirmCloseTab : WorkbenchIntent
     data object DismissCloseConfirm : WorkbenchIntent
     data object CreateWork : WorkbenchIntent
+    data class RequestDeleteWork(val workId: String) : WorkbenchIntent
+    data object ConfirmDeleteWork : WorkbenchIntent
+    data object DismissDeleteConfirm : WorkbenchIntent
     data class UpdateWorkDraft(val work: Work) : WorkbenchIntent
     data class UpdateProfileDraft(val profile: AdminProfile) : WorkbenchIntent
     data object SaveDraft : WorkbenchIntent
+    data object RetryPreview : WorkbenchIntent
+    data object ConfirmLanguageOutdated : WorkbenchIntent
+    data object DismissLanguageOutdated : WorkbenchIntent
     data object RequestPublish : WorkbenchIntent
     data object ConfirmPublish : WorkbenchIntent
     data object DismissPublishConfirm : WorkbenchIntent

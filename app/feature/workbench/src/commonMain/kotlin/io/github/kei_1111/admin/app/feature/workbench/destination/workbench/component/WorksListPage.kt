@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -30,12 +31,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.kei_1111.admin.app.core.designsystem.theme.KeiIcon
 import io.github.kei_1111.admin.app.core.designsystem.theme.KeiTheme
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.WorkbenchIntent
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.WorkbenchState
+import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.preview.PreviewWorkbenchState
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.theme.WorkbenchDimensions
 import io.github.kei_1111.admin.app.feature.workbench.model.AdminNode
 import io.github.kei_1111.admin.shared.model.Work
@@ -44,6 +47,7 @@ import io.github.kei_1111.admin.shared.model.Work
 internal fun WorksListPage(
     state: WorkbenchState,
     onIntent: (WorkbenchIntent) -> Unit,
+    isMobile: Boolean,
     modifier: Modifier = Modifier,
 ) {
     var query by remember { mutableStateOf("") }
@@ -55,6 +59,7 @@ internal fun WorksListPage(
         ListHeader(
             total = state.works.size,
             query = query,
+            isMobile = isMobile,
             onChangeQuery = { query = it },
             onClickCreate = { onIntent(WorkbenchIntent.CreateWork) },
             modifier = Modifier.fillMaxWidth(),
@@ -68,12 +73,14 @@ internal fun WorksListPage(
             )
             return@Column
         }
-        ColumnHeaders(modifier = Modifier.fillMaxWidth())
+        ColumnHeaders(isMobile = isMobile, modifier = Modifier.fillMaxWidth())
         Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
             visibleWorks.forEach { work ->
                 WorkRow(
                     work = work,
+                    isMobile = isMobile,
                     onClick = { onIntent(WorkbenchIntent.SelectNode(AdminNode.WorkItem(work.id))) },
+                    onClickDelete = { onIntent(WorkbenchIntent.RequestDeleteWork(work.id)) },
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
@@ -81,10 +88,12 @@ internal fun WorksListPage(
     }
 }
 
+@Suppress("LongParameterList")
 @Composable
 private fun ListHeader(
     total: Int,
     query: String,
+    isMobile: Boolean,
     onChangeQuery: (String) -> Unit,
     onClickCreate: () -> Unit,
     modifier: Modifier = Modifier,
@@ -108,9 +117,11 @@ private fun ListHeader(
             style = KeiTheme.typography.chrome.copy(fontSize = 11.sp, color = colors.muted),
         )
         Spacer(modifier = Modifier.weight(1f))
-        SearchField(query = query, onChangeQuery = onChangeQuery)
+        if (!isMobile) {
+            SearchField(query = query, onChangeQuery = onChangeQuery)
+        }
         PillButton(
-            label = "+ 新規作品",
+            label = if (isMobile) "+ 新規" else "+ 新規作品",
             onClick = onClickCreate,
             container = colors.androidGreen,
             contentColor = colors.desk,
@@ -167,24 +178,33 @@ private fun SearchField(
 }
 
 @Composable
-private fun ColumnHeaders(modifier: Modifier = Modifier) {
+private fun ColumnHeaders(
+    isMobile: Boolean,
+    modifier: Modifier = Modifier,
+) {
     Row(
         modifier = modifier.padding(horizontal = 10.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Spacer(modifier = Modifier.width(28.dp))
         SectionLabel("NAME", modifier = Modifier.weight(0.32f))
-        SectionLabel("STACK", modifier = Modifier.weight(0.36f))
-        SectionLabel("UPDATED", modifier = Modifier.width(84.dp))
+        if (!isMobile) {
+            SectionLabel("STACK", modifier = Modifier.weight(0.36f))
+            SectionLabel("UPDATED", modifier = Modifier.width(84.dp))
+        }
         SectionLabel("STATUS", modifier = Modifier.width(76.dp))
-        Spacer(modifier = Modifier.width(52.dp))
+        if (!isMobile) {
+            Spacer(modifier = Modifier.width(52.dp))
+        }
     }
 }
 
 @Composable
 private fun WorkRow(
     work: Work,
+    isMobile: Boolean,
     onClick: () -> Unit,
+    onClickDelete: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = KeiTheme.colors
@@ -223,25 +243,51 @@ private fun WorkRow(
                 overflow = TextOverflow.Ellipsis,
             )
         }
-        Text(
-            text = work.techStack.take(3).joinToString(", "),
-            style = KeiTheme.typography.chrome.copy(fontSize = 11.sp, color = colors.androidGreen),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(0.36f),
-        )
-        Text(
-            text = work.updatedAt,
-            style = KeiTheme.typography.chrome.copy(fontSize = 11.sp, color = colors.muted),
-            modifier = Modifier.width(84.dp),
-        )
+        if (!isMobile) {
+            Text(
+                text = work.techStack.take(3).joinToString(", "),
+                style = KeiTheme.typography.chrome.copy(fontSize = 11.sp, color = colors.androidGreen),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(0.36f),
+            )
+            Text(
+                text = work.updatedAt,
+                style = KeiTheme.typography.chrome.copy(fontSize = 11.sp, color = colors.muted),
+                modifier = Modifier.width(84.dp),
+            )
+        }
         androidx.compose.foundation.layout.Box(modifier = Modifier.width(76.dp)) {
             StatusBadge(status = work.status)
         }
-        Text(
-            text = "編集 ›",
-            style = KeiTheme.typography.cardJp.copy(fontSize = 12.sp, color = colors.syntaxLink),
-            modifier = Modifier.width(52.dp),
-        )
+        if (!isMobile) {
+            Text(
+                text = "編集 ›",
+                style = KeiTheme.typography.cardJp.copy(fontSize = 12.sp, color = colors.syntaxLink),
+                modifier = Modifier.width(52.dp),
+            )
+        }
+        androidx.compose.foundation.layout.Box(
+            modifier = Modifier
+                .size(20.dp)
+                .clip(KeiTheme.shapes.chip)
+                .clickable(onClick = onClickDelete),
+            contentAlignment = Alignment.Center,
+        ) {
+            KeiIcon(
+                icon = KeiTheme.icons.closeSmall,
+                contentDescription = "${work.name} を削除",
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun WorksListPagePreview() {
+    KeiTheme {
+        Box(modifier = Modifier.size(1000.dp, 560.dp).background(KeiTheme.colors.island)) {
+            WorksListPage(state = PreviewWorkbenchState, onIntent = {}, isMobile = false)
+        }
     }
 }

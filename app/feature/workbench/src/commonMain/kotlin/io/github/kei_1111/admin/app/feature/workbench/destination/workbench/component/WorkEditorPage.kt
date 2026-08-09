@@ -9,23 +9,32 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.kei_1111.admin.app.core.designsystem.language.KeiLanguage
+import io.github.kei_1111.admin.app.core.designsystem.language.KeiLanguageController
 import io.github.kei_1111.admin.app.core.designsystem.theme.KeiTheme
+import io.github.kei_1111.admin.app.core.utils.openUrl
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.WorkbenchIntent
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.WorkbenchState
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.form.ChipsEditor
@@ -33,14 +42,19 @@ import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.comp
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.form.RowListEditor
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.form.SegmentedStatus
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.form.dashedBorder
+import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.preview.works.WorksPreviewCard
+import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.preview.PreviewWorkbenchState
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.theme.WorkbenchDimensions
+import io.github.kei_1111.admin.app.feature.workbench.model.toPortfolioWork
 import io.github.kei_1111.admin.shared.model.Work
+import kotlinx.collections.immutable.persistentListOf
 
 @Composable
 internal fun WorkEditorPage(
     workId: String,
     state: WorkbenchState,
     onIntent: (WorkbenchIntent) -> Unit,
+    isMobile: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val work = state.works.firstOrNull { it.id == workId }
@@ -48,25 +62,45 @@ internal fun WorkEditorPage(
         MissingWork(workId = workId, modifier = modifier)
         return
     }
-    val update: (Work) -> Unit = { onIntent(WorkbenchIntent.UpdateWorkDraft(it)) }
+    val onChangeWork: (Work) -> Unit = { onIntent(WorkbenchIntent.UpdateWorkDraft(it)) }
 
     Row(modifier = modifier.padding(WorkbenchDimensions.IslandPadding)) {
         WorkForm(
             work = work,
-            update = update,
+            onChangeWork = onChangeWork,
             modifier = Modifier
-                .weight(WorkbenchDimensions.FormWeight)
+                .weight(1f)
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(end = WorkbenchDimensions.IslandGap),
+                .padding(end = if (isMobile) 0.dp else WorkbenchDimensions.IslandGap),
         )
-        PreviewPane(
-            componentName = "WorksPreview",
-            contentFingerprint = work,
-            modifier = Modifier
-                .width(WorkbenchDimensions.PreviewWidth)
-                .fillMaxSize(),
-        )
+        // Mobile では本体サイトと逆に入力フォームを優先し、Preview を畳む
+        if (!isMobile) {
+            PreviewPane(
+                componentName = "WorksPreview",
+                contentFingerprint = work,
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .aspectRatio(
+                        ratio = WorkbenchDimensions.PreviewCardAspectRatio,
+                        matchHeightConstraintsFirst = true,
+                    ),
+            ) {
+                var sheetOpen by remember(workId) { mutableStateOf(false) }
+                ScaledCard(
+                    cardWidth = WorkbenchDimensions.WorksCardWidth,
+                    cardHeight = WorkbenchDimensions.WorksCardHeight,
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    WorksPreviewCard(
+                        works = persistentListOf(work.toPortfolioWork()),
+                        sheetOpen = sheetOpen,
+                        onChangeSheetVisible = { sheetOpen = it },
+                        onClickUrl = { openUrl(it) },
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -83,34 +117,76 @@ private fun MissingWork(workId: String, modifier: Modifier = Modifier) {
 @Composable
 private fun WorkForm(
     work: Work,
-    update: (Work) -> Unit,
+    onChangeWork: (Work) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val editingJa = KeiLanguageController.language == KeiLanguage.Ja
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(WorkbenchDimensions.SectionGap),
     ) {
-        HeaderSection(work = work, update = update)
-        TypePeriodSection(work = work, update = update)
-        KeiTextField(
-            label = "ABOUT",
-            value = work.about,
-            onValueChange = { update(work.copy(about = it)) },
-            singleLine = false,
-            minLines = 4,
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            SectionLabel(text = "EDIT LANGUAGE")
+            LanguageSegment()
+        }
+        HeaderSection(work = work, onChangeWork = onChangeWork)
+        TypePeriodSection(work = work, onChangeWork = onChangeWork)
+        if (editingJa) {
+            KeiTextField(
+                label = "ABOUT (日本語)",
+                value = work.about,
+                onValueChange = { onChangeWork(work.copy(about = it)) },
+                singleLine = false,
+                minLines = 4,
+            )
+        } else {
+            KeiTextField(
+                label = "ABOUT (ENGLISH)",
+                value = work.aboutEn,
+                onValueChange = { onChangeWork(work.copy(aboutEn = it)) },
+                singleLine = false,
+                minLines = 4,
+                placeholder = "未入力の場合は日本語をそのまま配信",
+            )
+        }
         ChipsEditor(
             label = "TECH STACK",
             chips = work.techStack,
-            onChipsChange = { update(work.copy(techStack = it)) },
+            onChipsChange = { onChangeWork(work.copy(techStack = it)) },
         )
-        RowListEditor(
-            label = "MY ROLE",
-            rows = work.roles,
-            onRowsChange = { update(work.copy(roles = it)) },
-        )
+        if (editingJa) {
+            // 構造変更(入替・削除)は index 対の英語リストにも同じ操作をミラーする
+            RowListEditor(
+                label = "MY ROLE (日本語)",
+                rows = work.roles,
+                onEditRow = { index, value -> onChangeWork(work.copy(roles = work.roles.editedAt(index, value))) },
+                onSwapRows = { a, b ->
+                    val pairedEn = work.rolesEn.paddedTo(work.roles.size)
+                    onChangeWork(work.copy(roles = work.roles.swappedAt(a, b), rolesEn = pairedEn.swappedAt(a, b)))
+                },
+                onRemoveRow = { index ->
+                    val pairedEn = work.rolesEn.paddedTo(work.roles.size)
+                    onChangeWork(work.copy(roles = work.roles.removedAt(index), rolesEn = pairedEn.removedAt(index)))
+                },
+                onAddRow = { onChangeWork(work.copy(roles = work.roles + "")) },
+            )
+        } else {
+            RowListEditor(
+                label = "MY ROLE (ENGLISH)",
+                rows = work.roles.indices.map { work.rolesEn.getOrNull(it) ?: "" },
+                structural = false,
+                onEditRow = { index, value ->
+                    val pairedEn = work.rolesEn.paddedTo(work.roles.size)
+                    onChangeWork(work.copy(rolesEn = pairedEn.editedAt(index, value)))
+                },
+            )
+        }
         ScreenshotsSection()
-        UrlsSection(work = work, update = update)
+        UrlsSection(work = work, onChangeWork = onChangeWork)
         Spacer(modifier = Modifier.height(20.dp))
     }
 }
@@ -118,7 +194,7 @@ private fun WorkForm(
 @Composable
 private fun HeaderSection(
     work: Work,
-    update: (Work) -> Unit,
+    onChangeWork: (Work) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -149,12 +225,12 @@ private fun HeaderSection(
         KeiTextField(
             label = "NAME",
             value = work.name,
-            onValueChange = { update(work.copy(name = it)) },
+            onValueChange = { onChangeWork(work.copy(name = it)) },
             modifier = Modifier.weight(1f),
         )
         SegmentedStatus(
             status = work.status,
-            onStatusChange = { update(work.copy(status = it)) },
+            onStatusChange = { onChangeWork(work.copy(status = it)) },
         )
     }
 }
@@ -162,7 +238,7 @@ private fun HeaderSection(
 @Composable
 private fun TypePeriodSection(
     work: Work,
-    update: (Work) -> Unit,
+    onChangeWork: (Work) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -172,14 +248,14 @@ private fun TypePeriodSection(
         KeiTextField(
             label = "TYPE",
             value = work.type,
-            onValueChange = { update(work.copy(type = it)) },
+            onValueChange = { onChangeWork(work.copy(type = it)) },
             modifier = Modifier.weight(1f),
             placeholder = "Android アプリ",
         )
         KeiTextField(
             label = "PERIOD",
             value = work.period,
-            onValueChange = { update(work.copy(period = it)) },
+            onValueChange = { onChangeWork(work.copy(period = it)) },
             modifier = Modifier.weight(1f),
             mono = true,
             placeholder = "2024.01 - ",
@@ -223,7 +299,7 @@ private fun ScreenshotsSection(modifier: Modifier = Modifier) {
 @Composable
 private fun UrlsSection(
     work: Work,
-    update: (Work) -> Unit,
+    onChangeWork: (Work) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = KeiTheme.colors
@@ -234,7 +310,7 @@ private fun UrlsSection(
         KeiTextField(
             label = "GOOGLE PLAY URL",
             value = work.googlePlayUrl,
-            onValueChange = { update(work.copy(googlePlayUrl = it)) },
+            onValueChange = { onChangeWork(work.copy(googlePlayUrl = it)) },
             modifier = Modifier.weight(1f),
             mono = true,
             textColor = colors.syntaxLink,
@@ -242,10 +318,36 @@ private fun UrlsSection(
         KeiTextField(
             label = "SOURCE URL",
             value = work.sourceUrl,
-            onValueChange = { update(work.copy(sourceUrl = it)) },
+            onValueChange = { onChangeWork(work.copy(sourceUrl = it)) },
             modifier = Modifier.weight(1f),
             mono = true,
             textColor = colors.syntaxLink,
         )
+    }
+}
+
+private fun List<String>.editedAt(index: Int, value: String): List<String> =
+    toMutableList().apply { set(index, value) }
+
+private fun List<String>.swappedAt(a: Int, b: Int): List<String> =
+    toMutableList().apply {
+        val tmp = this[a]
+        this[a] = this[b]
+        this[b] = tmp
+    }
+
+private fun List<String>.removedAt(index: Int): List<String> =
+    toMutableList().apply { removeAt(index) }
+
+private fun List<String>.paddedTo(size: Int): List<String> =
+    if (this.size >= size) this else this + List(size - this.size) { "" }
+
+@Preview
+@Composable
+private fun WorkEditorPagePreview() {
+    KeiTheme {
+        Box(modifier = Modifier.size(1000.dp, 700.dp).background(KeiTheme.colors.island)) {
+            WorkEditorPage(workId = "withmo", state = PreviewWorkbenchState, onIntent = {}, isMobile = false)
+        }
     }
 }

@@ -4,6 +4,7 @@ package io.github.kei_1111.admin.app.feature.workbench.destination.workbench.com
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -13,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.kei_1111.admin.app.core.designsystem.theme.KeiTheme
@@ -71,4 +73,14 @@ private fun Segment(
             .clickable(onClick = onClick)
             .padding(horizontal = 12.dp, vertical = 5.dp),
     )
+}
+
+@Preview
+@Composable
+private fun SegmentedStatusPreview() {
+    KeiTheme {
+        Box(modifier = Modifier.background(KeiTheme.colors.island).padding(8.dp)) {
+            SegmentedStatus(status = ContentStatus.Published, onStatusChange = {})
+        }
+    }
 }

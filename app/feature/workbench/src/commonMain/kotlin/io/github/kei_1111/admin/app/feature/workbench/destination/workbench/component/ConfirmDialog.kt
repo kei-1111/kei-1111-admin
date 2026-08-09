@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,6 +23,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.dialog
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.kei_1111.admin.app.core.designsystem.theme.KeiTheme
@@ -37,6 +39,8 @@ internal fun ConfirmDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
+    /** 緑は公開系限定のため、保存など公開以外の確認はグレーピルで確定させる。 */
+    neutralConfirm: Boolean = false,
 ) {
     val colors = KeiTheme.colors
     Box(
@@ -89,11 +93,32 @@ internal fun ConfirmDialog(
                 PillButton(
                     label = confirmLabel,
                     onClick = onConfirm,
-                    container = if (destructive) colors.logcatError else colors.androidGreen,
-                    contentColor = colors.desk,
+                    container = when {
+                        destructive -> colors.logcatError
+                        neutralConfirm -> colors.selectionPill
+                        else -> colors.androidGreen
+                    },
+                    contentColor = if (neutralConfirm) colors.textPrimary else colors.desk,
                     bold = true,
                 )
             }
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun ConfirmDialogPreview() {
+    KeiTheme {
+        Box(modifier = Modifier.size(600.dp, 360.dp)) {
+            ConfirmDialog(
+                title = "作品を削除",
+                message = "「withmo」を一覧から削除します。よろしいですか?",
+                confirmLabel = "削除する",
+                destructive = true,
+                onConfirm = {},
+                onDismiss = {},
+            )
         }
     }
 }

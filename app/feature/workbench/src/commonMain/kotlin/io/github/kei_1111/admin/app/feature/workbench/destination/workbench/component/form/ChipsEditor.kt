@@ -31,6 +31,7 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.kei_1111.admin.app.core.designsystem.theme.KeiIcon
@@ -182,4 +183,18 @@ internal fun Modifier.dashedBorder(): Modifier {
         color = outline,
         shape = KeiTheme.shapes.chip,
     )
+}
+
+@Preview
+@Composable
+private fun ChipsEditorPreview() {
+    KeiTheme {
+        Box(modifier = Modifier.width(520.dp).background(KeiTheme.colors.island).padding(8.dp)) {
+            ChipsEditor(
+                label = "TECH STACK",
+                chips = listOf("Kotlin", "Jetpack Compose", "Unity as a Library"),
+                onChipsChange = {},
+            )
+        }
+    }
 }
