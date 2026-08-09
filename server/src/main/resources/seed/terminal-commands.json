@@ -1,10 +1,24 @@
 {
   "commands": [
     {
-      "keyword": "coffee",
+      "keyword": "neofetch",
+      "description": "show portfolio system info",
       "lines": [
-        "  c[_]  brewing...",
-        "  done. enjoy your coffee!"
+        " _  __  _____   ___    kei@kei-1111.github.io",
+        "| |/ / | ____| |_ _|   ----------------------",
+        "| ' /  |  _|    | |    OS: Android Studio New UI (Web Edition)",
+        "| . \\  | |___   | |    Host: GitHub Pages",
+        "|_|\\_\\ |_____| |___|   Kernel: Kotlin/Wasm + Compose Multiplatform",
+        "                       Shell: zsh (portfolio flavored)",
+        "                       Theme: Islands Dark / Islands Light",
+        "                       Server: Ktor on Cloud Run"
+      ]
+    },
+    {
+      "keyword": "sudo",
+      "description": "run a command as another user",
+      "lines": [
+        "kei is not in the sudoers file. This incident will be reported."
       ]
     }
   ]

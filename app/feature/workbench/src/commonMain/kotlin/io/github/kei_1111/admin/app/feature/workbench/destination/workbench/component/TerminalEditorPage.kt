@@ -155,6 +155,13 @@ private fun CommandCard(
             }
         }
         Spacer(modifier = Modifier.height(8.dp))
+        KeiTextField(
+            label = "DESCRIPTION (help 一覧用・英語)",
+            value = command.description,
+            onValueChange = { onChangeCommand(command.copy(description = it)) },
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Spacer(modifier = Modifier.height(8.dp))
         RowListEditor(
             label = "OUTPUT LINES",
             rows = command.lines,
@@ -205,7 +212,8 @@ private fun TerminalCommandsPreview(
     ) {
         content.commands.forEach { command ->
             Text(
-                text = "$ ${command.keyword}",
+                text = "$ ${command.keyword}" +
+                    if (command.description.isNotEmpty()) "  # ${command.description}" else "",
                 style = KeiTheme.typography.code.copy(fontSize = 12.sp, color = colors.androidGreen),
             )
             command.lines.forEach { line ->

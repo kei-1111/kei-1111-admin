@@ -6,6 +6,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class TerminalTextCommand(
     val keyword: String,
+    /** help 一覧に表示される説明(英語)。 */
+    val description: String = "",
     val lines: List<String> = emptyList(),
 )
 

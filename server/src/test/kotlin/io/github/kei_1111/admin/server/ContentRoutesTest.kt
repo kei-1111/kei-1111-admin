@@ -182,7 +182,7 @@ class ContentRoutesTest {
         // シードが初期値として返る
         val seeded = client.get("/api/terminal") { bearerAuth(TestGoogleAuth.token()) }
             .body<TerminalCommandsContent>()
-        assertTrue(seeded.commands.any { it.keyword == "coffee" })
+        assertTrue(seeded.commands.any { it.keyword == "neofetch" && it.description.isNotEmpty() })
         val seededReadme = client.get("/api/readme") { bearerAuth(TestGoogleAuth.token()) }
             .body<ReadmeContent>()
         assertTrue(seededReadme.ja.isNotEmpty() && seededReadme.en.isNotEmpty())
