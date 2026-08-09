@@ -19,6 +19,8 @@ data class PinnedRepoSetting(
 @Serializable
 data class AdminProfile(
     val displayName: String = "",
+    /** 英語版。空なら配信時に [displayName] へフォールバックする。 */
+    val displayNameEn: String = "",
     val role: String = "",
     val location: String = "",
     val xUrl: String = "",

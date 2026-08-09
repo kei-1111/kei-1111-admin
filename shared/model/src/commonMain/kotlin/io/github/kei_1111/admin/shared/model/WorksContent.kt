@@ -12,8 +12,12 @@ data class Work(
     val type: String = "",
     val period: String = "",
     val about: String = "",
+    /** 英語版。空なら配信時に [about] へフォールバックする。 */
+    val aboutEn: String = "",
     val techStack: List<String> = emptyList(),
     val roles: List<String> = emptyList(),
+    /** [roles] と index で対になる英語版。不足分・空文字は ja へフォールバックする。 */
+    val rolesEn: List<String> = emptyList(),
     /** 先頭がカバー画像。値は GCS オブジェクトパス。 */
     val screenshots: List<String> = emptyList(),
     val googlePlayUrl: String = "",
