@@ -4,6 +4,7 @@ package io.github.kei_1111.admin.app.feature.workbench.destination.workbench.com
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,21 +15,30 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import io.github.kei_1111.admin.app.core.designsystem.theme.KeiIcon
 import io.github.kei_1111.admin.app.core.designsystem.theme.KeiTheme
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.SectionLabel
+import kotlin.math.roundToInt
 
 /**
- * MY ROLE などの行リスト編集。並び替えは ↑/↓ で行う(ドラッグ並び替えは
- * ポインタ精度の検証込みで後続対応、ハンドル表示のみ先行)。
+ * MY ROLE などの行リスト編集。並び替えはハンドルのドラッグまたは ∧/∨ クリックで行う。
  */
 /**
  * 行編集を操作単位(編集/入替/削除/追加)で通知する。呼び出し側が対になる別リスト
@@ -45,9 +55,15 @@ internal fun RowListEditor(
     /** false のとき行の増減・並び替えを隠す(EN 編集時は構造を JA と揃えるため)。 */
     structural: Boolean = true,
     onSwapRows: (Int, Int) -> Unit = { _, _ -> },
+    onMoveRow: (Int, Int) -> Unit = { _, _ -> },
     onRemoveRow: (Int) -> Unit = {},
     onAddRow: () -> Unit = {},
 ) {
+    // ドラッグ中は表示オフセットだけ動かし、確定(リスト変更)はドラッグ終了時に一度だけ行う
+    var dragIndex by remember { mutableStateOf(-1) }
+    var dragOffsetY by remember { mutableStateOf(0f) }
+    var rowHeightPx by remember { mutableStateOf(0f) }
+    val rowGapPx = with(LocalDensity.current) { 6.dp.toPx() }
     Column(modifier = modifier) {
         SectionLabel(text = label)
         Column(
@@ -64,6 +80,23 @@ internal fun RowListEditor(
                     onMoveUp = { onSwapRows(index, index - 1) },
                     onMoveDown = { onSwapRows(index, index + 1) },
                     onRemove = { onRemoveRow(index) },
+                    dragging = dragIndex == index,
+                    dragOffsetY = if (dragIndex == index) dragOffsetY else 0f,
+                    onDragStart = { dragIndex = index },
+                    onDragDelta = { dragOffsetY += it },
+                    onDragEnd = { cancelled ->
+                        if (!cancelled && dragIndex == index && rowHeightPx > 0f) {
+                            val shift = (dragOffsetY / rowHeightPx).roundToInt()
+                            val target = (index + shift).coerceIn(0, rows.lastIndex)
+                            if (target != index) onMoveRow(index, target)
+                        }
+                        dragIndex = -1
+                        dragOffsetY = 0f
+                    },
+                    modifier = Modifier.onGloballyPositioned {
+                        // 行間 6dp を含めた 1 行分の移動量
+                        if (index == 0) rowHeightPx = it.size.height + rowGapPx
+                    },
                 )
             }
             if (structural) {
@@ -91,10 +124,18 @@ private fun EditorRow(
     onMoveUp: () -> Unit,
     onMoveDown: () -> Unit,
     onRemove: () -> Unit,
+    dragging: Boolean,
+    dragOffsetY: Float,
+    onDragStart: () -> Unit,
+    onDragDelta: (Float) -> Unit,
+    onDragEnd: (cancelled: Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .zIndex(if (dragging) 1f else 0f)
+            .graphicsLayer { translationY = dragOffsetY },
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -104,6 +145,17 @@ private fun EditorRow(
                 canMoveDown = canMoveDown,
                 onMoveUp = onMoveUp,
                 onMoveDown = onMoveDown,
+                modifier = Modifier.pointerInput(Unit) {
+                    detectDragGestures(
+                        onDragStart = { onDragStart() },
+                        onDrag = { change, dragAmount ->
+                            change.consume()
+                            onDragDelta(dragAmount.y)
+                        },
+                        onDragEnd = { onDragEnd(false) },
+                        onDragCancel = { onDragEnd(true) },
+                    )
+                },
             )
         }
         FieldBox(

@@ -18,6 +18,7 @@ internal val PreviewAdminWorks: List<Work> = listOf(
         techStack = listOf("Kotlin", "Jetpack Compose", "Unity as a Library"),
         roles = listOf("Android 側の実装を担当", "Unity 連携のブリッジ設計"),
         rolesEn = listOf("In charge of the Android-side implementation", "Unity-bridge architecture"),
+        screenshots = listOf("images/works/withmo/preview-1.png", "images/works/withmo/preview-2.png"),
         status = ContentStatus.Published,
         updatedAt = "2026-08-08",
     ),
