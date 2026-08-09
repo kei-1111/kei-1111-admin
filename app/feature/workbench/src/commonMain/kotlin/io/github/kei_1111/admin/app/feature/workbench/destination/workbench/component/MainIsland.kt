@@ -48,6 +48,7 @@ internal fun MainIsland(
     onClickDeleteWork: (String) -> Unit,
     onChangeWork: (Work) -> Unit,
     onClickAddScreenshot: (String) -> Unit,
+    onClickAddIcon: (String) -> Unit,
     onChangeProfile: (AdminProfile) -> Unit,
     onClickAddAvatar: () -> Unit,
     onChangeTerminal: (TerminalCommandsContent) -> Unit,
@@ -84,6 +85,7 @@ internal fun MainIsland(
                     isMobile = isMobile,
                     onChangeWork = onChangeWork,
                     onClickAddScreenshot = onClickAddScreenshot,
+                    onClickAddIcon = onClickAddIcon,
                     modifier = Modifier.fillMaxSize(),
                 )
                 is WorkbenchTab.ProfileEditor -> ProfileEditorPage(
@@ -240,6 +242,7 @@ private fun MainIslandPreview() {
                 onClickDeleteWork = {},
                 onChangeWork = {},
                 onClickAddScreenshot = {},
+                onClickAddIcon = {},
                 onChangeProfile = {},
                 onClickAddAvatar = {},
                 onChangeTerminal = {},

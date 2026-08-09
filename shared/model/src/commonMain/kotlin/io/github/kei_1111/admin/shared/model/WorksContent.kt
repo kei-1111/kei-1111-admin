@@ -18,6 +18,8 @@ data class Work(
     val roles: List<String> = emptyList(),
     /** [roles] と index で対になる英語版。不足分・空文字は ja へフォールバックする。 */
     val rolesEn: List<String> = emptyList(),
+    /** 40dp タイル用アイコン。admin アップロードの配信パスまたは本体同梱の相対パス。空は既定アイコン。 */
+    val iconUrl: String = "",
     /** 先頭がカバー画像。値は GCS オブジェクトパス。 */
     val screenshots: List<String> = emptyList(),
     val googlePlayUrl: String = "",

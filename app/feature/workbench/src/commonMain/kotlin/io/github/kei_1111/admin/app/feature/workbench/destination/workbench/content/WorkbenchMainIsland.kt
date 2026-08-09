@@ -25,6 +25,7 @@ internal fun WorkbenchMainIsland(
         onClickDeleteWork = { onIntent(WorkbenchIntent.RequestDeleteWork(it)) },
         onChangeWork = { onIntent(WorkbenchIntent.UpdateWorkDraft(it)) },
         onClickAddScreenshot = { onIntent(WorkbenchIntent.AddScreenshot(it)) },
+        onClickAddIcon = { onIntent(WorkbenchIntent.AddWorkIcon(it)) },
         onChangeProfile = { onIntent(WorkbenchIntent.UpdateProfileDraft(it)) },
         onClickAddAvatar = { onIntent(WorkbenchIntent.AddProfileAvatar) },
         onChangeTerminal = { onIntent(WorkbenchIntent.UpdateTerminalDraft(it)) },

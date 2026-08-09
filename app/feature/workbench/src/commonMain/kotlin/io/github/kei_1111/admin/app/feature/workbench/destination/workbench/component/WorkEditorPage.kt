@@ -67,6 +67,7 @@ internal fun WorkEditorPage(
     isMobile: Boolean,
     onChangeWork: (Work) -> Unit,
     onClickAddScreenshot: (String) -> Unit,
+    onClickAddIcon: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val work = state.works.firstOrNull { it.id == workId }
@@ -81,6 +82,7 @@ internal fun WorkEditorPage(
             uploadingScreenshot = state.uploadingScreenshot,
             onChangeWork = onChangeWork,
             onClickAddScreenshot = { onClickAddScreenshot(work.id) },
+            onClickAddIcon = { onClickAddIcon(work.id) },
             modifier = Modifier
                 .weight(1f)
                 .fillMaxSize()
@@ -128,11 +130,13 @@ private fun MissingWork(workId: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
+@Suppress("LongParameterList")
 private fun WorkForm(
     work: Work,
     uploadingScreenshot: Boolean,
     onChangeWork: (Work) -> Unit,
     onClickAddScreenshot: () -> Unit,
+    onClickAddIcon: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val editingJa = KeiLanguageController.language == KeiLanguage.Ja
@@ -148,7 +152,7 @@ private fun WorkForm(
             SectionLabel(text = "EDIT LANGUAGE")
             LanguageSegment()
         }
-        HeaderSection(work = work, onChangeWork = onChangeWork)
+        HeaderSection(work = work, onChangeWork = onChangeWork, onClickAddIcon = onClickAddIcon)
         TypePeriodSection(work = work, onChangeWork = onChangeWork)
         if (editingJa) {
             KeiTextField(
@@ -219,6 +223,7 @@ private fun WorkForm(
 private fun HeaderSection(
     work: Work,
     onChangeWork: (Work) -> Unit,
+    onClickAddIcon: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -233,18 +238,31 @@ private fun HeaderSection(
                     .padding(top = 4.dp)
                     .size(44.dp)
                     .clip(KeiTheme.shapes.card)
-                    .background(KeiTheme.colors.chip),
+                    .background(KeiTheme.colors.chip)
+                    .clickable(onClick = onClickAddIcon),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(
-                    text = work.name.take(1).uppercase(),
-                    style = KeiTheme.typography.cardJp.copy(
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = KeiTheme.colors.textPrimary,
-                    ),
-                )
+                if (work.iconUrl.isNotEmpty()) {
+                    WorksAsyncImage(
+                        url = resolveWorksAssetUrl(work.iconUrl),
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                } else {
+                    Text(
+                        text = work.name.take(1).uppercase(),
+                        style = KeiTheme.typography.cardJp.copy(
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = KeiTheme.colors.textPrimary,
+                        ),
+                    )
+                }
             }
+            Text(
+                text = "クリックで変更",
+                style = KeiTheme.typography.cardJp.copy(fontSize = 9.sp, color = KeiTheme.colors.muted),
+                modifier = Modifier.padding(top = 2.dp),
+            )
         }
         KeiTextField(
             label = "NAME",
@@ -488,6 +506,7 @@ private fun WorkEditorPagePreview() {
                 isMobile = false,
                 onChangeWork = {},
                 onClickAddScreenshot = {},
+                onClickAddIcon = {},
             )
         }
     }

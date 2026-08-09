@@ -528,6 +528,25 @@ class WorkbenchViewModelTest : ViewModelTestBase() {
     }
 
     @Test
+    fun addWorkIconUploadsAndReplacesTheIconUrl() = runTest {
+        signIn()
+        val viewModel = viewModel(
+            FakeAdminContentRepository(),
+            pickedImage = PickedImageFile(name = "icon.png", mimeType = "image/png", bytes = byteArrayOf(1)),
+        )
+        startCollecting(viewModel.state)
+        runCurrent()
+        val work = viewModel.state.value.works.first()
+
+        viewModel.onIntent(WorkbenchIntent.AddWorkIcon(work.id))
+        runCurrent()
+
+        val updated = viewModel.state.value.works.first { it.id == work.id }
+        assertEquals("images/works/${work.id}/uploaded-icon.png", updated.iconUrl)
+        assertTrue(work.id in viewModel.state.value.unsavedWorkIds)
+    }
+
+    @Test
     fun cancellingImagePickerLeavesDraftUntouched() = runTest {
         signIn()
         val viewModel = viewModel(FakeAdminContentRepository())

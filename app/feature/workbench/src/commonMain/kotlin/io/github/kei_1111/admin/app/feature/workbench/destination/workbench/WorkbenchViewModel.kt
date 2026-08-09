@@ -108,7 +108,13 @@ internal class WorkbenchViewModel(
                     .selectNode(AdminNode.WorkItem(newWork.id))
             }
 
-            is WorkbenchIntent.AddScreenshot -> addScreenshot(intent.workId)
+            is WorkbenchIntent.AddScreenshot -> uploadWorkImageInto(intent.workId) { work, path ->
+                work.copy(screenshots = work.screenshots + path)
+            }
+
+            is WorkbenchIntent.AddWorkIcon -> uploadWorkImageInto(intent.workId) { work, path ->
+                work.copy(iconUrl = path)
+            }
 
             is WorkbenchIntent.RequestDeleteWork -> updateViewModelState {
                 copy(deleteConfirmWorkId = intent.workId)
@@ -224,8 +230,8 @@ internal class WorkbenchViewModel(
         }
     }
 
-    /** 画像を選択してアップロードし、対象作品の screenshots に配信パスを追記する。 */
-    private fun addScreenshot(workId: String) {
+    /** 画像を選択して作品ディレクトリへアップロードし、[applyPath] で draft に反映する。 */
+    private fun uploadWorkImageInto(workId: String, applyPath: (Work, String) -> Work) {
         if (_viewModelState.value.uploadingScreenshot) return
         updateViewModelState { copy(uploadingScreenshot = true) }
         viewModelScope.launch {
@@ -242,7 +248,7 @@ internal class WorkbenchViewModel(
                 } else {
                     copy(
                         uploadingScreenshot = false,
-                        workDrafts = workDrafts + (workId to current.copy(screenshots = current.screenshots + path)),
+                        workDrafts = workDrafts + (workId to applyPath(current, path)),
                     )
                 }
             }

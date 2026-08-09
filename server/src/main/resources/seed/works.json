@@ -30,7 +30,8 @@
       "rolesEn": [
         "In charge of the Android-side implementation",
         "Unity-bridge architecture and CI/CD setup"
-      ]
+      ],
+      "iconUrl": "images/works/withmo-icon.webp"
     },
     {
       "id": "kei-1111-github-io",
@@ -63,7 +64,8 @@
       "rolesEn": [
         "Design & implementation (solo project)",
         "Ktor server plus Cloud Run / GitHub Actions CI/CD"
-      ]
+      ],
+      "iconUrl": "images/works/portfolio-icon.webp"
     }
   ]
 }

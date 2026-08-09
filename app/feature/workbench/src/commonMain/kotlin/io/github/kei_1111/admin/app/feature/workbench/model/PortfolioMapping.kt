@@ -26,7 +26,7 @@ internal fun Work.toPortfolioWork(): io.github.kei_1111.admin.shared.model.portf
         roles = roles.mapIndexed { index, ja ->
             LocalizedText(ja = ja, en = rolesEn.getOrNull(index)?.ifBlank { ja } ?: ja)
         }.toImmutableList(),
-        iconUrl = null,
+        iconUrl = iconUrl.ifBlank { null },
         screenshots = screenshots.toImmutableList(),
         storeUrl = googlePlayUrl.ifEmpty { null },
         sourceUrl = sourceUrl.ifEmpty { null },
