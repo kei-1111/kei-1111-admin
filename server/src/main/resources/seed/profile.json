@@ -2,19 +2,49 @@
   "displayName": "けい",
   "role": "Android developer",
   "location": "Japan",
-  "xUrl": "https://x.com/kei_1111_",
+  "xUrl": "",
   "avatarUrl": "",
   "pinnedRepos": [
-    {"name": "kei-1111.github.io", "description": "自己紹介Webサイトのリポジトリ", "visible": true},
-    {"name": "android-template", "description": "My Android Template Project", "visible": true},
-    {"name": "kmp-sample-library", "description": "KMP Library のサンプルリポジトリ", "visible": true},
-    {"name": "kmp-sample-ios", "description": "KMPライブラリを使うiOSアプリ", "visible": true}
+    {
+      "name": "kei-1111.github.io",
+      "description": "自己紹介Webサイトのリポジトリ",
+      "visible": true
+    },
+    {
+      "name": "android-template",
+      "description": "My Android Template Project",
+      "visible": true
+    },
+    {
+      "name": "kmp-sample-library",
+      "description": "KMP Library のサンプルリポジトリ",
+      "visible": true
+    },
+    {
+      "name": "kmp-sample-ios",
+      "description": "KMPライブラリを使うiOSアプリ",
+      "visible": true
+    }
   ],
   "socialLinks": [
-    {"service": "GitHub", "url": "https://github.com/kei-1111"},
-    {"service": "Qiita", "url": "https://qiita.com/kei-1111"},
-    {"service": "note", "url": "https://note.com/kei_1111_"}
+    {
+      "service": "GitHub",
+      "url": "https://github.com/kei-1111"
+    },
+    {
+      "service": "Qiita",
+      "url": "https://qiita.com/kei-1111"
+    },
+    {
+      "service": "note",
+      "url": "https://note.com/kei_1111_"
+    },
+    {
+      "service": "X",
+      "url": "https://x.com/kei_1111_"
+    }
   ],
   "gitHubLogin": "kei-1111",
-  "lastSyncedAt": ""
+  "lastSyncedAt": "",
+  "displayNameEn": "Kei"
 }

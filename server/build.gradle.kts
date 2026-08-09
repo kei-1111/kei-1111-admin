@@ -38,6 +38,8 @@ dependencies {
     implementation(projects.shared.model)
     implementation(libs.google.cloud.storage)
     implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.client.core)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.server.auth)
     implementation(libs.ktor.server.auth.jwt)

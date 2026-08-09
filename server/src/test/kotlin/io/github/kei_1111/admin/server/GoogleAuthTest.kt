@@ -5,6 +5,7 @@ import com.auth0.jwk.JwkProvider
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import io.github.kei_1111.admin.server.service.ContentService
+import io.github.kei_1111.admin.server.service.PortfolioPreviewService
 import io.github.kei_1111.admin.server.storage.ContentStorage
 import io.ktor.client.request.get
 import io.ktor.client.request.header
@@ -73,6 +74,7 @@ class GoogleAuthTest {
                     allowedEmail = ALLOWED_EMAIL,
                 ),
                 contentService = ContentService(storage = InMemoryContentStorage()),
+                previewService = PortfolioPreviewService { null },
             )
         }
         block()

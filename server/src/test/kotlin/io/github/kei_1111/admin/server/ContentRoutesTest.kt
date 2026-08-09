@@ -1,6 +1,7 @@
 package io.github.kei_1111.admin.server
 
 import io.github.kei_1111.admin.server.service.ContentService
+import io.github.kei_1111.admin.server.service.PortfolioPreviewService
 import io.github.kei_1111.admin.server.storage.ContentStorage
 import io.github.kei_1111.admin.shared.model.AdminProfile
 import io.github.kei_1111.admin.shared.model.ContentMeta
@@ -15,6 +16,7 @@ import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
@@ -45,6 +47,7 @@ class ContentRoutesTest {
             configureApplication(
                 authConfig = TestGoogleAuth.authConfig,
                 contentService = ContentService(storage = storage, now = { "2026-08-08T12:00:00Z" }),
+                previewService = PortfolioPreviewService { path -> """{"path":"$path"}""" },
             )
         }
         val client = createClient {
@@ -129,6 +132,22 @@ class ContentRoutesTest {
         val response = client.get("/api/meta") { bearerAuth(TestGoogleAuth.token()) }
 
         assertEquals(ContentMeta(), response.body<ContentMeta>())
+    }
+
+    @Test
+    fun previewEndpointsProxyThePortfolioApi() = contentTestApplication { client, _ ->
+        val profile = client.get("/api/preview/profile") { bearerAuth(TestGoogleAuth.token()) }
+        val contributions = client.get("/api/preview/contributions") { bearerAuth(TestGoogleAuth.token()) }
+
+        assertEquals(HttpStatusCode.OK, profile.status)
+        assertTrue(profile.bodyAsText().contains("/api/profile"))
+        assertTrue(contributions.bodyAsText().contains("/api/contributions"))
+    }
+
+    @Test
+    fun previewEndpointsRequireAuthentication() = contentTestApplication { client, _ ->
+        assertEquals(HttpStatusCode.Unauthorized, client.get("/api/preview/profile").status)
+        assertEquals(HttpStatusCode.Unauthorized, client.get("/api/preview/contributions").status)
     }
 
     @Test
