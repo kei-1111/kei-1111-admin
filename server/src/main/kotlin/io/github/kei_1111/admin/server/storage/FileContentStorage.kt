@@ -22,4 +22,17 @@ class FileContentStorage(
             Files.writeString(file, content)
         }
     }
+
+    override suspend fun readBytes(path: String): ByteArray? = withContext(Dispatchers.IO) {
+        val file = root.resolve(path)
+        if (Files.exists(file)) Files.readAllBytes(file) else null
+    }
+
+    override suspend fun writeBytes(path: String, content: ByteArray, contentType: String) {
+        withContext(Dispatchers.IO) {
+            val file = root.resolve(path)
+            Files.createDirectories(file.parent)
+            Files.write(file, content)
+        }
+    }
 }

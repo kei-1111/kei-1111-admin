@@ -5,6 +5,7 @@ import com.auth0.jwk.JwkProvider
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import io.github.kei_1111.admin.server.service.ContentService
+import io.github.kei_1111.admin.server.service.ImageService
 import io.github.kei_1111.admin.server.service.PortfolioPreviewService
 import io.github.kei_1111.admin.server.storage.ContentStorage
 import io.ktor.client.request.get
@@ -75,6 +76,7 @@ class GoogleAuthTest {
                 ),
                 contentService = ContentService(storage = InMemoryContentStorage()),
                 previewService = PortfolioPreviewService { null },
+                imageService = ImageService(storage = InMemoryContentStorage()),
             )
         }
         block()
@@ -150,5 +152,12 @@ private class InMemoryContentStorage : ContentStorage {
 
     override suspend fun write(path: String, content: String) {
         objects[path] = content
+    }
+    private val binaries = mutableMapOf<String, ByteArray>()
+
+    override suspend fun readBytes(path: String): ByteArray? = binaries[path]
+
+    override suspend fun writeBytes(path: String, content: ByteArray, contentType: String) {
+        binaries[path] = content
     }
 }

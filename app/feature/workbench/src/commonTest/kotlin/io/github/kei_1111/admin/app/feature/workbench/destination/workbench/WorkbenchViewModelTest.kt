@@ -6,11 +6,14 @@ import io.github.kei_1111.admin.app.core.domain.usecase.GetPortfolioContribution
 import io.github.kei_1111.admin.app.core.domain.usecase.GetPortfolioProfileUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetProfileDraftUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetWorksDraftUseCase
+import io.github.kei_1111.admin.app.core.domain.usecase.PickImageUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.PublishContentUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.SaveProfileDraftUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.SaveWorksDraftUseCase
+import io.github.kei_1111.admin.app.core.domain.usecase.UploadWorkImageUseCase
 import io.github.kei_1111.admin.app.core.testing.ViewModelTestBase
 import io.github.kei_1111.admin.app.core.testing.startCollecting
+import io.github.kei_1111.admin.app.core.utils.PickedImageFile
 import io.github.kei_1111.admin.app.feature.workbench.model.AdminNode
 import io.github.kei_1111.admin.app.feature.workbench.model.WorkbenchTab
 import io.github.kei_1111.admin.app.feature.workbench.preview.PreviewContributionCalendar
@@ -53,7 +56,10 @@ private class FakeAdminContentRepository(
     }
 }
 
-private fun viewModel(repository: FakeAdminContentRepository) = WorkbenchViewModel(
+private fun viewModel(
+    repository: FakeAdminContentRepository,
+    pickedImage: PickedImageFile? = null,
+) = WorkbenchViewModel(
     getWorksDraft = object : GetWorksDraftUseCase {
         override suspend fun invoke(): WorksContent {
             repository.failIfRequested()
@@ -106,6 +112,13 @@ private fun viewModel(repository: FakeAdminContentRepository) = WorkbenchViewMod
             repository.failIfRequested()
             return PreviewContributionCalendar
         }
+    },
+    object : PickImageUseCase {
+        override suspend fun invoke(): PickedImageFile? = pickedImage
+    },
+    object : UploadWorkImageUseCase {
+        override suspend fun invoke(workId: String, file: PickedImageFile): String =
+            "images/works/$workId/uploaded-${file.name}"
     },
 )
 
@@ -450,6 +463,43 @@ class WorkbenchViewModelTest : ViewModelTestBase() {
         val recreated = works.last()
         assertTrue(recreated.id != created.id)
         assertTrue(works.any { it.id == recreated.id })
+    }
+
+    @Test
+    fun addScreenshotUploadsAndAppendsPathToDraft() = runTest {
+        signIn()
+        val viewModel = viewModel(
+            FakeAdminContentRepository(),
+            pickedImage = PickedImageFile(name = "shot.png", mimeType = "image/png", bytes = byteArrayOf(1)),
+        )
+        startCollecting(viewModel.state)
+        runCurrent()
+        val work = viewModel.state.value.works.first()
+
+        viewModel.onIntent(WorkbenchIntent.AddScreenshot(work.id))
+        runCurrent()
+
+        val state = viewModel.state.value
+        assertFalse(state.uploadingScreenshot)
+        val updated = state.works.first { it.id == work.id }
+        assertEquals(work.screenshots + "images/works/${work.id}/uploaded-shot.png", updated.screenshots)
+        assertTrue(work.id in state.unsavedWorkIds)
+    }
+
+    @Test
+    fun cancellingImagePickerLeavesDraftUntouched() = runTest {
+        signIn()
+        val viewModel = viewModel(FakeAdminContentRepository())
+        startCollecting(viewModel.state)
+        runCurrent()
+        val work = viewModel.state.value.works.first()
+
+        viewModel.onIntent(WorkbenchIntent.AddScreenshot(work.id))
+        runCurrent()
+
+        val state = viewModel.state.value
+        assertEquals(0, state.unsavedCount)
+        assertFalse(state.uploadingScreenshot)
     }
 
     @Test

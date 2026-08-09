@@ -21,6 +21,7 @@ internal data class WorkbenchState(
     val unsavedWorkIds: Set<String> = emptySet(),
     val profileUnsaved: Boolean = false,
     val saving: Boolean = false,
+    val uploadingScreenshot: Boolean = false,
     val publishing: Boolean = false,
     val lastDeploy: String = "",
     /** 未保存タブを閉じようとして確認待ちのタブ。 */
@@ -38,4 +39,4 @@ internal data class WorkbenchState(
 ) : State
 
 /** どの操作の同期に失敗したか(ステータスバーの文言出し分け用)。 */
-internal enum class SyncErrorKind { Load, Save, Publish }
+internal enum class SyncErrorKind { Load, Save, Publish, Upload }

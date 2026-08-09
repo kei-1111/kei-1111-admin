@@ -4,4 +4,6 @@ package io.github.kei_1111.admin.server.storage
 interface ContentStorage {
     suspend fun read(path: String): String?
     suspend fun write(path: String, content: String)
+    suspend fun readBytes(path: String): ByteArray?
+    suspend fun writeBytes(path: String, content: ByteArray, contentType: String)
 }

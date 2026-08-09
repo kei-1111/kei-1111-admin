@@ -49,6 +49,7 @@ internal fun StatusBar(
                     SyncErrorKind.Load -> "⚠ 読み込み失敗"
                     SyncErrorKind.Save -> "⚠ 保存失敗"
                     SyncErrorKind.Publish -> "⚠ 公開失敗"
+                    SyncErrorKind.Upload -> "⚠ アップロード失敗"
                 },
                 style = KeiTheme.typography.cardJp.copy(
                     fontSize = WorkbenchDimensions.ChromeLabelFontSize,

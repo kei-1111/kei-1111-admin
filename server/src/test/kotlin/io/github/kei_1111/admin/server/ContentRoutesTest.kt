@@ -1,23 +1,29 @@
 package io.github.kei_1111.admin.server
 
 import io.github.kei_1111.admin.server.service.ContentService
+import io.github.kei_1111.admin.server.service.ImageService
 import io.github.kei_1111.admin.server.service.PortfolioPreviewService
 import io.github.kei_1111.admin.server.storage.ContentStorage
 import io.github.kei_1111.admin.shared.model.AdminProfile
 import io.github.kei_1111.admin.shared.model.ContentMeta
 import io.github.kei_1111.admin.shared.model.ContentStatus
+import io.github.kei_1111.admin.shared.model.UploadedImage
 import io.github.kei_1111.admin.shared.model.Work
 import io.github.kei_1111.admin.shared.model.WorksContent
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.formData
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
+import io.ktor.http.Headers
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
@@ -29,11 +35,18 @@ import kotlin.test.assertTrue
 
 private class FakeContentStorage : ContentStorage {
     val objects = mutableMapOf<String, String>()
+    val binaries = mutableMapOf<String, ByteArray>()
 
     override suspend fun read(path: String): String? = objects[path]
 
     override suspend fun write(path: String, content: String) {
         objects[path] = content
+    }
+
+    override suspend fun readBytes(path: String): ByteArray? = binaries[path]
+
+    override suspend fun writeBytes(path: String, content: ByteArray, contentType: String) {
+        binaries[path] = content
     }
 }
 
@@ -48,6 +61,7 @@ class ContentRoutesTest {
                 authConfig = TestGoogleAuth.authConfig,
                 contentService = ContentService(storage = storage, now = { "2026-08-08T12:00:00Z" }),
                 previewService = PortfolioPreviewService { path -> """{"path":"$path"}""" },
+                imageService = ImageService(storage = storage, now = { 1723100000000 }),
             )
         }
         val client = createClient {
@@ -156,5 +170,91 @@ class ContentRoutesTest {
         assertEquals(HttpStatusCode.Unauthorized, client.get("/api/profile").status)
         assertEquals(HttpStatusCode.Unauthorized, client.post("/api/publish").status)
         assertEquals(HttpStatusCode.Unauthorized, client.get("/api/meta").status)
+    }
+
+    @Test
+    fun uploadsWorkImageAndServesItPublicly() = contentTestApplication { client, storage ->
+        val response = client.post("/api/images/works/withmo") {
+            bearerAuth(TestGoogleAuth.token())
+            setBody(
+                MultiPartFormDataContent(
+                    formData {
+                        append(
+                            "file",
+                            byteArrayOf(0x89.toByte(), 0x50, 0x4E, 0x47, 0x0D, 0x0A),
+                            Headers.build {
+                                append(HttpHeaders.ContentType, "image/png")
+                                append(HttpHeaders.ContentDisposition, "filename=\"shot.png\"")
+                            },
+                        )
+                    },
+                ),
+            )
+        }
+
+        assertEquals(HttpStatusCode.OK, response.status)
+        val path = response.body<UploadedImage>().path
+        assertTrue(path.startsWith("images/works/withmo/") && path.endsWith(".png"))
+        assertTrue(storage.binaries.containsKey(path))
+
+        // 配信側は未認証で読める
+        val served = client.get("/$path")
+        assertEquals(HttpStatusCode.OK, served.status)
+        assertEquals("image/png", served.headers[HttpHeaders.ContentType]?.substringBefore(';'))
+    }
+
+    @Test
+    fun rejectsUnsupportedImageContentType() = contentTestApplication { client, _ ->
+        val response = client.post("/api/images/works/withmo") {
+            bearerAuth(TestGoogleAuth.token())
+            setBody(
+                MultiPartFormDataContent(
+                    formData {
+                        append(
+                            "file",
+                            byteArrayOf(1),
+                            Headers.build {
+                                append(HttpHeaders.ContentType, "image/gif")
+                                append(HttpHeaders.ContentDisposition, "filename=\"a.gif\"")
+                            },
+                        )
+                    },
+                ),
+            )
+        }
+
+        assertEquals(HttpStatusCode.UnsupportedMediaType, response.status)
+    }
+
+    @Test
+    fun rejectsImageWhoseBytesDoNotMatchTheDeclaredType() = contentTestApplication { client, _ ->
+        val response = client.post("/api/images/works/withmo") {
+            bearerAuth(TestGoogleAuth.token())
+            setBody(
+                MultiPartFormDataContent(
+                    formData {
+                        append(
+                            "file",
+                            "<svg></svg>".encodeToByteArray(),
+                            Headers.build {
+                                append(HttpHeaders.ContentType, "image/png")
+                                append(HttpHeaders.ContentDisposition, "filename=\"fake.png\"")
+                            },
+                        )
+                    },
+                ),
+            )
+        }
+
+        assertEquals(HttpStatusCode.UnsupportedMediaType, response.status)
+    }
+
+    @Test
+    fun rejectsUnauthenticatedImageUpload() = contentTestApplication { client, _ ->
+        val response = client.post("/api/images/works/withmo") {
+            setBody(MultiPartFormDataContent(formData { }))
+        }
+
+        assertEquals(HttpStatusCode.Unauthorized, response.status)
     }
 }

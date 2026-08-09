@@ -14,6 +14,8 @@ flowchart TB
     designsystem["app:core:designsystem<br>KeiTheme (Islands Dark/Light)"]
     mvi["app:core:mvi"]
     navigation["app:core:navigation"]
+    ui["app:core:ui"]
+    utils["app:core:utils"]
     model["shared:model"]
     server["server"]
 
@@ -29,8 +31,11 @@ flowchart TB
     workbench --> domain
     workbench --> mvi
     workbench --> navigation
+    workbench --> ui
+    workbench --> utils
     workbench --> model
     domain --> data
+    domain --> utils
     data --> common
     data --> model
     mvi --> common
@@ -47,7 +52,9 @@ flowchart TB
 | `app:webApp` | エントリポイント。Metro `AppGraph`、`AppNavDisplay`(NavDisplay + back stack)、`KeiTheme` 適用、Google Sign-In 配線 |
 | `app:feature:workbench` | IDE 風管理画面。共通シェル(タイトルバー/ナビツリー/タブ/ステータスバー)+ Works 一覧 + 作品編集 + Profile 編集の MVI 一式 |
 | `app:core:data` | `AdminContentRepository`(管理サーバーのコンテンツ API、ktor client + Bearer)と Metro バインディング |
-| `app:core:domain` | コンテンツ UseCase(Get/Save works・profile、meta、publish)。interface + Impl で feature からフェイク可能 |
+| `app:core:ui` | 視覚的アイデンティティを持たないステートフル UI ヘルパー(HoverState) |
+| `app:core:utils` | プラットフォーム依存ユーティリティ(prefersReducedMotion / appOrigin / 画像ピッカー) |
+| `app:core:domain` | コンテンツ UseCase(Get/Save works・profile、meta、publish)と画像 UseCase(PickImage/UploadWorkImage)。interface + Impl で feature からフェイク可能 |
 | `app:core:common` | 独自 `Result<T>` / `asResult()`、キャンセル安全な抑制ヘルパー(`recoverOrElse` / `runBestEffort`)、`InteractionLog`、`AdminAuthController`(ID トークン状態)、Dispatcher バインディング |
 | `app:core:designsystem` | kei-1111.github.io から移植した `KeiTheme`(Islands Dark/Light の配色・タイポ・シェイプ・アイコン・フォント) |
 | `app:core:mvi` | `MviViewModel` 基底、`Intent` / `State` / `ViewModelState` マーカー、`MviEffect` composable |

@@ -21,4 +21,7 @@ interface AdminContentRepository {
     /** Preview カード用: 本体サイト API のプロキシから GitHub 由来データを取り寄せる。 */
     suspend fun fetchPortfolioProfile(): GitHubProfile
     suspend fun fetchPortfolioContributions(): ContributionCalendar
+
+    /** 作品スクリーンショットをアップロードし、配信パス(images/works/...)を返す。 */
+    suspend fun uploadWorkImage(workId: String, fileName: String, mimeType: String, bytes: ByteArray): String
 }

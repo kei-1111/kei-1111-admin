@@ -14,9 +14,11 @@ import io.github.kei_1111.admin.app.core.domain.usecase.GetPortfolioContribution
 import io.github.kei_1111.admin.app.core.domain.usecase.GetPortfolioProfileUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetProfileDraftUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetWorksDraftUseCase
+import io.github.kei_1111.admin.app.core.domain.usecase.PickImageUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.PublishContentUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.SaveProfileDraftUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.SaveWorksDraftUseCase
+import io.github.kei_1111.admin.app.core.domain.usecase.UploadWorkImageUseCase
 import io.github.kei_1111.admin.app.core.mvi.MviViewModel
 import io.github.kei_1111.admin.app.feature.workbench.model.AdminNode
 import io.github.kei_1111.admin.app.feature.workbench.model.WorkbenchTab
@@ -42,6 +44,8 @@ internal class WorkbenchViewModel(
     private val publishContent: PublishContentUseCase,
     private val getPortfolioProfile: GetPortfolioProfileUseCase,
     private val getPortfolioContributions: GetPortfolioContributionsUseCase,
+    private val pickImage: PickImageUseCase,
+    private val uploadWorkImage: UploadWorkImageUseCase,
 ) : MviViewModel<WorkbenchViewModelState, WorkbenchState, WorkbenchIntent>() {
 
     init {
@@ -90,6 +94,8 @@ internal class WorkbenchViewModel(
                 copy(workDrafts = workDrafts + (newWork.id to newWork))
                     .selectNode(AdminNode.WorkItem(newWork.id))
             }
+
+            is WorkbenchIntent.AddScreenshot -> addScreenshot(intent.workId)
 
             is WorkbenchIntent.RequestDeleteWork -> updateViewModelState {
                 copy(deleteConfirmWorkId = intent.workId)
@@ -164,6 +170,31 @@ internal class WorkbenchViewModel(
                 contributions = fetchedContributions ?: contributions,
                 contributionsFailed = fetchedContributions == null,
             )
+        }
+    }
+
+    /** 画像を選択してアップロードし、対象作品の screenshots に配信パスを追記する。 */
+    private fun addScreenshot(workId: String) {
+        if (_viewModelState.value.uploadingScreenshot) return
+        updateViewModelState { copy(uploadingScreenshot = true) }
+        viewModelScope.launch {
+            val picked = pickImage()
+            if (picked == null) {
+                updateViewModelState { copy(uploadingScreenshot = false) }
+                return@launch
+            }
+            val path = recoverOrElse({ uploadWorkImage(workId, picked) }) { null }
+            updateViewModelState {
+                val current = workDrafts[workId] ?: savedWorks.firstOrNull { it.id == workId }
+                if (path == null || current == null) {
+                    copy(uploadingScreenshot = false, syncError = if (path == null) SyncErrorKind.Upload else syncError)
+                } else {
+                    copy(
+                        uploadingScreenshot = false,
+                        workDrafts = workDrafts + (workId to current.copy(screenshots = current.screenshots + path)),
+                    )
+                }
+            }
         }
     }
 

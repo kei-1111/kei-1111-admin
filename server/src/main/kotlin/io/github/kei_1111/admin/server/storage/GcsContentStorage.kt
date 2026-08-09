@@ -25,4 +25,17 @@ class GcsContentStorage(
             storage.create(blobInfo, content.encodeToByteArray())
         }
     }
+
+    override suspend fun readBytes(path: String): ByteArray? = withContext(Dispatchers.IO) {
+        storage.get(BlobId.of(bucket, path))?.getContent()
+    }
+
+    override suspend fun writeBytes(path: String, content: ByteArray, contentType: String) {
+        withContext(Dispatchers.IO) {
+            val blobInfo = BlobInfo.newBuilder(BlobId.of(bucket, path))
+                .setContentType(contentType)
+                .build()
+            storage.create(blobInfo, content)
+        }
+    }
 }

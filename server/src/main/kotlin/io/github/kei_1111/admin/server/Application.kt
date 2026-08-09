@@ -3,9 +3,13 @@ package io.github.kei_1111.admin.server
 import com.auth0.jwk.JwkProvider
 import com.auth0.jwk.JwkProviderBuilder
 import io.github.kei_1111.admin.server.routing.contentRoutes
+import io.github.kei_1111.admin.server.routing.imageRoutes
+import io.github.kei_1111.admin.server.routing.imageServingRoutes
 import io.github.kei_1111.admin.server.routing.previewRoutes
 import io.github.kei_1111.admin.server.service.ContentService
+import io.github.kei_1111.admin.server.service.ImageService
 import io.github.kei_1111.admin.server.service.PortfolioPreviewService
+import io.github.kei_1111.admin.server.storage.ContentStorage
 import io.github.kei_1111.admin.server.storage.FileContentStorage
 import io.github.kei_1111.admin.server.storage.GcsContentStorage
 import io.github.kei_1111.admin.shared.model.HealthResponse
@@ -70,16 +74,17 @@ fun Application.module() {
             clientId = System.getenv("GOOGLE_OAUTH_CLIENT_ID").orEmpty(),
             allowedEmail = System.getenv("ADMIN_ALLOWED_EMAIL").orEmpty(),
         ),
-        contentService = ContentService(
-            storage = if (devAuthBypass) {
-                FileContentStorage(root = Path.of("build/local-content"))
-            } else {
-                GcsContentStorage(bucket = System.getenv("CONTENT_BUCKET").orEmpty())
-            },
-        ),
+        contentService = ContentService(storage = defaultStorage(devAuthBypass)),
+        imageService = ImageService(storage = defaultStorage(devAuthBypass)),
         previewService = defaultPortfolioPreviewService(),
         devAuthBypass = devAuthBypass,
     )
+}
+
+private fun defaultStorage(devAuthBypass: Boolean): ContentStorage = if (devAuthBypass) {
+    FileContentStorage(root = Path.of("build/local-content"))
+} else {
+    GcsContentStorage(bucket = System.getenv("CONTENT_BUCKET").orEmpty())
 }
 
 private fun defaultPortfolioPreviewService(): PortfolioPreviewService {
@@ -103,6 +108,7 @@ fun Application.configureApplication(
     authConfig: AuthConfig,
     contentService: ContentService,
     previewService: PortfolioPreviewService,
+    imageService: ImageService,
     devAuthBypass: Boolean = false,
 ) {
     if (devAuthBypass) {
@@ -136,6 +142,7 @@ fun Application.configureApplication(
             }
             contentRoutes(contentService)
             previewRoutes(previewService)
+            imageRoutes(imageService)
         } else {
             authenticate("google") {
                 get("/api/me") {
@@ -144,8 +151,11 @@ fun Application.configureApplication(
                 }
                 contentRoutes(contentService)
                 previewRoutes(previewService)
+                imageRoutes(imageService)
             }
         }
+        // スクリーンショット配信。Preview 表示と本体サイトからの参照を想定した公開読み出し
+        imageServingRoutes(imageService)
         // デプロイビルドが -PbundleWebApp で同梱する管理 UI(同一オリジン配信で CORS 不要)。
         // 同梱なしのビルドでは何も配信しないだけで無害。
         staticResources("/", "static") {

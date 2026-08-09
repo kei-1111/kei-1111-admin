@@ -3,6 +3,8 @@
 package io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,40 +23,50 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import io.github.kei_1111.admin.app.core.designsystem.language.KeiLanguage
 import io.github.kei_1111.admin.app.core.designsystem.language.KeiLanguageController
+import io.github.kei_1111.admin.app.core.designsystem.theme.KeiIcon
 import io.github.kei_1111.admin.app.core.designsystem.theme.KeiTheme
 import io.github.kei_1111.admin.app.core.utils.openUrl
-import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.WorkbenchIntent
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.WorkbenchState
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.form.ChipsEditor
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.form.KeiTextField
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.form.RowListEditor
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.form.SegmentedStatus
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.form.dashedBorder
+import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.preview.works.WorksAsyncImage
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.preview.works.WorksPreviewCard
+import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.preview.works.resolveWorksAssetUrl
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.preview.PreviewWorkbenchState
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.theme.WorkbenchDimensions
 import io.github.kei_1111.admin.app.feature.workbench.model.toPortfolioWork
 import io.github.kei_1111.admin.shared.model.Work
 import kotlinx.collections.immutable.persistentListOf
+import kotlin.math.roundToInt
 
 @Composable
+@Suppress("LongParameterList")
 internal fun WorkEditorPage(
     workId: String,
     state: WorkbenchState,
-    onIntent: (WorkbenchIntent) -> Unit,
     isMobile: Boolean,
+    onChangeWork: (Work) -> Unit,
+    onClickAddScreenshot: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val work = state.works.firstOrNull { it.id == workId }
@@ -62,12 +74,13 @@ internal fun WorkEditorPage(
         MissingWork(workId = workId, modifier = modifier)
         return
     }
-    val onChangeWork: (Work) -> Unit = { onIntent(WorkbenchIntent.UpdateWorkDraft(it)) }
 
     Row(modifier = modifier.padding(WorkbenchDimensions.IslandPadding)) {
         WorkForm(
             work = work,
+            uploadingScreenshot = state.uploadingScreenshot,
             onChangeWork = onChangeWork,
+            onClickAddScreenshot = { onClickAddScreenshot(work.id) },
             modifier = Modifier
                 .weight(1f)
                 .fillMaxSize()
@@ -117,7 +130,9 @@ private fun MissingWork(workId: String, modifier: Modifier = Modifier) {
 @Composable
 private fun WorkForm(
     work: Work,
+    uploadingScreenshot: Boolean,
     onChangeWork: (Work) -> Unit,
+    onClickAddScreenshot: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val editingJa = KeiLanguageController.language == KeiLanguage.Ja
@@ -168,6 +183,10 @@ private fun WorkForm(
                     val pairedEn = work.rolesEn.paddedTo(work.roles.size)
                     onChangeWork(work.copy(roles = work.roles.swappedAt(a, b), rolesEn = pairedEn.swappedAt(a, b)))
                 },
+                onMoveRow = { from, to ->
+                    val pairedEn = work.rolesEn.paddedTo(work.roles.size)
+                    onChangeWork(work.copy(roles = work.roles.movedTo(from, to), rolesEn = pairedEn.movedTo(from, to)))
+                },
                 onRemoveRow = { index ->
                     val pairedEn = work.rolesEn.paddedTo(work.roles.size)
                     onChangeWork(work.copy(roles = work.roles.removedAt(index), rolesEn = pairedEn.removedAt(index)))
@@ -185,7 +204,12 @@ private fun WorkForm(
                 },
             )
         }
-        ScreenshotsSection()
+        ScreenshotsSection(
+            work = work,
+            uploading = uploadingScreenshot,
+            onChangeWork = onChangeWork,
+            onClickAddScreenshot = onClickAddScreenshot,
+        )
         UrlsSection(work = work, onChangeWork = onChangeWork)
         Spacer(modifier = Modifier.height(20.dp))
     }
@@ -264,8 +288,18 @@ private fun TypePeriodSection(
 }
 
 @Composable
-private fun ScreenshotsSection(modifier: Modifier = Modifier) {
+private fun ScreenshotsSection(
+    work: Work,
+    uploading: Boolean,
+    onChangeWork: (Work) -> Unit,
+    onClickAddScreenshot: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val colors = KeiTheme.colors
+    // タイルのドラッグ中は表示オフセットのみ動かし、確定はドラッグ終了時に一度だけ行う
+    var dragIndex by remember { mutableStateOf(-1) }
+    var dragOffsetX by remember { mutableStateOf(0f) }
+    val tileStridePx = with(LocalDensity.current) { (WorkbenchDimensions.ScreenshotWidth + 8.dp).toPx() }
     Column(modifier = modifier) {
         SectionLabel(text = "SCREENSHOTS")
         Row(
@@ -274,25 +308,123 @@ private fun ScreenshotsSection(modifier: Modifier = Modifier) {
                 .horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            // 画像アップロードは次段階。カバー(★)ルールとサムネイル枠のみ先行して示す
+            work.screenshots.forEachIndexed { index, path ->
+                key(path) {
+                    ScreenshotThumbnail(
+                        path = path,
+                        cover = index == 0,
+                        dragging = dragIndex == index,
+                        dragOffsetX = if (dragIndex == index) dragOffsetX else 0f,
+                        onDragStart = { dragIndex = index },
+                        onDragDelta = { dragOffsetX += it },
+                        onDragEnd = { cancelled ->
+                            if (!cancelled && dragIndex == index) {
+                                val shift = (dragOffsetX / tileStridePx).roundToInt()
+                                val target = (index + shift).coerceIn(0, work.screenshots.lastIndex)
+                                if (target != index) {
+                                    onChangeWork(
+                                        work.copy(
+                                            screenshots = work.screenshots.toMutableList()
+                                                .apply { add(target, removeAt(index)) },
+                                        ),
+                                    )
+                                }
+                            }
+                            dragIndex = -1
+                            dragOffsetX = 0f
+                        },
+                        onRemove = {
+                            onChangeWork(
+                                work.copy(screenshots = work.screenshots.toMutableList().apply { removeAt(index) }),
+                            )
+                        },
+                    )
+                }
+            }
             Box(
                 modifier = Modifier
                     .size(WorkbenchDimensions.ScreenshotWidth, WorkbenchDimensions.ScreenshotHeight)
                     .clip(KeiTheme.shapes.chip)
-                    .dashedBorder(),
+                    .dashedBorder()
+                    .clickable(enabled = !uploading, onClick = onClickAddScreenshot),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    text = "+",
+                    text = if (uploading) "…" else "+",
                     style = KeiTheme.typography.cardJp.copy(fontSize = 20.sp, color = colors.mutedHigh),
                 )
             }
         }
         Text(
-            text = "画像アップロードは次段階で対応(先頭が ★ カバー)",
+            text = if (uploading) "アップロード中..." else "先頭が ★ カバー(png / jpeg / webp、5MBまで)",
             style = KeiTheme.typography.cardJp.copy(fontSize = 10.sp, color = colors.muted),
             modifier = Modifier.padding(top = 4.dp),
         )
+    }
+}
+
+@Suppress("LongParameterList")
+@Composable
+private fun ScreenshotThumbnail(
+    path: String,
+    cover: Boolean,
+    dragging: Boolean,
+    dragOffsetX: Float,
+    onDragStart: () -> Unit,
+    onDragDelta: (Float) -> Unit,
+    onDragEnd: (cancelled: Boolean) -> Unit,
+    onRemove: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val colors = KeiTheme.colors
+    Box(
+        modifier = modifier
+            .size(WorkbenchDimensions.ScreenshotWidth, WorkbenchDimensions.ScreenshotHeight)
+            .zIndex(if (dragging) 1f else 0f)
+            .graphicsLayer { translationX = dragOffsetX }
+            .pointerInput(Unit) {
+                detectDragGestures(
+                    onDragStart = { onDragStart() },
+                    onDrag = { change, dragAmount ->
+                        change.consume()
+                        onDragDelta(dragAmount.x)
+                    },
+                    onDragEnd = { onDragEnd(false) },
+                    onDragCancel = { onDragEnd(true) },
+                )
+            },
+    ) {
+        WorksAsyncImage(
+            url = resolveWorksAssetUrl(path),
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(KeiTheme.shapes.chip)
+                .background(colors.screenshotWell),
+        )
+        if (cover) {
+            Text(
+                text = "★",
+                style = KeiTheme.typography.cardJp.copy(fontSize = 10.sp, color = colors.logcatWarning),
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(2.dp),
+            )
+        }
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(2.dp)
+                .size(16.dp)
+                .clip(KeiTheme.shapes.chip)
+                .background(colors.scrim)
+                .clickable(onClick = onRemove),
+            contentAlignment = Alignment.Center,
+        ) {
+            KeiIcon(
+                icon = KeiTheme.icons.closeSmall,
+                contentDescription = "スクリーンショットを削除",
+            )
+        }
     }
 }
 
@@ -342,12 +474,21 @@ private fun List<String>.removedAt(index: Int): List<String> =
 private fun List<String>.paddedTo(size: Int): List<String> =
     if (this.size >= size) this else this + List(size - this.size) { "" }
 
+private fun List<String>.movedTo(from: Int, to: Int): List<String> =
+    toMutableList().apply { add(to, removeAt(from)) }
+
 @Preview
 @Composable
 private fun WorkEditorPagePreview() {
     KeiTheme {
         Box(modifier = Modifier.size(1000.dp, 700.dp).background(KeiTheme.colors.island)) {
-            WorkEditorPage(workId = "withmo", state = PreviewWorkbenchState, onIntent = {}, isMobile = false)
+            WorkEditorPage(
+                workId = "withmo",
+                state = PreviewWorkbenchState,
+                isMobile = false,
+                onChangeWork = {},
+                onClickAddScreenshot = {},
+            )
         }
     }
 }
