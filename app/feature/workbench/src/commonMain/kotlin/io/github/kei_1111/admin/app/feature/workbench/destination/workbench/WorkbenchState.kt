@@ -10,6 +10,7 @@ import io.github.kei_1111.admin.shared.model.ReadmeContent
 import io.github.kei_1111.admin.shared.model.TerminalCommandsContent
 import io.github.kei_1111.admin.shared.model.Work
 import io.github.kei_1111.admin.shared.model.portfolio.ContributionCalendar
+import io.github.kei_1111.admin.shared.model.portfolio.GitHubIssues
 import io.github.kei_1111.admin.shared.model.portfolio.GitHubProfile
 
 internal data class WorkbenchState(
@@ -47,6 +48,8 @@ internal data class WorkbenchState(
     val portfolioProfile: GitHubProfile? = null,
     val contributions: ContributionCalendar? = null,
     val contributionsFailed: Boolean = false,
+    /** TODO ウィンドウ相当の閲覧専用データ(取得失敗・未取得は null)。 */
+    val portfolioIssues: GitHubIssues? = null,
     val languageOutdatedWarning: WorkbenchViewModelState.LanguageOutdatedWarning? = null,
 ) : State
 

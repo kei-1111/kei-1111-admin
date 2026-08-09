@@ -11,4 +11,6 @@ class PortfolioPreviewService(
     suspend fun profileJson(): String? = fetchJson("/api/profile")
 
     suspend fun contributionsJson(): String? = fetchJson("/api/contributions")
+
+    suspend fun issuesJson(): String? = fetchJson("/api/issues")
 }

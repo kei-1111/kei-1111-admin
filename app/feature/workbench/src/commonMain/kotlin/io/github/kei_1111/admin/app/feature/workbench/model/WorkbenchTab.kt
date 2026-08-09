@@ -7,4 +7,5 @@ internal sealed interface WorkbenchTab {
     data object ProfileEditor : WorkbenchTab
     data object ReadmeEditor : WorkbenchTab
     data object TerminalEditor : WorkbenchTab
+    data object TodoViewer : WorkbenchTab
 }

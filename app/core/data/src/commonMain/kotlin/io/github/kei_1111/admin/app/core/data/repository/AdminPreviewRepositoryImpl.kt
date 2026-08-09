@@ -5,6 +5,7 @@ import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import io.github.kei_1111.admin.shared.model.portfolio.ContributionCalendar
+import io.github.kei_1111.admin.shared.model.portfolio.GitHubIssues
 import io.github.kei_1111.admin.shared.model.portfolio.GitHubProfile
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -22,4 +23,7 @@ internal class AdminPreviewRepositoryImpl(
 
     override suspend fun fetchPortfolioContributions(): ContributionCalendar =
         httpClient.get("/api/preview/contributions") { authorize() }.body()
+
+    override suspend fun fetchPortfolioIssues(): GitHubIssues =
+        httpClient.get("/api/preview/issues") { authorize() }.body()
 }

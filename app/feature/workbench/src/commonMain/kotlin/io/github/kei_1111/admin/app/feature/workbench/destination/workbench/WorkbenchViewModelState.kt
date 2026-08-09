@@ -10,6 +10,7 @@ import io.github.kei_1111.admin.shared.model.ReadmeContent
 import io.github.kei_1111.admin.shared.model.TerminalCommandsContent
 import io.github.kei_1111.admin.shared.model.Work
 import io.github.kei_1111.admin.shared.model.portfolio.ContributionCalendar
+import io.github.kei_1111.admin.shared.model.portfolio.GitHubIssues
 import io.github.kei_1111.admin.shared.model.portfolio.GitHubProfile
 
 internal data class WorkbenchViewModelState(
@@ -47,6 +48,7 @@ internal data class WorkbenchViewModelState(
     val portfolioProfile: GitHubProfile? = null,
     val contributions: ContributionCalendar? = null,
     val contributionsFailed: Boolean = false,
+    val portfolioIssues: GitHubIssues? = null,
     /** 片方の言語だけ変更された項目。null 以外なら保存/公開前の確認ダイアログを出す。 */
     val languageOutdatedWarning: LanguageOutdatedWarning? = null,
 ) : ViewModelState<WorkbenchState> {
@@ -110,6 +112,7 @@ internal data class WorkbenchViewModelState(
             portfolioProfile = portfolioProfile,
             contributions = contributions,
             contributionsFailed = contributionsFailed,
+            portfolioIssues = portfolioIssues,
             languageOutdatedWarning = languageOutdatedWarning,
         )
     }

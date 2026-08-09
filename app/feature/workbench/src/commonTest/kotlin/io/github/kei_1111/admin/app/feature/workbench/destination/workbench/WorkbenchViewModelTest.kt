@@ -4,6 +4,7 @@ import io.github.kei_1111.admin.app.core.common.auth.AdminAuthController
 import io.github.kei_1111.admin.app.core.domain.usecase.DiscardDraftUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetContentMetaUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetPortfolioContributionsUseCase
+import io.github.kei_1111.admin.app.core.domain.usecase.GetPortfolioIssuesUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetPortfolioProfileUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetProfileDraftUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetPublishedSnapshotUseCase
@@ -40,6 +41,8 @@ import io.github.kei_1111.admin.shared.model.TerminalTextCommand
 import io.github.kei_1111.admin.shared.model.Work
 import io.github.kei_1111.admin.shared.model.WorksContent
 import io.github.kei_1111.admin.shared.model.portfolio.ContributionCalendar
+import io.github.kei_1111.admin.shared.model.portfolio.GitHubIssue
+import io.github.kei_1111.admin.shared.model.portfolio.GitHubIssues
 import io.github.kei_1111.admin.shared.model.portfolio.GitHubProfile
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -132,6 +135,15 @@ private fun viewModel(
             check(!repository.previewFailing) { "fake preview failure" }
             repository.failIfRequested()
             return PreviewContributionCalendar
+        }
+    },
+    getPortfolioIssues = object : GetPortfolioIssuesUseCase {
+        override suspend fun invoke(): GitHubIssues {
+            repository.failIfRequested()
+            return GitHubIssues(
+                totalCount = 1,
+                issues = listOf(GitHubIssue(number = 1, title = "[Feature]: sample", url = "https://example.com")),
+            )
         }
     },
     object : PickImageUseCase {
@@ -437,6 +449,7 @@ class WorkbenchViewModelTest : ViewModelTestBase() {
         assertEquals(PreviewGitHubProfile, state.portfolioProfile)
         assertEquals(PreviewContributionCalendar, state.contributions)
         assertFalse(state.contributionsFailed)
+        assertEquals(1, viewModel.state.value.portfolioIssues?.totalCount)
     }
 
     @Test

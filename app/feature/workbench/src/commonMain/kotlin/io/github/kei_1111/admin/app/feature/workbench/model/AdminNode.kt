@@ -7,6 +7,7 @@ internal sealed interface AdminNode {
     data object Profile : AdminNode
     data object Readme : AdminNode
     data object Terminal : AdminNode
+    data object Todo : AdminNode
     data object DeployHistory : AdminNode
     data object Settings : AdminNode
 }

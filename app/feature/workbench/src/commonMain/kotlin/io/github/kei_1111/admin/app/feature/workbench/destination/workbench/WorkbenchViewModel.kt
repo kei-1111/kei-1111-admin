@@ -12,6 +12,7 @@ import io.github.kei_1111.admin.app.core.common.coroutines.recoverOrElse
 import io.github.kei_1111.admin.app.core.domain.usecase.DiscardDraftUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetContentMetaUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetPortfolioContributionsUseCase
+import io.github.kei_1111.admin.app.core.domain.usecase.GetPortfolioIssuesUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetPortfolioProfileUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetProfileDraftUseCase
 import io.github.kei_1111.admin.app.core.domain.usecase.GetPublishedSnapshotUseCase
@@ -58,6 +59,7 @@ internal class WorkbenchViewModel(
     private val publishContent: PublishContentUseCase,
     private val getPortfolioProfile: GetPortfolioProfileUseCase,
     private val getPortfolioContributions: GetPortfolioContributionsUseCase,
+    private val getPortfolioIssues: GetPortfolioIssuesUseCase,
     private val pickImage: PickImageUseCase,
     private val uploadWorkImage: UploadWorkImageUseCase,
     private val uploadProfileImage: UploadProfileImageUseCase,
@@ -253,11 +255,13 @@ internal class WorkbenchViewModel(
     private suspend fun loadPreviewData() {
         val fetchedProfile = recoverOrElse({ getPortfolioProfile() }) { null }
         val fetchedContributions = recoverOrElse({ getPortfolioContributions() }) { null }
+        val fetchedIssues = recoverOrElse({ getPortfolioIssues() }) { null }
         updateViewModelState {
             copy(
                 portfolioProfile = fetchedProfile ?: portfolioProfile,
                 contributions = fetchedContributions ?: contributions,
                 contributionsFailed = fetchedContributions == null,
+                portfolioIssues = fetchedIssues ?: portfolioIssues,
             )
         }
     }
@@ -449,6 +453,7 @@ private fun WorkbenchViewModelState.selectNode(node: AdminNode): WorkbenchViewMo
         is AdminNode.Profile -> WorkbenchTab.ProfileEditor
         is AdminNode.Readme -> WorkbenchTab.ReadmeEditor
         is AdminNode.Terminal -> WorkbenchTab.TerminalEditor
+        is AdminNode.Todo -> WorkbenchTab.TodoViewer
         // 未実装ノードはタブを開かず選択だけ反映する
         is AdminNode.DeployHistory, is AdminNode.Settings -> null
     }
@@ -469,6 +474,7 @@ private fun WorkbenchTab.correspondingNode(): AdminNode = when (this) {
     is WorkbenchTab.ProfileEditor -> AdminNode.Profile
     is WorkbenchTab.ReadmeEditor -> AdminNode.Readme
     is WorkbenchTab.TerminalEditor -> AdminNode.Terminal
+    is WorkbenchTab.TodoViewer -> AdminNode.Todo
 }
 
 private fun WorkbenchTab.isDirty(state: WorkbenchViewModelState): Boolean = when (this) {
@@ -481,6 +487,7 @@ private fun WorkbenchTab.isDirty(state: WorkbenchViewModelState): Boolean = when
         state.readmeDraft != null && state.readmeDraft != state.savedReadme
     is WorkbenchTab.TerminalEditor ->
         state.terminalDraft != null && state.terminalDraft != state.savedTerminal
+    is WorkbenchTab.TodoViewer -> false
 }
 
 /** タブを閉じるときのメモリ内編集バッファ破棄(サーバーの下書きは触らない)。 */
@@ -490,6 +497,7 @@ private fun WorkbenchViewModelState.clearLocalDraft(tab: WorkbenchTab): Workbenc
     is WorkbenchTab.ProfileEditor -> copy(profileDraft = null)
     is WorkbenchTab.ReadmeEditor -> copy(readmeDraft = null)
     is WorkbenchTab.TerminalEditor -> copy(terminalDraft = null)
+    is WorkbenchTab.TodoViewer -> this
 }
 
 private fun WorkbenchViewModelState.closeTab(tab: WorkbenchTab): WorkbenchViewModelState {

@@ -70,6 +70,11 @@ internal fun MobileNavRow(
             onClick = { onSelectNode(AdminNode.Terminal) },
         )
         NavChip(
+            label = "TODO",
+            selected = state.selectedNode == AdminNode.Todo,
+            onClick = { onSelectNode(AdminNode.Todo) },
+        )
+        NavChip(
             label = "Profile",
             selected = state.selectedNode == AdminNode.Profile,
             showDraftDot = state.profileUnsaved,

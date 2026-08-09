@@ -133,6 +133,14 @@ internal fun NavTree(
                 showDraftDot = state.terminalUnsaved,
                 onClick = { onSelectNode(AdminNode.Terminal) },
             )
+            FileRow(
+                depth = 1,
+                label = "TODO",
+                icon = KeiTheme.icons.properties,
+                selected = state.selectedNode == AdminNode.Todo,
+                showDraftDot = false,
+                onClick = { onSelectNode(AdminNode.Todo) },
+            )
             FolderRow(
                 depth = 1,
                 expanded = systemExpanded,

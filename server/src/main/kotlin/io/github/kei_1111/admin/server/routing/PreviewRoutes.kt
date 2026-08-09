@@ -16,6 +16,9 @@ fun Route.previewRoutes(previewService: PortfolioPreviewService) {
     get("/api/preview/contributions") {
         respondProxied(previewService.contributionsJson())
     }
+    get("/api/preview/issues") {
+        respondProxied(previewService.issuesJson())
+    }
 }
 
 private suspend fun RoutingContext.respondProxied(json: String?) {

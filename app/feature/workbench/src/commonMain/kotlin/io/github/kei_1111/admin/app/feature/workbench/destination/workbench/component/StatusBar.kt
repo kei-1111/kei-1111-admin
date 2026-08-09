@@ -92,6 +92,7 @@ private fun WorkbenchState.breadcrumb(): String = when (val tab = activeTab) {
     is WorkbenchTab.ProfileEditor -> "admin › profile"
     is WorkbenchTab.ReadmeEditor -> "admin › README.md"
     is WorkbenchTab.TerminalEditor -> "admin › terminal"
+    is WorkbenchTab.TodoViewer -> "admin › TODO"
 }
 
 @Preview

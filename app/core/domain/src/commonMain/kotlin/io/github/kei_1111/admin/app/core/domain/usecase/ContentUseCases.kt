@@ -14,6 +14,7 @@ import io.github.kei_1111.admin.shared.model.ReadmeContent
 import io.github.kei_1111.admin.shared.model.TerminalCommandsContent
 import io.github.kei_1111.admin.shared.model.WorksContent
 import io.github.kei_1111.admin.shared.model.portfolio.ContributionCalendar
+import io.github.kei_1111.admin.shared.model.portfolio.GitHubIssues
 import io.github.kei_1111.admin.shared.model.portfolio.GitHubProfile
 
 interface GetWorksDraftUseCase {
@@ -184,4 +185,16 @@ internal class DiscardDraftUseCaseImpl(
     private val repository: AdminPublishRepository,
 ) : DiscardDraftUseCase {
     override suspend fun invoke(document: ContentDocument) = repository.discardDraft(document)
+}
+
+interface GetPortfolioIssuesUseCase {
+    suspend operator fun invoke(): GitHubIssues
+}
+
+@ContributesBinding(AppScope::class)
+@Inject
+internal class GetPortfolioIssuesUseCaseImpl(
+    private val repository: AdminPreviewRepository,
+) : GetPortfolioIssuesUseCase {
+    override suspend fun invoke(): GitHubIssues = repository.fetchPortfolioIssues()
 }

@@ -111,6 +111,10 @@ internal fun MainIsland(
                     onClickDiscardDraft = { onClickDiscardDraft(ContentDocument.Readme) },
                     modifier = Modifier.fillMaxSize(),
                 )
+                is WorkbenchTab.TodoViewer -> TodoViewerPage(
+                    state = state,
+                    modifier = Modifier.fillMaxSize(),
+                )
                 is WorkbenchTab.TerminalEditor -> TerminalEditorPage(
                     state = state,
                     isMobile = isMobile,
@@ -154,6 +158,7 @@ private fun WorkbenchTab.label(state: WorkbenchState): String = when (this) {
     is WorkbenchTab.ProfileEditor -> "profile"
     is WorkbenchTab.ReadmeEditor -> "README.md"
     is WorkbenchTab.TerminalEditor -> "terminal"
+    is WorkbenchTab.TodoViewer -> "TODO"
 }
 
 /** 本家 EditorTab と同じ様式: 選択タブは tabSelected + ボーダー、✕ は選択中かホバー時のみ。 */
@@ -235,6 +240,7 @@ private fun WorkbenchTab.fileIcon() = when (this) {
     is WorkbenchTab.ProfileEditor -> KeiTheme.icons.properties
     is WorkbenchTab.ReadmeEditor -> KeiTheme.icons.markdown
     is WorkbenchTab.TerminalEditor -> KeiTheme.icons.properties
+    is WorkbenchTab.TodoViewer -> KeiTheme.icons.properties
 }
 
 @Preview
