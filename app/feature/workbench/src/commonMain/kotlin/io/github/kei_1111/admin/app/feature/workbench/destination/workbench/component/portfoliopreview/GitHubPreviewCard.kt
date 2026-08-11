@@ -1,6 +1,6 @@
 @file:Suppress("MagicNumber", "TooManyFunctions")
 
-package io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.preview
+package io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.portfoliopreview
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -46,7 +46,7 @@ import io.github.kei_1111.admin.app.core.designsystem.theme.ProfileIconImage
 import io.github.kei_1111.admin.app.core.designsystem.theme.brandColor
 import io.github.kei_1111.admin.app.core.designsystem.theme.icon
 import io.github.kei_1111.admin.app.core.ui.rememberHoverState
-import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.preview.works.WorksAsyncImage
+import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.portfoliopreview.works.WorksAsyncImage
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.theme.WorkbenchDimensions
 import io.github.kei_1111.admin.app.feature.workbench.model.forLanguage
 import io.github.kei_1111.admin.app.feature.workbench.preview.PreviewContributionCalendar

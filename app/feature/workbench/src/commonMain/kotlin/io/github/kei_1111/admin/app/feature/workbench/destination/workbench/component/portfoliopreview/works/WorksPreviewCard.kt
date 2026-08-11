@@ -1,6 +1,6 @@
 @file:Suppress("TooManyFunctions", "MagicNumber")
 
-package io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.preview.works
+package io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.portfoliopreview.works
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.Crossfade

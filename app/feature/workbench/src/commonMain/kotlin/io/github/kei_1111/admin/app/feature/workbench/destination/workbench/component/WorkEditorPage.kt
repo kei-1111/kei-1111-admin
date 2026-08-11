@@ -50,9 +50,9 @@ import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.comp
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.form.RowListEditor
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.form.SegmentedStatus
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.form.dashedBorder
-import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.preview.works.WorksAsyncImage
-import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.preview.works.WorksPreviewCard
-import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.preview.works.resolveWorksAssetUrl
+import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.portfoliopreview.works.WorksAsyncImage
+import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.portfoliopreview.works.WorksPreviewCard
+import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.portfoliopreview.works.resolveWorksAssetUrl
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.preview.PreviewWorkbenchState
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.theme.WorkbenchDimensions
 import io.github.kei_1111.admin.app.feature.workbench.model.toPortfolioWork

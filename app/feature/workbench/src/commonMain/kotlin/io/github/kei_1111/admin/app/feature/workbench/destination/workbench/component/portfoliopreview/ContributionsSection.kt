@@ -1,6 +1,6 @@
 @file:Suppress("MagicNumber", "UnusedPrivateMember")
 
-package io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.preview
+package io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.portfoliopreview
 
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.RepeatMode

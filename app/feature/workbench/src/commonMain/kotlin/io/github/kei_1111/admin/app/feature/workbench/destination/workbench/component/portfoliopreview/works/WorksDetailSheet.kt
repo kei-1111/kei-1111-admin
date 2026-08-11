@@ -1,6 +1,6 @@
 @file:Suppress("MagicNumber", "TooManyFunctions")
 
-package io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.preview.works
+package io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.portfoliopreview.works
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -41,7 +41,7 @@ import io.github.kei_1111.admin.app.core.designsystem.language.KeiLanguageContro
 import io.github.kei_1111.admin.app.core.designsystem.theme.KeiIcon
 import io.github.kei_1111.admin.app.core.designsystem.theme.KeiTheme
 import io.github.kei_1111.admin.app.core.utils.prefersReducedMotion
-import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.preview.SectionLabel
+import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.portfoliopreview.SectionLabel
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.theme.WorkbenchAnimations
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.theme.WorkbenchDimensions
 import io.github.kei_1111.admin.app.feature.workbench.model.forLanguage

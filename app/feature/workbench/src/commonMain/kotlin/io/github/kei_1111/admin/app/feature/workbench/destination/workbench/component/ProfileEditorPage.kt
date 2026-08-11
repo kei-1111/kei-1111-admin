@@ -39,9 +39,9 @@ import io.github.kei_1111.admin.app.core.designsystem.theme.KeiTheme
 import io.github.kei_1111.admin.app.core.utils.openUrl
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.WorkbenchState
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.form.KeiTextField
-import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.preview.GitHubPreviewCard
-import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.preview.works.WorksAsyncImage
-import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.preview.works.resolveWorksAssetUrl
+import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.portfoliopreview.GitHubPreviewCard
+import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.portfoliopreview.works.WorksAsyncImage
+import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.portfoliopreview.works.resolveWorksAssetUrl
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.preview.PreviewWorkbenchState
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.theme.WorkbenchDimensions
 import io.github.kei_1111.admin.app.feature.workbench.model.overlayOn

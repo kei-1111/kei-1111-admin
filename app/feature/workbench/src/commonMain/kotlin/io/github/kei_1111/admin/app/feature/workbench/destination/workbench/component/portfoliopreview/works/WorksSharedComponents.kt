@@ -1,6 +1,6 @@
 @file:Suppress("MagicNumber")
 
-package io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.preview.works
+package io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component.portfoliopreview.works
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
