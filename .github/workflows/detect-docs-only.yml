@@ -41,11 +41,11 @@ jobs:
             exit 0
           fi
 
-          # 全ファイルがドキュメント(*.md、docs/、.claude/)のときのみ docs-only。
+          # 全ファイルがドキュメント(*.md、docs/、ai-docs/、.claude/)のときのみ docs-only。
           code=false
           while IFS= read -r f; do
             case "$f" in
-              *.md|docs/*|.claude/*) ;;
+              *.md|docs/*|ai-docs/*|.claude/*) ;;
               *) code=true; break ;;
             esac
           done <<< "$files"

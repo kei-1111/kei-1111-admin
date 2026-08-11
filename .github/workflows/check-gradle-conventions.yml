@@ -16,7 +16,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check:
+  gradle-conventions:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

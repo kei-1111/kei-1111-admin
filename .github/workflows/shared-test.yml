@@ -1,4 +1,4 @@
-name: Detekt
+name: Shared Test
 
 on:
   pull_request:
@@ -12,7 +12,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: detekt-${{ github.event.pull_request.number || github.sha }}
+  group: shared-test-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: true
 
 jobs:
@@ -22,13 +22,13 @@ jobs:
       issues: read
       pull-requests: read
 
-  detekt:
+  shared-test:
     needs: changes
     # ステータスチェック関数を含まない if には success() が暗黙適用され、changes 失敗時にスキップされてしまう。
     # !cancelled() でそれを外し fail open にする(失敗時 outputs.code は空文字 → != 'false' が真。キャンセル時は走らない)。
     if: ${{ !cancelled() && needs.changes.outputs.code != 'false' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
 
@@ -45,5 +45,5 @@ jobs:
         with:
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
-      - name: Run detekt
-        run: ./gradlew detekt
+      - name: Run shared model tests
+        run: ./gradlew :shared:model:jvmTest :shared:model:wasmJsTest

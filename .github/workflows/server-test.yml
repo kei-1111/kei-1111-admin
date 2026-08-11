@@ -22,8 +22,10 @@ jobs:
       issues: read
       pull-requests: read
 
-  test:
+  server-test:
     needs: changes
+    # ステータスチェック関数を含まない if には success() が暗黙適用され、changes 失敗時にスキップされてしまう。
+    # !cancelled() でそれを外し fail open にする(失敗時 outputs.code は空文字 → != 'false' が真。キャンセル時は走らない)。
     if: ${{ !cancelled() && needs.changes.outputs.code != 'false' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -36,6 +38,8 @@ jobs:
           java-version: 21
           distribution: 'temurin'
 
+      # Gradle User Home のキャッシュ復元(PR では read-only、書き込みは main への push 実行時のみ)。
+      # v6 は構成キャッシュ未対応のため cache-encryption-key は将来の対応復活時に有効になる。
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
         with:
