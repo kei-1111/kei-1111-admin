@@ -1,4 +1,8 @@
+@file:OptIn(ExperimentalWasmJsInterop::class)
+
 package io.github.kei_1111.admin.app.core.common.logging
+
+import kotlin.js.ExperimentalWasmJsInterop
 
 // ローカルタイムゾーンでの整形が必要なため JS の Date を使う（kotlinx-browser に Date の束縛は無い）
 private fun jsLogTimestamp(): String = js(

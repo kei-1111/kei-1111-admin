@@ -15,8 +15,6 @@ interface AdminContentRepository {
     suspend fun fetchProfileDraft(): AdminProfile
     suspend fun saveProfileDraft(profile: AdminProfile): AdminProfile
 
-    /** Preview カード用: 本体サイト API のプロキシから GitHub 由来データを取り寄せる。 */
-
     suspend fun fetchTerminalDraft(): TerminalCommandsContent
     suspend fun saveTerminalDraft(content: TerminalCommandsContent): TerminalCommandsContent
     suspend fun fetchReadmeDraft(): ReadmeContent

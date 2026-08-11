@@ -1,4 +1,8 @@
+@file:OptIn(ExperimentalWasmJsInterop::class)
+
 package io.github.kei_1111.admin.app.auth
+
+import kotlin.js.ExperimentalWasmJsInterop
 
 private const val GOOGLE_OAUTH_CLIENT_ID =
     "672756196519-j3g8mu17pknvbdoiluomhui37fpm6uua.apps.googleusercontent.com"

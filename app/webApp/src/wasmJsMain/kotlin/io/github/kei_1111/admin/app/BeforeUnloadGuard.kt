@@ -1,6 +1,9 @@
+@file:OptIn(ExperimentalWasmJsInterop::class)
+
 package io.github.kei_1111.admin.app
 
 import io.github.kei_1111.admin.app.core.common.unsaved.UnsavedChangesTracker
+import kotlin.js.ExperimentalWasmJsInterop
 
 @JsFun(
     """
