@@ -48,6 +48,7 @@ dependencies {
     implementation(libs.ktor.server.content.negotiation)
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.cors)
+    implementation(libs.ktor.server.rate.limit)
     implementation(libs.ktor.server.status.pages)
     implementation(libs.logback.classic)
 

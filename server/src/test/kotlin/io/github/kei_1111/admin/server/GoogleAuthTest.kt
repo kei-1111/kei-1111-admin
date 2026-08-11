@@ -7,6 +7,7 @@ import com.auth0.jwt.algorithms.Algorithm
 import io.github.kei_1111.admin.server.service.ContentService
 import io.github.kei_1111.admin.server.service.ImageService
 import io.github.kei_1111.admin.server.service.PortfolioPreviewService
+import io.github.kei_1111.admin.server.service.PublishService
 import io.github.kei_1111.admin.server.storage.ContentStorage
 import io.ktor.client.request.get
 import io.ktor.client.request.header
@@ -68,15 +69,18 @@ class GoogleAuthTest {
 
     private fun authTestApplication(block: suspend ApplicationTestBuilder.() -> Unit) = testApplication {
         application {
+            val storage = InMemoryContentStorage()
+            val contentService = ContentService(storage = storage)
             configureApplication(
                 authConfig = AuthConfig(
                     jwkProvider = jwkProvider,
                     clientId = CLIENT_ID,
                     allowedEmail = ALLOWED_EMAIL,
                 ),
-                contentService = ContentService(storage = InMemoryContentStorage()),
+                contentService = contentService,
                 previewService = PortfolioPreviewService { null },
-                imageService = ImageService(storage = InMemoryContentStorage()),
+                imageService = ImageService(storage = storage),
+                publishService = PublishService(storage = storage, contentService = contentService),
             )
         }
         block()

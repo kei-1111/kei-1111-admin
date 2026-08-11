@@ -2,6 +2,8 @@ package io.github.kei_1111.admin.server
 
 import com.auth0.jwk.JwkProvider
 import com.auth0.jwk.JwkProviderBuilder
+import io.github.kei_1111.admin.server.plugins.ApiRateLimiterName
+import io.github.kei_1111.admin.server.plugins.configureRateLimit
 import io.github.kei_1111.admin.server.routing.contentRoutes
 import io.github.kei_1111.admin.server.routing.imageRoutes
 import io.github.kei_1111.admin.server.routing.imageServingRoutes
@@ -33,6 +35,8 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.http.content.staticResources
 import io.ktor.server.plugins.calllogging.CallLogging
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.plugins.ratelimit.rateLimit
+import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
@@ -66,6 +70,9 @@ fun Application.module() {
     // ローカル開発専用: 認証をスキップし、GCS の代わりにローカルファイルへ読み書きする。
     // Cloud Run のデプロイ設定(deploy-server.yml)はこの env を設定しない。
     val devAuthBypass = System.getenv("DEV_AUTH_BYPASS") == "true"
+    // 3サービスは同じバケットを見るため storage は 1 つだけ作る(GCS クライアント生成と ADC 取得も 1 回)
+    val storage = defaultStorage(devAuthBypass)
+    val contentService = ContentService(storage = storage)
     configureApplication(
         authConfig = AuthConfig(
             jwkProvider = JwkProviderBuilder(URI(GOOGLE_JWKS_URL).toURL())
@@ -75,9 +82,10 @@ fun Application.module() {
             clientId = System.getenv("GOOGLE_OAUTH_CLIENT_ID").orEmpty(),
             allowedEmail = System.getenv("ADMIN_ALLOWED_EMAIL").orEmpty(),
         ),
-        contentService = ContentService(storage = defaultStorage(devAuthBypass)),
-        imageService = ImageService(storage = defaultStorage(devAuthBypass)),
+        contentService = contentService,
+        imageService = ImageService(storage = storage),
         previewService = defaultPortfolioPreviewService(),
+        publishService = PublishService(storage = storage, contentService = contentService),
         devAuthBypass = devAuthBypass,
     )
 }
@@ -110,13 +118,9 @@ fun Application.configureApplication(
     contentService: ContentService,
     previewService: PortfolioPreviewService,
     imageService: ImageService,
-    publishService: PublishService? = null,
+    publishService: PublishService,
     devAuthBypass: Boolean = false,
 ) {
-    val publish = publishService ?: PublishService(
-        storage = defaultStorage(devAuthBypass),
-        contentService = contentService,
-    )
     if (devAuthBypass) {
         log.warn("DEV_AUTH_BYPASS is enabled — API routes are UNAUTHENTICATED (local development only)")
     }
@@ -124,6 +128,15 @@ fun Application.configureApplication(
     install(ContentNegotiation) {
         json()
     }
+    // 想定外の例外でスタックトレースを本文に漏らさず、500 を返してサーバーログにだけ残す
+    install(StatusPages) {
+        exception<Throwable> { call, cause ->
+            currentCoroutineContext().ensureActive()
+            call.application.log.error("Unhandled failure on ${call.request.local.uri}", cause)
+            call.respond(HttpStatusCode.InternalServerError)
+        }
+    }
+    configureRateLimit()
     install(Authentication) {
         jwt("google") {
             verifier(authConfig.jwkProvider, GOOGLE_ISSUER) {
@@ -142,22 +155,25 @@ fun Application.configureApplication(
         get("/health") {
             call.respond(HealthResponse(status = "OK"))
         }
-        if (devAuthBypass) {
-            get("/api/me") {
-                call.respond(MeResponse(email = "dev@localhost"))
-            }
-            contentRoutes(contentService, publish)
-            previewRoutes(previewService)
-            imageRoutes(imageService)
-        } else {
-            authenticate("google") {
+        // 未認証リクエストも JWT 検証コストを発生させるため、認証の外側で絞る
+        rateLimit(ApiRateLimiterName) {
+            if (devAuthBypass) {
                 get("/api/me") {
-                    val principal = requireNotNull(call.principal<JWTPrincipal>())
-                    call.respond(MeResponse(email = principal.payload.getClaim("email").asString()))
+                    call.respond(MeResponse(email = "dev@localhost"))
                 }
-                contentRoutes(contentService, publish)
+                contentRoutes(contentService, publishService)
                 previewRoutes(previewService)
                 imageRoutes(imageService)
+            } else {
+                authenticate("google") {
+                    get("/api/me") {
+                        val principal = requireNotNull(call.principal<JWTPrincipal>())
+                        call.respond(MeResponse(email = principal.payload.getClaim("email").asString()))
+                    }
+                    contentRoutes(contentService, publishService)
+                    previewRoutes(previewService)
+                    imageRoutes(imageService)
+                }
             }
         }
         // スクリーンショット配信。Preview 表示と本体サイトからの参照を想定した公開読み出し
