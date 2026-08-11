@@ -42,7 +42,6 @@ import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.them
 import io.github.kei_1111.admin.shared.model.Work
 
 @Composable
-@Suppress("LongParameterList")
 internal fun WorksListPage(
     state: WorkbenchState,
     isMobile: Boolean,
@@ -91,7 +90,6 @@ internal fun WorksListPage(
     }
 }
 
-@Suppress("LongParameterList")
 @Composable
 private fun ListHeader(
     total: Int,

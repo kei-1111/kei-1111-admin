@@ -41,7 +41,6 @@ import io.github.kei_1111.admin.app.feature.workbench.model.WorkChangeKind
  * 公開確認ダイアログ。公開予定と公開済みの差分(項目単位)を提示し、
  * 差分がロードできるまでは確定できない(UX レビューの MUST 事項)。
  */
-@Suppress("LongParameterList")
 @Composable
 internal fun PublishConfirmDialog(
     diff: PublishDiff?,

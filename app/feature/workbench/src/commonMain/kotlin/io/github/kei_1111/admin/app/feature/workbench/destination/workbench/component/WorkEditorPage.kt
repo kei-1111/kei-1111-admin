@@ -61,7 +61,6 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlin.math.roundToInt
 
 @Composable
-@Suppress("LongParameterList")
 internal fun WorkEditorPage(
     workId: String,
     state: WorkbenchState,
@@ -134,7 +133,6 @@ private fun MissingWork(workId: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-@Suppress("LongParameterList")
 private fun WorkForm(
     work: Work,
     uploadingScreenshot: Boolean,
@@ -393,7 +391,6 @@ private fun ScreenshotsSection(
     }
 }
 
-@Suppress("LongParameterList")
 @Composable
 private fun ScreenshotThumbnail(
     path: String,

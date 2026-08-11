@@ -38,7 +38,6 @@ import io.github.kei_1111.admin.shared.model.TerminalCommandsContent
 import io.github.kei_1111.admin.shared.model.Work
 
 @Composable
-@Suppress("LongParameterList")
 internal fun MainIsland(
     state: WorkbenchState,
     isMobile: Boolean,
@@ -162,7 +161,6 @@ private fun WorkbenchTab.label(state: WorkbenchState): String = when (this) {
 }
 
 /** 本家 EditorTab と同じ様式: 選択タブは tabSelected + ボーダー、✕ は選択中かホバー時のみ。 */
-@Suppress("LongParameterList")
 @Composable
 private fun TabPill(
     tab: WorkbenchTab,

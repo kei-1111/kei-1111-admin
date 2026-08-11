@@ -44,7 +44,6 @@ import kotlin.math.roundToInt
  * 行編集を操作単位(編集/入替/削除/追加)で通知する。呼び出し側が対になる別リスト
  * (英語訳など)へ同じ構造変更をミラーできるようにするため、変更後リストは渡さない。
  */
-@Suppress("LongParameterList")
 @Composable
 internal fun RowListEditor(
     label: String,
@@ -113,7 +112,6 @@ internal fun RowListEditor(
     }
 }
 
-@Suppress("LongParameterList")
 @Composable
 private fun EditorRow(
     value: String,

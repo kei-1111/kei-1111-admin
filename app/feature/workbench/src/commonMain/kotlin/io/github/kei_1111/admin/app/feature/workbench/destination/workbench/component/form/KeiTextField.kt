@@ -29,7 +29,6 @@ import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.comp
 import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.theme.WorkbenchDimensions
 
 /** ラベル付き入力欄。フォーカス時は青ボーダー(focusBorder)。 */
-@Suppress("LongParameterList")
 @Composable
 internal fun KeiTextField(
     label: String,
@@ -59,7 +58,6 @@ internal fun KeiTextField(
     }
 }
 
-@Suppress("LongParameterList")
 @Composable
 internal fun FieldBox(
     value: String,

@@ -51,7 +51,6 @@ import io.github.kei_1111.admin.shared.model.PinnedRepoSetting
 import io.github.kei_1111.admin.shared.model.SocialLink
 
 @Composable
-@Suppress("LongParameterList")
 internal fun ProfileEditorPage(
     state: WorkbenchState,
     isMobile: Boolean,
@@ -110,7 +109,6 @@ internal fun ProfileEditorPage(
 }
 
 @Composable
-@Suppress("LongParameterList")
 private fun ProfileForm(
     profile: AdminProfile,
     liveAvatarUrl: String?,
@@ -201,7 +199,6 @@ private fun GitHubSyncCard(
 }
 
 @Composable
-@Suppress("LongParameterList")
 private fun IdentitySection(
     profile: AdminProfile,
     liveAvatarUrl: String?,

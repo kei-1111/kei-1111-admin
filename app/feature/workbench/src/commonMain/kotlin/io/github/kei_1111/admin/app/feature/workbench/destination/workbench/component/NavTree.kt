@@ -191,7 +191,6 @@ private fun ProjectPaneHeader(modifier: Modifier = Modifier) {
     }
 }
 
-@Suppress("LongParameterList")
 @Composable
 private fun FolderRow(
     depth: Int,
@@ -236,7 +235,6 @@ private fun FolderRow(
     }
 }
 
-@Suppress("LongParameterList")
 @Composable
 private fun FileRow(
     depth: Int,

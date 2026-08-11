@@ -35,7 +35,6 @@ internal enum class WorkChangeKind { Added, Changed, Removed, Excluded }
  * 「これから公開される内容」(下書き+編集バッファ、works は status=公開のみ)と
  * published/ の現在内容を項目単位で比較する。
  */
-@Suppress("LongParameterList")
 internal fun computePublishDiff(
     mergedWorks: List<Work>,
     mergedProfile: AdminProfile,

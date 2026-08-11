@@ -49,7 +49,6 @@ private const val DEPLOY_DISPLAY_LENGTH = 16
 @Inject
 @ViewModelKey
 @ContributesIntoMap(AppScope::class, binding<ViewModel>())
-@Suppress("LongParameterList")
 internal class WorkbenchViewModel(
     private val getWorksDraft: GetWorksDraftUseCase,
     private val saveWorksDraft: SaveWorksDraftUseCase,

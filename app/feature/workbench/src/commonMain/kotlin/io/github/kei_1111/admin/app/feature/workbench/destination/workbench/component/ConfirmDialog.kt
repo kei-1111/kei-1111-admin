@@ -29,7 +29,6 @@ import androidx.compose.ui.unit.sp
 import io.github.kei_1111.admin.app.core.designsystem.theme.KeiTheme
 
 /** 一時的な確認ダイアログ(ナビゲーション先ではないためインラインオーバーレイで描く)。 */
-@Suppress("LongParameterList")
 @Composable
 internal fun ConfirmDialog(
     title: String,

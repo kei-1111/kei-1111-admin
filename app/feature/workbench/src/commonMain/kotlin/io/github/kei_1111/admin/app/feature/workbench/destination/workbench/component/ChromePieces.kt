@@ -33,7 +33,6 @@ import io.github.kei_1111.admin.app.feature.workbench.destination.workbench.them
 import io.github.kei_1111.admin.shared.model.ContentStatus
 
 /** グレー(deskChip / chip)地のピルボタン。IDE チュール上の汎用アクション。 */
-@Suppress("LongParameterList")
 @Composable
 internal fun PillButton(
     label: String,
