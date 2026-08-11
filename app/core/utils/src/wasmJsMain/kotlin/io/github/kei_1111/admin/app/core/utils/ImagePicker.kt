@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalWasmJsInterop::class)
+
 package io.github.kei_1111.admin.app.core.utils
 
 import kotlinx.browser.document
@@ -7,6 +9,7 @@ import org.w3c.files.FileReader
 import kotlin.coroutines.resume
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
+import kotlin.js.ExperimentalWasmJsInterop
 
 @OptIn(ExperimentalEncodingApi::class)
 actual suspend fun pickImageFile(): PickedImageFile? = suspendCancellableCoroutine { continuation ->

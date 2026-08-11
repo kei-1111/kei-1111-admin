@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalWasmJsInterop::class)
+
 package io.github.kei_1111.admin.app.core.utils
 
 import androidx.compose.runtime.Composable
@@ -7,6 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import kotlinx.browser.document
 import org.w3c.dom.events.Event
+import kotlin.js.ExperimentalWasmJsInterop
 
 private const val VISIBILITY_CHANGE_EVENT = "visibilitychange"
 

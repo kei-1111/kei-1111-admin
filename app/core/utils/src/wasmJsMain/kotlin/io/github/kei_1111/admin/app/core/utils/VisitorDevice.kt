@@ -1,4 +1,8 @@
+@file:OptIn(ExperimentalWasmJsInterop::class)
+
 package io.github.kei_1111.admin.app.core.utils
+
+import kotlin.js.ExperimentalWasmJsInterop
 
 private fun userAgent(): String = js("navigator.userAgent")
 
