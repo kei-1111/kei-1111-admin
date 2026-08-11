@@ -3,17 +3,21 @@ package io.github.kei_1111
 import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
 private const val CompileSdk = 36
 private const val MinSdk = 24
 
+@OptIn(ExperimentalWasmDsl::class)
 internal fun Project.configureKmpWasm(
     kotlinMultiplatformExtension: KotlinMultiplatformExtension,
 ) {
     kotlinMultiplatformExtension.apply {
+        // テスト実行環境は Node。Compose UI を含むモジュールは skiko (ブラウザ専用) をリンクするため
+        // kei_1111.kmp.feature 側で browser 実行に差し替える。
         wasmJs {
-            browser()
+            nodejs()
         }
 
         // IDE で commonMain の Compose Preview を描画するための Android ターゲット。
