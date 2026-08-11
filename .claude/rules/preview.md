@@ -9,7 +9,7 @@ paths:
 ## Rules
 
 - Use the unified `androidx.compose.ui.tooling.preview.Preview` annotation (CMP 1.10+, usable directly in `commonMain`), always plain with **no parameters**.
-- No shared preview infrastructure (`@ComponentPreviews` / `@PreviewWrapper`) — do not introduce it. Wrap content in `AdminTheme { ... }` by hand.
+- No shared preview infrastructure (`@ComponentPreviews` / `@PreviewWrapper`) — do not introduce it. Wrap content in `KeiTheme { ... }` by hand.
 - The preview is a `private` function named `{ComponentName}Preview` at the bottom of the component's own file, with empty `{}` for callback parameters.
 - A component whose layout needs bounded constraints gives its preview a fixed `Modifier.size(...)` box — Preview otherwise measures under infinite constraints.
 

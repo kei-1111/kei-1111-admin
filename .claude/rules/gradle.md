@@ -18,7 +18,7 @@ Every dependency is declared with `implementation()`, in module build files and 
 - Bump versions only in `gradle/libs.versions.toml`; Kotlin is the anchor — check Compose Multiplatform / AGP / Metro compatibility before bumping, and bump coupled versions together
 - Keep the version base in sync with kei-1111.github.io unless there is a reason to diverge
 - One upgrade per branch/PR
-- Validate: `./gradlew detekt :app:webApp:wasmJsBrowserDistribution compileAndroidMain :server:test :app:core:common:testAndroidHostTest :app:core:mvi:testAndroidHostTest :app:feature:workbench:testAndroidHostTest`
+- Validate: `./gradlew detekt :app:webApp:wasmJsBrowserDistribution compileAndroidMain :server:test :shared:model:jvmTest :shared:model:wasmJsTest` plus the client host-test tasks listed in `.github/workflows/app-test.yml`
 
 ## Convention Plugins
 
@@ -55,5 +55,6 @@ All module configuration goes through the six convention plugins in `build-logic
 ./gradlew :server:run                              # Admin server (http://localhost:8082; Cloud Run injects PORT)
 ./gradlew :server:buildFatJar                      # server/build/libs/server-all.jar
 ./gradlew :server:test                             # server tests
-./gradlew :app:feature:workbench:testAndroidHostTest    # client unit tests, local JVM (also :app:core:common / :app:core:mvi)
+./gradlew :app:feature:workbench:testAndroidHostTest    # client unit tests, local JVM (full task list: .github/workflows/app-test.yml)
+./gradlew :shared:model:jvmTest :shared:model:wasmJsTest # shared wire-contract tests on both consuming targets
 ```

@@ -16,11 +16,13 @@ Trunk-based by owner decision (2026-08-08): commit directly to `main`, one verif
 
 ## CI/CD
 
-Mirrors kei-1111.github.io's structure at this repository's scale (JDK 21 temurin; autoCorrect disabled on CI):
+Canonical intent and invariants: `.claude/rules/ci-cd.md` and the workflow files themselves. Mirrors kei-1111.github.io's structure at this repository's scale (JDK 21 temurin; autoCorrect disabled on CI):
 
-- CI — 5 independent workflows on every PR to `main` **and every push to `main`** (trunk-based flow means pushes are the primary trigger): `detekt.yml` (`./gradlew detekt`), `compile-wasm.yml` (`:app:webApp:compileKotlinWasmJs`), `compile-android.yml` (`compileAndroidMain`), `app-test.yml` (the `testAndroidHostTest` tasks of `app:core:common` / `app:core:mvi` / `app:feature:workbench` — extend the list when a module gains unit tests), `server-test.yml` (`:server:test`).
+- A `PreToolUse` hook (`.claude/hooks/pre-push-detekt.sh`, wired in `.claude/settings.json`) runs the detekt procedure before a `git push` and blocks the push unless it passes cleanly. The hook source owns the exact detection and command behavior.
+
+- CI — 8 independent workflows on every PR to `main` **and every push to `main`** (trunk-based flow means pushes are the primary trigger): `detekt.yml` (`./gradlew detekt`), `compile-wasm.yml` (`:app:webApp:compileKotlinWasmJs`), `compile-android.yml` (`compileAndroidMain`), `app-test.yml` (the `testAndroidHostTest` tasks of `app:core:common` / `app:core:mvi` / `app:core:data` / `app:core:domain` / `app:feature:workbench` — extend the list when a module gains unit tests), `shared-test.yml` (`:shared:model:jvmTest` / `:shared:model:wasmJsTest`), `server-test.yml` (`:server:test`), plus the convention checks `check-destination-isolation.yml` (`scripts/check_destination_isolation.sh`) and `check-gradle-conventions.yml` (`scripts/check_gradle_conventions.sh`).
 - CD — `deploy-server.yml` on push to `main` (docs-only gated): builds the fat jar with the bundled admin UI (`:server:buildFatJar -PbundleWebApp`), pushes the image to Artifact Registry (`kei-1111`), and deploys Cloud Run service `kei-1111-admin` (project `kei-1111`, asia-northeast1, runtime SA `kei-1111-admin-runtime@`, WIF via the shared `github` pool). GitHub Pages is deliberately not used — the admin UI must not sit on a public static URL.
-- Docs-only gate: every gated workflow calls the reusable `detect-docs-only.yml` (PR files API on `pull_request`, `before...after` compare on `push`) and skips the heavy job when every changed file is documentation (`*.md`, `docs/**`, `.claude/**`). Unresolvable cases fail open; the gated jobs run under `!cancelled() && outputs.code != 'false'` so a failed gate also falls open. A skipped-by-`if:` job still satisfies required status checks.
+- Docs-only gate: every gated workflow calls the reusable `detect-docs-only.yml` (PR files API on `pull_request`, `before...after` compare on `push`) and skips the heavy job when every changed file is documentation (`*.md`, `docs/**`, `ai-docs/**`, `.claude/**`). Unresolvable cases fail open; the gated jobs run under `!cancelled() && outputs.code != 'false'` so a failed gate also falls open. A skipped-by-`if:` job still satisfies required status checks.
 
 ## Prohibited
 

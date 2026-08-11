@@ -25,8 +25,8 @@ Name based on **intent (what to do)**, not on operation (what was clicked). Oper
 ## Composable
 
 - Feature components (`destination/<name>/component/`) are purpose-named with no prefix.
-- Shared components in `app/core/designsystem` are purpose-named (`AdminTheme`); establish a prefix convention with the first real shared component set.
-- Callbacks: `on + Action + Target` — `Click` for taps (`onClickSave: () -> Unit`), `Change` for value changes (`onChangeMemo: (String) -> Unit`).
+- Shared components and infrastructure in `app/core/designsystem` use the `Kei` prefix (`KeiTheme`, `KeiIcons`, `KeiLanguageController`).
+- Callbacks: `on + Action + Target` — `Click` for taps (`onClickSave: () -> Unit`), `Change` for value changes (`onChangeMemo: (String) -> Unit`). Exception: form components that wrap a Material3 input keep the wrapped API's idiomatic name (`onValueChange`, `onCheckedChange`, `onStatusChange`) so their surface mirrors what they wrap.
 - Below the Content layer, components receive plain values and callbacks — **never** an `Intent` (see `.claude/rules/ui-implementation.md`).
 
 ## testTag
@@ -46,4 +46,4 @@ No E2E suite exists yet. When it lands, mirror kei-1111.github.io: kebab-case `f
 
 ## Text Content
 
-Admin UI text is English-only for now (single operator). Establish a localization convention only if the need appears.
+Admin UI text is Japanese — the console has a single operator, so there is no localization layer and no string resources: literals sit inline in the composable that shows them. Identifiers, comments in code shared with the reference repository's conventions, and all GitHub-authored text stay English (`.claude/rules/git-workflow.md`). Introduce a localization mechanism only if a second operator appears.

@@ -10,8 +10,8 @@ Ktor (CIO) JVM server in `server/`, deployed to Cloud Run. Reference implementat
 ## Layer Responsibilities (as the server grows)
 
 - `routing/` — HTTP translation only, no policy: call the service, map its result to a response
-- `service/` — owns storage and validation policy for images and content JSON
-- `storage/` — owns the GCS access and its (de)serialization; fold failures into results the service can interpret
+- `service/` — owns storage and validation policy for images and content JSON, and the JSON (de)serialization of content documents (the `Json` instance lives here)
+- `storage/` — `ContentStorage` is a raw blob (`String`/`ByteArray`) interface over the backends (GCS in production, local files under `DEV_AUTH_BYPASS`); it stays typed-model-free so both backends share one contract. This deliberately diverges from kei-1111.github.io, whose single GCS client owns typed (de)serialization
 - Auth — verify the Google ID token (audience = OAuth client ID, email allowlist) in a Ktor plugin/interceptor before any admin route runs; `/health` stays public
 
 ## Conventions

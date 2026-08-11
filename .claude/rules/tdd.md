@@ -20,6 +20,13 @@ New logic on both the client and `:server` is developed test-first; the rule is 
 - Tests written after the implementation to confirm it are not TDD.
 - Do not retroactively backfill tests for pre-existing code as a side effect of an unrelated change.
 
+## Coverage-Debt Pass (the one exception)
+
+Backfilling coverage for pre-existing code is allowed only as a change whose **stated purpose is exactly that** — never bundled into a feature or fix. Such a pass is test-after by construction and must not be described as TDD. It carries two extra obligations, because a test written against code already believed correct tends to encode the implementation rather than the requirement:
+
+- Derive each expectation from the intended behavior (the API contract, the rule file, the wire format), not by reading off what the code currently produces.
+- Report what was deliberately left untested and why, rather than padding the count with assertions that hold no matter what the implementation does.
+
 ## Process Anti-Patterns (Prohibited)
 
 Test-after masquerading as TDD; tautological tests (expected value derived with the same logic as the implementation). Suite-level anti-patterns: `app-testing.md` / `server-testing.md`.

@@ -24,7 +24,10 @@ No mocking library is used and none may be added — hand-written fakes are the 
 
 - **Shared helpers** (`app/core/common/src/commonTest/`): exercise the helper's observable contract directly — for the suppression helpers that means recovery, cancellation propagation, and catch-type selectivity. Reference: `SuppressionTest.kt`.
 - **ViewModel** (`app/feature/<name>/src/commonTest/` and the `MviViewModel` base in `app/core/mvi`): stimulate through `onIntent` or a fake-boundary emission and assert the observable `State` / `Effect` outcomes — never internal calls. ViewModel-specific conventions: `mvi-testing.md` (canonical).
-- Future layers (Repository / DataSource / UseCase) follow kei-1111.github.io's `app-testing.md` shapes — construct the `internal` `...Impl` directly against fakes; add the convention here with the first suite.
+- **Repository** (`app/core/data/src/commonTest/`): construct the `internal` implementation with Ktor `MockEngine`; assert the request method,
+  relative path, relevant headers, decoded value, and propagated failures.
+- **UseCase** (`app/core/domain/src/commonTest/`): construct the `internal` implementation with a hand-written repository fake; assert the delegated
+  method, unchanged arguments, and unchanged return value.
 - Do not test the dependency's own implementation, the Kotlin stdlib, or coroutines library behavior.
 
 ## Anti-Patterns (Prohibited)
@@ -33,8 +36,6 @@ Mocking libraries / over-mocking; asserting implementation details instead of ob
 
 ## Stack And Running
 
-`kotlin-test` + `kotlinx-coroutines-test` — `runTest {}` with `toList()` for finite cold flows; Turbine is deliberately not a dependency. Shared test infrastructure (`ViewModelTestBase`, `startCollecting`) lives in `app:core:testing`, wired into every feature's `commonTest` by `KmpFeaturePlugin`. Tests run on the non-shipped Android target as host tests — local JVM, no emulator, no Robolectric:
+`kotlin-test` + `kotlinx-coroutines-test` — `runTest {}` with `toList()` for finite cold flows; Turbine is deliberately not a dependency. Shared test infrastructure (`ViewModelTestBase`, `startCollecting`) lives in `app:core:testing`, wired into every feature's `commonTest` by `KmpFeaturePlugin`. Tests run on the non-shipped Android target as host tests — local JVM, no emulator, no Robolectric. The set of modules with host tests is canonical in `.github/workflows/app-test.yml`: run the tasks it lists, and extend that file when a module gains its first unit test.
 
-```bash
-./gradlew :app:core:common:testAndroidHostTest :app:core:mvi:testAndroidHostTest :app:feature:workbench:testAndroidHostTest
-```
+`shared:model` has no Android target, so its tests run on both consuming targets instead (`.github/workflows/shared-test.yml`).

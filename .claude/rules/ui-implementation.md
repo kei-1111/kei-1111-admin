@@ -35,7 +35,7 @@ Nothing under `destination/<a>/` may be referenced from `destination/<b>/`, comp
 
 ## Theme
 
-`AdminTheme` (`app:core:designsystem`) wraps Material3's `darkColorScheme()` for now — use `MaterialTheme.typography` / `colorScheme` tokens through it. If the admin UI grows a visual identity, grow the design system module instead of hardcoding colors in features.
+`KeiTheme` (`app:core:designsystem`) is the custom design system: access tokens via `KeiTheme.colors` / `typography` / `shapes` / `icons` (`KeiColorScheme`, `KeiTypography`, `KeiShapes`, `KeiIcons`) — never hardcode colors or text styles in features. New visual identity goes into the design system module, not inline in a destination.
 
 ## Compose Pitfalls (verified in kei-1111.github.io)
 

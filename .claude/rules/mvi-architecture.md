@@ -33,7 +33,7 @@ All destination ViewModels extend `MviViewModel<VS, S, I>`: `state` is derived f
 
 ### onIntent Policy
 
-Write branch logic **inline** in the `when (intent)` — no private per-intent handler functions. Private helpers are allowed for init/observe-style flows. `@Suppress("CyclomaticComplexMethod")` on `onIntent` is acceptable when the inline `when` grows large. Every sealed-type `when` branch takes `is` — `data object` branches included.
+Write branch logic **inline** in the `when (intent)` — no private per-intent handler functions. Private helpers are allowed for init/observe-style flows, and for a write/upload flow shared by **two or more** intents (e.g. one upload pipeline reused by several image intents, or a save flow reachable from both a button and a confirm dialog) — a helper that exists to deduplicate, never to relocate a single branch's body. `@Suppress("CyclomaticComplexMethod")` on `onIntent` is acceptable when the inline `when` grows large. Every sealed-type `when` branch takes `is` — `data object` branches included.
 
 Never re-dispatch another Intent from inside an `onIntent` branch. A state transformation shared by two or more state-update sites may be extracted as a private function only if it is a pure leaf `ViewModelState → ViewModelState` transformation (no dependency reads, logging, launches, or `updateViewModelState` calls) — `MutableStateFlow.update {}` may re-run the lambda on contention, so purity is correctness, not style.
 
