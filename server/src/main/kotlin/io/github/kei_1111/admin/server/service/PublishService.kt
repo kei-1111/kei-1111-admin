@@ -62,6 +62,11 @@ class PublishService(
         }
     }
 
+    /**
+     * GCS は複数オブジェクトをまとめて書けないため、途中で失敗すると published/ が
+     * ドキュメント間で不整合なまま残る。meta の更新は全書き込みが成功した後にのみ行い、
+     * 失敗は例外として呼び出し側(クライアントの再公開)に委ねる。
+     */
     suspend fun publish(): ContentMeta {
         val draft = contentService.worksDraft()
         val published = WorksContent(works = draft.works.filter { it.status == ContentStatus.Published })
