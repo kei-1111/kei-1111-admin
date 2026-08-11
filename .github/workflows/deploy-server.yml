@@ -13,6 +13,19 @@ on:
   push:
     branches:
       - main
+    # fat jar は -PbundleWebApp で管理 UI を同梱するため app/** も配布物に影響する。
+    # ルートの build.gradle.kts はプラグインの apply false 宣言を持ち server のビルドに影響するため対象に含める。
+    paths:
+      - 'app/**'
+      - 'server/**'
+      - 'shared/**'
+      - 'build.gradle.kts'
+      - 'gradle/**'
+      - 'gradlew'
+      - 'gradle.properties'
+      - 'settings.gradle.kts'
+      - 'build-logic/**'
+      - '.github/workflows/deploy-server.yml'
 
 permissions:
   contents: read
@@ -86,13 +99,14 @@ jobs:
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
       - name: Deploy to Cloud Run
+        id: deploy
         uses: google-github-actions/deploy-cloudrun@v3
         with:
           service: kei-1111-admin
           region: ${{ vars.GCP_REGION }}
           image: ${{ env.IMAGE }}
           # --allow-unauthenticated: UI 配信と /health のため。管理 API 自体は
-          # アプリ層の Google ID トークン検証(実装予定)が守る。
+          # アプリ層の Google ID トークン検証(Application.kt の Authentication)が守る。
           flags: >-
             --allow-unauthenticated
             --min-instances=0
@@ -101,3 +115,15 @@ jobs:
             --port=8080
             --service-account=${{ vars.GCP_RUNTIME_SERVICE_ACCOUNT }}
             --set-env-vars=CONTENT_BUCKET=kei-1111-portfolio-content,GOOGLE_OAUTH_CLIENT_ID=672756196519-j3g8mu17pknvbdoiluomhui37fpm6uua.apps.googleusercontent.com,ADMIN_ALLOWED_EMAIL=keitar1119@gmail.com
+
+      # 認証の環境変数欠落や起動失敗をデプロイ直後に検知する:
+      # /health は公開(200)、管理 API はトークン無しで 401 が返ることを確認する。
+      - name: Smoke test the deployed revision
+        run: |
+          base='${{ steps.deploy.outputs.url }}'
+          curl -fsS --retry 3 --retry-delay 5 --max-time 30 "$base/health"
+          code=$(curl -sS --retry 3 --retry-delay 5 --max-time 30 -o /dev/null -w '%{http_code}' "$base/api/works")
+          if [ "$code" != "401" ]; then
+            echo "expected 401 from unauthenticated /api/works, got $code" >&2
+            exit 1
+          fi
