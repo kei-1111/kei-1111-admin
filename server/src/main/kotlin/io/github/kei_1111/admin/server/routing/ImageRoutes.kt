@@ -36,38 +36,29 @@ fun Route.imageRoutes(imageService: ImageService) {
     }
 }
 
-/** multipart の先頭 FileItem を検証(content-type 許可リスト・シグネチャ・サイズ上限)して保存する。 */
+/** multipart の先頭 FileItem を [save] へ渡し、その判定結果をステータスへ写像する。 */
 private suspend fun RoutingContext.receiveValidatedImage(
-    save: suspend (fileName: String, bytes: ByteArray, contentType: String) -> String,
+    save: suspend (fileName: String, bytes: ByteArray, contentType: String) -> ImageService.SaveResult,
 ) {
-    var uploaded: UploadedImage? = null
-    var rejected: HttpStatusCode? = null
+    var result: ImageService.SaveResult? = null
     call.receiveMultipart().forEachPart { part ->
-        if (part is PartData.FileItem && uploaded == null && rejected == null) {
-            val contentType = part.contentType?.toString().orEmpty()
-            if (contentType !in ImageService.EXTENSIONS.keys) {
-                rejected = HttpStatusCode.UnsupportedMediaType
-            } else {
-                // 上限+1 で打ち切り読みし、超過サイズを全量バッファリングしない
+        try {
+            if (part is PartData.FileItem && result == null) {
+                // 上限+1 で打ち切り読みし、超過サイズを全量バッファリングしない(超過の判定自体は service 側)
                 val bytes = part.provider()
                     .readRemaining((ImageService.MAX_IMAGE_BYTES + 1).toLong())
                     .readByteArray()
-                if (bytes.size > ImageService.MAX_IMAGE_BYTES) {
-                    rejected = HttpStatusCode.PayloadTooLarge
-                } else if (!ImageService.matchesSignature(bytes, contentType)) {
-                    rejected = HttpStatusCode.UnsupportedMediaType
-                } else {
-                    val path = save(part.originalFileName ?: "image", bytes, contentType)
-                    uploaded = UploadedImage(path = path)
-                }
+                result = save(part.originalFileName ?: "image", bytes, part.contentType?.toString().orEmpty())
             }
+        } finally {
+            part.release()
         }
-        part.dispose()
     }
-    when {
-        rejected != null -> call.respond(rejected)
-        uploaded != null -> call.respond(uploaded)
-        else -> call.respond(HttpStatusCode.BadRequest)
+    when (val outcome = result) {
+        null -> call.respond(HttpStatusCode.BadRequest)
+        is ImageService.SaveResult.Saved -> call.respond(UploadedImage(path = outcome.path))
+        ImageService.SaveResult.UnsupportedType -> call.respond(HttpStatusCode.UnsupportedMediaType)
+        ImageService.SaveResult.TooLarge -> call.respond(HttpStatusCode.PayloadTooLarge)
     }
 }
 
