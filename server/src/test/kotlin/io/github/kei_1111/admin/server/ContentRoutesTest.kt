@@ -41,6 +41,7 @@ import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 private class FakeContentStorage : ContentStorage {
@@ -358,6 +359,43 @@ class ContentRoutesTest {
             fromDev.headers[HttpHeaders.AccessControlAllowOrigin],
         )
         assertEquals(null, fromElsewhere.headers[HttpHeaders.AccessControlAllowOrigin])
+    }
+
+    @Test
+    fun servesImagesAsImmutableSoBrowsersAndCdnsStopRefetchingThem() =
+        contentTestApplication { client, storage ->
+            storage.binaries["images/works/withmo/shot.webp"] = byteArrayOf(0x52, 0x49, 0x46, 0x46)
+
+            val response = client.get("/images/works/withmo/shot.webp")
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            assertEquals("public, max-age=31536000, immutable", response.headers[HttpHeaders.CacheControl])
+        }
+
+    @Test
+    fun answersRevalidationOfAnUnchangedImageWithNotModified() = contentTestApplication { client, storage ->
+        storage.binaries["images/works/withmo/shot.webp"] = byteArrayOf(0x52, 0x49, 0x46, 0x46)
+
+        val first = client.get("/images/works/withmo/shot.webp")
+        val etag = first.headers[HttpHeaders.ETag]
+        val revalidated = client.get("/images/works/withmo/shot.webp") {
+            header(HttpHeaders.IfNoneMatch, etag.orEmpty())
+        }
+
+        assertNotNull(etag)
+        assertEquals(HttpStatusCode.NotModified, revalidated.status)
+        assertEquals("", revalidated.bodyAsText())
+    }
+
+    @Test
+    fun servesTheImageWhenTheRevalidationTagDoesNotMatch() = contentTestApplication { client, storage ->
+        storage.binaries["images/works/withmo/shot.webp"] = byteArrayOf(0x52, 0x49, 0x46, 0x46)
+
+        val response = client.get("/images/works/withmo/shot.webp") {
+            header(HttpHeaders.IfNoneMatch, "\"stale\"")
+        }
+
+        assertEquals(HttpStatusCode.OK, response.status)
     }
 
     @Test
