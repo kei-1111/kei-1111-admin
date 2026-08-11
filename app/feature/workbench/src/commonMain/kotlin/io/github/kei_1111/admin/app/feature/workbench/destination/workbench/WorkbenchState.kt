@@ -44,6 +44,8 @@ internal data class WorkbenchState(
     val deleteConfirmWork: Work? = null,
     val syncError: SyncErrorKind? = null,
     val loading: Boolean = true,
+    /** false の間は保存/公開を無効化する。 */
+    val contentLoaded: Boolean = false,
     /** Preview カード用の GitHub 由来データ(本体 API プロキシ経由)。null は未取得。 */
     val portfolioProfile: GitHubProfile? = null,
     val contributions: ContributionCalendar? = null,

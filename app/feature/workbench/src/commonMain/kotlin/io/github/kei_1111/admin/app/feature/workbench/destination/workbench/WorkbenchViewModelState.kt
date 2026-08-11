@@ -45,6 +45,8 @@ internal data class WorkbenchViewModelState(
     val deleteConfirmWorkId: String? = null,
     val syncError: SyncErrorKind? = null,
     val loading: Boolean = true,
+    /** 4ドキュメント(works/profile/terminal/readme)の初回読み込みが完了し、保存操作が安全になったか。 */
+    val contentLoaded: Boolean = false,
     val portfolioProfile: GitHubProfile? = null,
     val contributions: ContributionCalendar? = null,
     val contributionsFailed: Boolean = false,
@@ -109,6 +111,7 @@ internal data class WorkbenchViewModelState(
             deleteConfirmWork = deleteConfirmWorkId?.let { id -> mergedWorks.firstOrNull { it.id == id } },
             syncError = syncError,
             loading = loading,
+            contentLoaded = contentLoaded,
             portfolioProfile = portfolioProfile,
             contributions = contributions,
             contributionsFailed = contributionsFailed,

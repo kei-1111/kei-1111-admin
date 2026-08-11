@@ -3,6 +3,7 @@
 package io.github.kei_1111.admin.app.feature.workbench.destination.workbench.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -12,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -25,6 +27,7 @@ import io.github.kei_1111.admin.app.feature.workbench.model.WorkbenchTab
 @Composable
 internal fun StatusBar(
     state: WorkbenchState,
+    onClickRetryLoad: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = KeiTheme.colors
@@ -57,6 +60,17 @@ internal fun StatusBar(
                     color = colors.logcatError,
                 ),
             )
+            if (kind == SyncErrorKind.Load) {
+                Text(
+                    text = "再試行",
+                    style = KeiTheme.typography.cardJp.copy(
+                        fontSize = WorkbenchDimensions.ChromeLabelFontSize,
+                        color = colors.mutedHigh,
+                        textDecoration = TextDecoration.Underline,
+                    ),
+                    modifier = Modifier.clickable { onClickRetryLoad() },
+                )
+            }
         }
         if (state.saving) {
             Text(
@@ -100,7 +114,7 @@ private fun WorkbenchState.breadcrumb(): String = when (val tab = activeTab) {
 private fun StatusBarPreview() {
     KeiTheme {
         Box(modifier = Modifier.width(800.dp).background(KeiTheme.colors.desk).padding(8.dp)) {
-            StatusBar(state = PreviewWorkbenchState)
+            StatusBar(state = PreviewWorkbenchState, onClickRetryLoad = {})
         }
     }
 }

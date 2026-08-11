@@ -66,4 +66,5 @@ internal val PreviewWorkbenchState = WorkbenchState(
     ),
     lastDeploy = "2026-08-08 12:34",
     loading = false,
+    contentLoaded = true,
 )

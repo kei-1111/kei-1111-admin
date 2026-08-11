@@ -36,6 +36,7 @@ internal fun TitleBar(
     modifier: Modifier = Modifier,
     compact: Boolean = false,
     saving: Boolean = false,
+    enabled: Boolean = true,
 ) {
     val colors = KeiTheme.colors
     Row(
@@ -68,18 +69,18 @@ internal fun TitleBar(
                     .padding(horizontal = 10.dp, vertical = 6.dp),
             )
         }
-        // 保存中は二重発火を防ぐため両ボタンを減光して無効化する
-        val actionAlpha = if (saving) KeiTheme.colors.nonClickableAlpha else 1f
+        // 保存中・読み込み未完了時は両ボタンを減光して無効化する
+        val actionAlpha = if (saving || !enabled) KeiTheme.colors.nonClickableAlpha else 1f
         PillButton(
             label = if (compact) "保存" else "下書き保存",
-            onClick = { if (!saving) onClickSave() },
+            onClick = { if (!saving && enabled) onClickSave() },
             icon = KeiTheme.icons.save,
             modifier = Modifier.alpha(actionAlpha),
         )
         // 実 AS の Run ボタン同様、緑はアイコン側だけに乗せてボタン自体はチュール色に留める
         PillButton(
             label = if (compact) "公開" else "公開する",
-            onClick = { if (!saving) onClickPublish() },
+            onClick = { if (!saving && enabled) onClickPublish() },
             icon = KeiTheme.icons.run,
             modifier = Modifier.alpha(actionAlpha),
         )

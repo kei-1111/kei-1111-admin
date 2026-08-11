@@ -164,10 +164,16 @@ internal class WorkbenchViewModel(
 
             is WorkbenchIntent.SaveDraft -> maybeWarnThenPersist(alsoPublish = false)
 
+            is WorkbenchIntent.RetryLoad -> viewModelScope.launch {
+                updateViewModelState { copy(loading = true) }
+                loadContent()
+            }
+
             is WorkbenchIntent.RetryPreview -> viewModelScope.launch { loadPreviewData() }
 
             is WorkbenchIntent.RequestPublish -> {
-                if (!_viewModelState.value.saving) {
+                val state = _viewModelState.value
+                if (!state.saving && state.contentLoaded) {
                     updateViewModelState {
                         copy(publishConfirmVisible = true, publishDiff = null, publishDiffFailed = false)
                     }
@@ -237,6 +243,8 @@ internal class WorkbenchViewModel(
         val terminal = recoverOrElse({ getTerminalDraft() }) { null }
         val readme = recoverOrElse({ getReadmeDraft() }) { null }
         val meta = recoverOrElse({ getContentMeta() }) { null }
+        // 保存は4ドキュメントを常に全上書きするため、1つでも欠けたまま保存させるとサーバー側を初期値で潰す
+        val allLoaded = listOf(works, profile, terminal, readme).all { it != null }
         updateViewModelState {
             copy(
                 savedWorks = works?.works ?: savedWorks,
@@ -244,8 +252,9 @@ internal class WorkbenchViewModel(
                 savedTerminal = terminal ?: savedTerminal,
                 savedReadme = readme ?: savedReadme,
                 lastDeploy = meta?.lastPublishedAt?.takeIf { it.isNotEmpty() }?.toDeployDisplay() ?: lastDeploy,
-                syncError = if (works == null || profile == null) SyncErrorKind.Load else null,
+                syncError = if (allLoaded) null else SyncErrorKind.Load,
                 loading = false,
+                contentLoaded = contentLoaded || allLoaded,
             )
         }
     }
@@ -345,6 +354,7 @@ internal class WorkbenchViewModel(
 
     /** 片方の言語だけ変更された項目があれば、保存前に確認を挟む。 */
     private fun maybeWarnThenPersist(alsoPublish: Boolean) {
+        if (!_viewModelState.value.contentLoaded) return
         val outdated = _viewModelState.value.languageOutdatedItems()
         if (outdated.isEmpty()) {
             persistDrafts(alsoPublish)

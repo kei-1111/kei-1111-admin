@@ -28,6 +28,7 @@ internal sealed interface WorkbenchIntent : Intent {
     data object AddProfileAvatar : WorkbenchIntent
     data object SyncPinnedRepos : WorkbenchIntent
     data object SaveDraft : WorkbenchIntent
+    data object RetryLoad : WorkbenchIntent
     data object RetryPreview : WorkbenchIntent
     data object ConfirmLanguageOutdated : WorkbenchIntent
     data object DismissLanguageOutdated : WorkbenchIntent

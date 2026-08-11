@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package io.github.kei_1111.admin.app.feature.workbench.destination.workbench
 
 import io.github.kei_1111.admin.app.core.common.auth.AdminAuthController
@@ -44,6 +46,7 @@ import io.github.kei_1111.admin.shared.model.portfolio.ContributionCalendar
 import io.github.kei_1111.admin.shared.model.portfolio.GitHubIssue
 import io.github.kei_1111.admin.shared.model.portfolio.GitHubIssues
 import io.github.kei_1111.admin.shared.model.portfolio.GitHubProfile
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -69,10 +72,13 @@ private class FakeAdminContentRepository(
     var meta: ContentMeta = ContentMeta(),
     var published: PublishedSnapshot = PublishedSnapshot(),
     var failing: Boolean = false,
+    var terminalLoadFailing: Boolean = false,
+    var readmeLoadFailing: Boolean = false,
     var previewFailing: Boolean = false,
     var publishedFailing: Boolean = false,
 ) {
     var publishCount = 0
+    var saveCount = 0
     var discardedDocuments = mutableListOf<ContentDocument>()
 
     fun failIfRequested() {
@@ -93,6 +99,7 @@ private fun viewModel(
     saveWorksDraft = object : SaveWorksDraftUseCase {
         override suspend fun invoke(content: WorksContent): WorksContent {
             repository.failIfRequested()
+            repository.saveCount += 1
             repository.works = content
             return content
         }
@@ -106,6 +113,7 @@ private fun viewModel(
     saveProfileDraft = object : SaveProfileDraftUseCase {
         override suspend fun invoke(profile: AdminProfile): AdminProfile {
             repository.failIfRequested()
+            repository.saveCount += 1
             repository.profile = profile
             return profile
         }
@@ -158,6 +166,7 @@ private fun viewModel(
     },
     getTerminalDraft = object : GetTerminalDraftUseCase {
         override suspend fun invoke(): TerminalCommandsContent {
+            check(!repository.terminalLoadFailing) { "fake terminal load failure" }
             repository.failIfRequested()
             return repository.terminal
         }
@@ -165,12 +174,14 @@ private fun viewModel(
     saveTerminalDraft = object : SaveTerminalDraftUseCase {
         override suspend fun invoke(content: TerminalCommandsContent): TerminalCommandsContent {
             repository.failIfRequested()
+            repository.saveCount += 1
             repository.terminal = content
             return content
         }
     },
     getReadmeDraft = object : GetReadmeDraftUseCase {
         override suspend fun invoke(): ReadmeContent {
+            check(!repository.readmeLoadFailing) { "fake readme load failure" }
             repository.failIfRequested()
             return repository.readme
         }
@@ -178,6 +189,7 @@ private fun viewModel(
     saveReadmeDraft = object : SaveReadmeDraftUseCase {
         override suspend fun invoke(content: ReadmeContent): ReadmeContent {
             repository.failIfRequested()
+            repository.saveCount += 1
             repository.readme = content
             return content
         }
@@ -215,6 +227,88 @@ class WorkbenchViewModelTest : ViewModelTestBase() {
         assertEquals(SeedWorks, state.works)
         assertEquals(SeedProfile, state.profile)
         assertNull(state.syncError)
+        assertTrue(state.contentLoaded)
+    }
+
+    @Test
+    fun terminalLoadFailureBlocksSaving() = runTest {
+        signIn()
+        val terminal = TerminalCommandsContent(
+            commands = listOf(TerminalTextCommand(keyword = "coffee", lines = listOf("brewing..."))),
+        )
+        val repository = FakeAdminContentRepository(terminal = terminal, terminalLoadFailing = true)
+        val viewModel = viewModel(repository)
+        startCollecting(viewModel.state)
+        runCurrent()
+
+        assertEquals(SyncErrorKind.Load, viewModel.state.value.syncError)
+        assertFalse(viewModel.state.value.contentLoaded)
+
+        viewModel.onIntent(WorkbenchIntent.SaveDraft)
+        runCurrent()
+
+        assertEquals(0, repository.saveCount)
+        assertEquals(terminal, repository.terminal)
+    }
+
+    @Test
+    fun readmeLoadFailureBlocksSaving() = runTest {
+        signIn()
+        val readme = ReadmeContent(
+            ja = listOf(ReadmeBlock.Paragraph(inlines = listOf(ReadmeInline.PlainText("保存済み README")))),
+        )
+        val repository = FakeAdminContentRepository(readme = readme, readmeLoadFailing = true)
+        val viewModel = viewModel(repository)
+        startCollecting(viewModel.state)
+        runCurrent()
+
+        assertEquals(SyncErrorKind.Load, viewModel.state.value.syncError)
+        assertFalse(viewModel.state.value.contentLoaded)
+
+        viewModel.onIntent(WorkbenchIntent.SaveDraft)
+        runCurrent()
+
+        assertEquals(0, repository.saveCount)
+        assertEquals(readme, repository.readme)
+    }
+
+    @Test
+    fun requestPublishBeforeContentLoadsDoesNotOpenConfirmation() = runTest {
+        signIn()
+        val repository = FakeAdminContentRepository(terminalLoadFailing = true)
+        val viewModel = viewModel(repository)
+        startCollecting(viewModel.state)
+        runCurrent()
+
+        viewModel.onIntent(WorkbenchIntent.RequestPublish)
+        runCurrent()
+
+        assertFalse(viewModel.state.value.contentLoaded)
+        assertFalse(viewModel.state.value.publishConfirmVisible)
+    }
+
+    @Test
+    fun retryLoadRecoversAndAllowsSaving() = runTest {
+        signIn()
+        val repository = FakeAdminContentRepository(terminalLoadFailing = true)
+        val viewModel = viewModel(repository)
+        startCollecting(viewModel.state)
+        runCurrent()
+        assertEquals(SyncErrorKind.Load, viewModel.state.value.syncError)
+        assertFalse(viewModel.state.value.contentLoaded)
+
+        repository.terminalLoadFailing = false
+        viewModel.onIntent(WorkbenchIntent.RetryLoad)
+        runCurrent()
+
+        assertNull(viewModel.state.value.syncError)
+        assertTrue(viewModel.state.value.contentLoaded)
+
+        viewModel.onIntent(WorkbenchIntent.SaveDraft)
+        runCurrent()
+
+        assertEquals(4, repository.saveCount)
+        assertNull(viewModel.state.value.syncError)
     }
 
     @Test

@@ -43,6 +43,7 @@ internal fun WorkbenchScreen(
             TitleBar(
                 unsavedCount = state.unsavedCount,
                 saving = state.saving,
+                enabled = state.contentLoaded,
                 lastDeploy = state.lastDeploy,
                 compact = isMobile,
                 onClickSave = { onIntent(WorkbenchIntent.SaveDraft) },
@@ -80,6 +81,7 @@ internal fun WorkbenchScreen(
             }
             StatusBar(
                 state = state,
+                onClickRetryLoad = { onIntent(WorkbenchIntent.RetryLoad) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = WorkbenchDimensions.DeskPadding + 4.dp, vertical = 6.dp),
