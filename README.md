@@ -24,16 +24,20 @@ The Compose Multiplatform (wasmJs) admin UI is bundled into the server's fat jar
 | Module | Description |
 |---|---|
 | `app:webApp` | Admin UI entry point — Metro DI graph, Navigation 3 `AppNavDisplay` (wasmJs only) |
-| `app:core:common` | `Result<T>` / suppression helpers / `InteractionLog` |
+| `app:core:common` | `Result<T>` / suppression helpers / auth token holder / `InteractionLog` |
+| `app:core:data` | Admin API client and repository implementations (relative-URL HTTP to the same origin) |
 | `app:core:designsystem` | `KeiTheme` ported from kei-1111.github.io (Islands Dark/Light colors, typography, shapes, icons, fonts) |
+| `app:core:domain` | UseCases the feature modules depend on |
 | `app:core:mvi` | `MviViewModel` base + MVI marker interfaces |
 | `app:core:navigation` | Dialog scene strategy, result bus, transitions |
 | `app:core:testing` | Test infrastructure for commonTest (host tests) |
-| `app:feature:workbench` | IDE-style admin workbench: shell (title bar, nav tree, tabs, status bar), Works list, Work editor, Profile editor |
+| `app:core:ui` | Shared UI pieces above the design system |
+| `app:core:utils` | Platform helpers (image picking; androidMain actuals are no-op stubs) |
+| `app:feature:workbench` | IDE-style admin workbench: shell (title bar, nav tree, tabs, status bar), Works list, Work / Profile / README / terminal editors, publish flow |
 | `shared:model` | DTOs shared between UI and server (wasmJs + jvm) |
 | `server` | Admin API — Ktor (CIO), deployed to Cloud Run |
 
-Details: `docs/ModuleOverview.md` / `docs/ArchitectureOverview.md` (Japanese).
+Details: `docs/ModuleOverview.md` / `docs/ArchitectureOverview.md` (Japanese; English mirrors alongside as `.en.md`).
 
 ## Commands
 
@@ -53,6 +57,7 @@ Details: `docs/ModuleOverview.md` / `docs/ArchitectureOverview.md` (Japanese).
 - [x] CI (detekt / compile / host tests / server tests, docs-only gated)
 - [x] CD to Cloud Run (single service `kei-1111-admin`: admin API + bundled UI, WIF)
 - [x] Google OAuth client (Identity Services) + ID-token verification on the server
-- [ ] Image upload / list / delete API + UI
-- [x] Text content (JSON) edit API + UI (Works / Profile editors, draft → publish flow)
+- [x] Image upload + public serving API + UI (work screenshots / icons, profile avatar)
+- [ ] Image list / delete API + UI
+- [x] Text content (JSON) edit API + UI (Works / Profile / README / terminal editors, draft → publish flow)
 - [ ] Portfolio server reads content from the GCS bucket

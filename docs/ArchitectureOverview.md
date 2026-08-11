@@ -23,11 +23,11 @@ flowchart TB
 - **MVI**: `MviViewModel<ViewModelState, State, Intent>`(`app:core:mvi`)。UI は Intent を dispatch し、ViewModel が `updateViewModelState { copy(...) }` で内部状態を更新、`toState()` で公開 State に射影する。一発性の副作用は `effect` + `MviEffect` composable。詳細: `.claude/rules/mvi-architecture.md`
 - **DI**: Metro。`app:webApp` の `AppGraph`(`@DependencyGraph(AppScope)`)が唯一のグラフ。ViewModel は `@ContributesIntoMap` で multibinding に集約され、navigation entry 内の `metroViewModel()` で取得する
 - **Navigation**: Navigation 3。単一 `NavDisplay` + フラットな back stack を `AppNavDisplay` が所有。wasmJs はリフレクション不可のため、各 feature が NavKey の `SerializersModule` 断片を `@IntoSet` で提供する。詳細: `.claude/rules/navigation.md`
-- **エラーハンドリング**: 独自 `Result<T>`(`app:core:common`)+ ViewModel 境界での `.asResult()`。詳細: `.claude/rules/error-handling.md`
+- **データ層**: repository / UseCase は `suspend fun` で、失敗は例外のまま伝播する。ViewModel が `recoverOrElse` で一度だけ吸収し、`ViewModelState` のフラグに畳む。詳細: `.claude/rules/data-layer.md` / `.claude/rules/usecase.md` / `.claude/rules/error-handling.md`
 
 ## サーバー (server/)
 
-Ktor (CIO) JVM。層構成は routing(HTTP 変換のみ)→ service(ポリシー)→ storage(GCS アクセス)。詳細: `.claude/rules/server.md`。認証は Ktor プラグイン/インターセプタで管理ルート前段に置く(`/health` のみ公開)。
+Ktor (CIO) JVM。層構成は routing(HTTP 変換のみ)→ service(検証・保存ポリシー)→ storage(バックエンドへの生 blob アクセス)。詳細: `.claude/rules/server.md`。Cloud Run は UI と `/health` の配信のため `--allow-unauthenticated` で公開されており、管理 API はアプリ層の Google ID トークン検証が守る。未認証リクエストにも検証コストがかかるため、`/api/**` は認証の外側でレート制限する。
 
 ## テスト
 
